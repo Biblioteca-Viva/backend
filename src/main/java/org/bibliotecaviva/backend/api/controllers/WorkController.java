@@ -19,7 +19,7 @@ public class WorkController {
     private final WorkService service;
 
     @GetMapping
-    public ResponseEntity <List<WorkResponseDTO>> getALL() {
+    public ResponseEntity <List<WorkResponseDTO>> getAll() {
         return ResponseEntity.ok(service.getAll());
     }
 
