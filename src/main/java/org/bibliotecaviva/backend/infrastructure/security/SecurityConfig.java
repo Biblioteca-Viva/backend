@@ -9,6 +9,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,10 +31,13 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        // TODO: adicionar regras por role quando as rotas forem implementadas
-
-                        .anyRequest().permitAll()
+                        .requestMatchers("/api/auth/register").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/login", "/swagger-ui/**", "/scalar/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/work/**").hasAnyRole("ADMIN", "CURADOR", "ALUNO")
+                        .requestMatchers(HttpMethod.POST, "/work/**").hasAnyRole("ADMIN", "CURADOR")
+                        .requestMatchers(HttpMethod.PUT, "/work/**").hasAnyRole("ADMIN", "CURADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/work/**").hasAnyRole("ADMIN", "CURADOR")
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
