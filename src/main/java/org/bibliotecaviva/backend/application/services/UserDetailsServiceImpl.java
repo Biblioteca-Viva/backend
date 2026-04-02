@@ -1,7 +1,7 @@
-package org.bibliotecaviva.backend.infrastructure.security;
+package org.bibliotecaviva.backend.application.services;
 
 import lombok.RequiredArgsConstructor;
-import org.bibliotecaviva.backend.infrastructure.persistance.repository.UserRepository;
+import org.bibliotecaviva.backend.persistance.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final org.bibliotecaviva.backend.persistance.repository.UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

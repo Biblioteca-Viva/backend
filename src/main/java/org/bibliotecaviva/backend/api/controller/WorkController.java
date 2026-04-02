@@ -1,16 +1,11 @@
-package org.bibliotecaviva.backend.infrastructure.web.controller;
-
+package org.bibliotecaviva.backend.api.controller;
 
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.bibliotecaviva.backend.application.dtos.request.audiovisual.LibraLiteratureRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.request.audiovisual.MultimediaRequestDTO;
-import org.bibliotecaviva.backend.application.dtos.request.textual.ArticleRequestDTO;
-import org.bibliotecaviva.backend.application.dtos.request.textual.CordelRequestDTO;
-import org.bibliotecaviva.backend.application.dtos.request.textual.EssayRequestDTO;
-import org.bibliotecaviva.backend.application.dtos.request.textual.ShortStoryRequestDTO;
-import org.bibliotecaviva.backend.application.dtos.request.textual.TaleRequestDTO;
+import org.bibliotecaviva.backend.application.dtos.request.textual.*;
 import org.bibliotecaviva.backend.application.dtos.request.visual.ArtRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.request.visual.InfographicRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.response.WorkResponseDTO;

@@ -8,7 +8,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./docker-initial-sql.sql:/docker-entrypoint-initdb.d/docker-initial-sql.sql
+      # rodar o dml manualmente por enquanto
+      # - ./docker-initial-sql.sql:/docker-entrypoint-initdb.d/docker-initial-sql.sql
       - db_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d bibliotecaviva"]

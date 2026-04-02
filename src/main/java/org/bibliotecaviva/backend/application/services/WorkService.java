@@ -20,7 +20,7 @@ import org.bibliotecaviva.backend.domain.entities.textual.*;
 import org.bibliotecaviva.backend.domain.entities.visual.Art;
 import org.bibliotecaviva.backend.domain.entities.visual.Infographic;
 import org.bibliotecaviva.backend.domain.exceptions.WorkNotFoundException;
-import org.bibliotecaviva.backend.infrastructure.persistance.repository.WorkRepository;
+import org.bibliotecaviva.backend.persistance.repository.WorkRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package org.bibliotecaviva.backend.infrastructure.persistance.repository;
+package org.bibliotecaviva.backend.persistance.repository;
 
 import org.bibliotecaviva.backend.domain.entities.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;

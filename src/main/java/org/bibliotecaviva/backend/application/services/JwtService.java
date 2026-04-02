@@ -1,4 +1,4 @@
-package org.bibliotecaviva.backend.infrastructure.security;
+package org.bibliotecaviva.backend.application.services;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
