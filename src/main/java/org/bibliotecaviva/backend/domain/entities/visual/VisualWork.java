@@ -1,15 +1,12 @@
-package org.bibliotecaviva.backend.domain.entities;
+package org.bibliotecaviva.backend.domain.entities.visual;
 
-import jakarta.persistence.Convert;
 import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.bibliotecaviva.backend.persistance.converter.DurationConverter;
-
-import java.time.Duration;
+import org.bibliotecaviva.backend.domain.entities.Work;
 
 @MappedSuperclass
 @Getter

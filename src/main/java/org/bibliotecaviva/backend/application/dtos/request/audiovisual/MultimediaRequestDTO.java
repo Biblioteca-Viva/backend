@@ -1,9 +1,8 @@
 package org.bibliotecaviva.backend.application.dtos.request.audiovisual;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
 import org.bibliotecaviva.backend.application.dtos.request.WorkRequest;
+
+import java.time.LocalDateTime;
 
 /**
  * DTO for {@link org.bibliotecaviva.backend.domain.entities.audiovisual.Multimedia}

@@ -14,9 +14,11 @@ import org.bibliotecaviva.backend.domain.entities.Work;
 import org.bibliotecaviva.backend.domain.entities.audiovisual.LibraLiterature;
 import org.bibliotecaviva.backend.domain.entities.audiovisual.Multimedia;
 import org.bibliotecaviva.backend.domain.entities.textual.*;
+import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.entities.visual.Art;
 import org.bibliotecaviva.backend.domain.entities.visual.Infographic;
 import org.bibliotecaviva.backend.domain.exceptions.WorkNotFoundException;
+import org.bibliotecaviva.backend.persistance.repository.UserRepository;
 import org.bibliotecaviva.backend.persistance.repository.WorkRepository;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,7 @@ public class WorkService {
 
     private final WorkRepository workRepository;
     private final WorkMapper workMapper;
+    private final UserRepository userRepository;
 
     /*
      * Puxa todos da tabela works usando uma interface com atributos específicos
@@ -45,6 +48,7 @@ public class WorkService {
     public WorkResponse getById(UUID id) {
         var work = workRepository.findById(id)
                 .orElseThrow(() -> new WorkNotFoundException("Obra com id " + id + " não encontrada"));
+        //todo: view count
         return workMapper.toDTO(work);
     }
 
@@ -55,6 +59,10 @@ public class WorkService {
     }
 
     public <T extends WorkRequest> WorkResponse create(T dto) {
+
+        User author = userRepository.findByEmail(dto.author())
+                    .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado: " + dto.author()));
+
         Work work = switch (dto) {
             case EssayRequestDTO d -> workMapper.toEntity(d);
             case ArtRequestDTO d -> workMapper.toEntity(d);
@@ -68,6 +76,8 @@ public class WorkService {
             default -> throw new IllegalArgumentException(
                     "Tipo não mapeado: " + dto.getClass().getSimpleName());
         };
+
+        work.setAuthor(author);
         return workMapper.toDTO(workRepository.save(work));
     }
     public <T extends WorkRequest> WorkResponse update(UUID id, T dto) {

@@ -1,4 +1,4 @@
-package org.bibliotecaviva.backend.domain.entities.user;
+package org.bibliotecaviva.backend.domain.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,7 +24,7 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    private UUID id ;
 
     @Column(nullable = false)
     private String name;

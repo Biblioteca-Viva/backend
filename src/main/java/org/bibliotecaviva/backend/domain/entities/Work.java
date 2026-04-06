@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -21,8 +20,9 @@ public abstract class Work {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
     private String title;
-    //TODO: relacionamento com usuario
-    private String author;
+    @ManyToOne
+    @JoinColumn(name = "users_id")
+    private User author;
     private LocalDateTime publicationDate;
     @Column(columnDefinition = "TEXT")
     private String description;

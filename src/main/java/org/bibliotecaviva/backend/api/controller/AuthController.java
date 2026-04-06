@@ -6,7 +6,7 @@ import org.bibliotecaviva.backend.application.dtos.request.LoginRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.request.RegisterRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.response.LoginResponseDTO;
 import org.bibliotecaviva.backend.persistance.repository.UserRepository;
-import org.bibliotecaviva.backend.domain.entities.user.User;
+import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.application.services.JwtService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;

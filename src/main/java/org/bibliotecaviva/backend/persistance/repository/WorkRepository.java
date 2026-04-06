@@ -13,8 +13,9 @@ import java.util.UUID;
 @Repository
 public interface WorkRepository extends  JpaRepository<Work, UUID> {
     @Query(value = """
-    SELECT *
-    FROM obras
+    SELECT w.id, w.title, w.publication_date, w.description, w.type, u.name as author
+    FROM obras w
+    JOIN users u ON u.id = w.users_id
     WHERE (:type IS NULL OR type = :type)
     """, nativeQuery = true)
     List<WorkSummary> findAllSummary(@Param("type") String type);

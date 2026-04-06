@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.bibliotecaviva.backend.domain.entities.VisualWork;
 
 @Entity
 @Getter
