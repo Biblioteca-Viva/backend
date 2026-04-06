@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Schema(description = "Show basic data from works")
+@Schema(name = "WorkResponseDTO", description = "DTO with generic informations")
 public record WorkResponseDTO(
         UUID id,
         String title,
@@ -13,6 +13,6 @@ public record WorkResponseDTO(
         LocalDateTime publicationDate,
         String description,
         String type
-) implements IWorkResponseDTO {
+) implements WorkResponse {
 }
 

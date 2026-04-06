@@ -31,11 +31,11 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface WorkMapper {
 
-    default IWorkResponseDTO toWorkDTO(WorkSummary summary){
+    default WorkResponse toWorkDTO(WorkSummary summary){
         return toWorkSummary(summary);
     }
 
-    default IWorkResponseDTO toDTO(Work work) {
+    default WorkResponse toDTO(Work work) {
         return switch (work) {
             case LibraLiterature w -> toLibraLiteratureResponseDTO(w);
             case Multimedia w -> toMultimediaResponseDTO(w);

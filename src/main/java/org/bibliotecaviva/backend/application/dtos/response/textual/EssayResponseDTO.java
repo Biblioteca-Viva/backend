@@ -1,6 +1,6 @@
 package org.bibliotecaviva.backend.application.dtos.response.textual;
 
-import org.bibliotecaviva.backend.application.dtos.response.IWorkResponseDTO;
+import org.bibliotecaviva.backend.application.dtos.response.WorkResponse;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -17,5 +17,5 @@ public record EssayResponseDTO(
         String theme,
         String themeDescription,
         String feedback
-) implements IWorkResponseDTO {
+) implements WorkResponse {
 }

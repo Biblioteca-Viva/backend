@@ -1,6 +1,6 @@
 package org.bibliotecaviva.backend.application.dtos.response.audiovisual;
 
-import org.bibliotecaviva.backend.application.dtos.response.IWorkResponseDTO;
+import org.bibliotecaviva.backend.application.dtos.response.WorkResponse;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -13,5 +13,5 @@ public record MultimediaResponseDTO(
         String description,
         String type,
         String url
-) implements IWorkResponseDTO {
+) implements WorkResponse {
 }
