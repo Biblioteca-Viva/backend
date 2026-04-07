@@ -15,7 +15,7 @@ public record ApiErrorResponse(
         String error,
         String message,
         String path,
-        List<FieldError> fields
+        List<FieldError> invalidFields
 ) {
     public static ApiErrorResponse of(HttpStatus status, String message, String path, List<FieldError> fields) {
         return new ApiErrorResponse(

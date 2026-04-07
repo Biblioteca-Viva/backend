@@ -1,10 +1,6 @@
 package org.bibliotecaviva.backend.domain.exceptions;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Work not found")
-public class WorkNotFoundException extends RuntimeException {
+public class WorkNotFoundException extends BadRequestException {
     public WorkNotFoundException(String message) {
         super(message);
     }

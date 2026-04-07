@@ -11,7 +11,7 @@ http:
     data: |-
       {
         "title": "Fractais Urbanos: A Geometria do Recife",
-       "author": "aluno1@teste.com", 
+       "author": "aluno2@teste.com", 
         "publicationDate": "2026-03-30T11:45:00",
         "description": "Uma composição digital explorando as linhas arquitetônicas do Cais do Sertão sob uma perspectiva de geometria fractal e cores neon.",
         "url": "https://cdn.bibliotecaviva.org/media/arts/2026/fractais-urbanos-01.jpg"

@@ -1,14 +1,13 @@
 package org.bibliotecaviva.backend.api.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.bibliotecaviva.backend.domain.exceptions.ApiErrorException;
 import org.bibliotecaviva.backend.domain.exceptions.ApiErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.List;
 
@@ -16,20 +15,22 @@ import java.util.List;
 
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiErrorResponse> handleRuntimeException(RuntimeException ex, HttpServletRequest request) {
-        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    @ExceptionHandler(ApiErrorException.class)
+    public ResponseEntity<ApiErrorResponse> handleApiErrorException(ApiErrorException ex, HttpServletRequest request) {
+        return build(ex.getStatus(), ex.getMessage(), request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiErrorResponse> handleValidation(
-            MethodArgumentNotValidException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException ex,
+            HttpServletRequest request) {
         List<ApiErrorResponse.FieldError> fields = ex.getBindingResult().getFieldErrors().stream()
                 .map(e -> new ApiErrorResponse.FieldError(e.getField(), e.getDefaultMessage()))
                 .toList();
         ApiErrorResponse error = ApiErrorResponse.of(HttpStatus.BAD_REQUEST, "Invalid Fields", request.getRequestURI(), fields);
         return ResponseEntity.badRequest().body(error);
     }
+
     //Todo: Implement exceptions handlers for specific exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleAllExceptions(Exception ex) {

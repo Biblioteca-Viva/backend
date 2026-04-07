@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: "{{api_url}}work/019547d4-45c0-4da6-8629-4595cdddc7db"
+  url: "{{api_url}}work/33333333-3333-3333-3333-333333333001"
   auth: inherit
 
 runtime:
