@@ -1,0 +1,15 @@
+info:
+  name: approveUser
+  type: http
+  seq: 2
+
+http:
+  method: PATCH
+  url: "{{api_url}}admin/approve/d8e20b20-faf7-4559-bdfc-b47cbf76a5cb"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -36,13 +36,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                //TODO: comentado para facilitar testes por enquanto
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login","/auth/register", "/swagger-ui/**", "/scalar/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/work/**").permitAll() //hasAnyRole("ADMIN", "CURADOR", "ALUNO")
+                        .requestMatchers(HttpMethod.POST, "/work/{id}/like").authenticated()
                         .requestMatchers(HttpMethod.POST, "/work/**").hasAnyRole("ADMIN", "CURADOR")
                         .requestMatchers(HttpMethod.PUT, "/work/**").hasAnyRole("ADMIN", "CURADOR")
                         .requestMatchers(HttpMethod.DELETE, "/work/**").hasAnyRole("ADMIN", "CURADOR")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

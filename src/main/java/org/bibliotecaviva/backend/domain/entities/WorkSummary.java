@@ -16,5 +16,5 @@ public interface WorkSummary {
     String getDescription();
     String getType();
     Long getViewCount();
-    Long getLikes();
+    Long getLikeCount();
 }

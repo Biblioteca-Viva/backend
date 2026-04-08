@@ -11,11 +11,11 @@ import org.bibliotecaviva.backend.application.dtos.request.visual.ArtRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.request.visual.InfographicRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.response.WorkResponse;
 import org.bibliotecaviva.backend.application.mappers.WorkMapper;
+import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.entities.Work;
 import org.bibliotecaviva.backend.domain.entities.audiovisual.LibraLiterature;
 import org.bibliotecaviva.backend.domain.entities.audiovisual.Multimedia;
 import org.bibliotecaviva.backend.domain.entities.textual.*;
-import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.entities.visual.Art;
 import org.bibliotecaviva.backend.domain.entities.visual.Infographic;
 import org.bibliotecaviva.backend.domain.exceptions.UserNotFoundException;
@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+
 @Log4j2
 @Service
 @RequiredArgsConstructor
@@ -48,18 +49,33 @@ public class WorkService {
                 .toList();
     }
 
-    //todo: resolver os 1 milhao de join, mandar o tipo na req ou pegar sla
+    //todo: resolver os 1 milhao de join, mandar o tipo na req ou pegar sla cachear dps se ficar pesado,
+    // pra evitar ficar fazendo update toda hr no banco pras views
     public WorkResponse getById(UUID id) {
         var work = workRepository.findById(id)
                 .orElseThrow(() -> new WorkNotFoundException("Obra com id " + id + " não encontrada"));
-        //todo: cachear dps se ficar pesado, principalmente os likes pra evitar ficar mandando varias requisicoes
         workRepository.incrementViewCount(id);
-        return workMapper.toDTO(work);
+        return workMapper.toDTO(work, workRepository.getLikeCount(id));
     }
-    //todo: mapear por user com tabela entre os 2 pra fazer o toggle, por enqt so incrementa pra visualiacsacao
-    public void like(UUID id) {
-        workRepository.incrementLikes(id);
+
+    //TODO: cachear se necessario ou fazer um sistema de like mais complexo pra evitar ficar dando update toda hor
+    // string por enquanto somente pra debug, dps void
+    @Transactional
+    public String like(UUID workId, User user) {
+        workRepository.findById(workId)
+                .orElseThrow(() -> new WorkNotFoundException("Obra com id " + workId + " não encontrada"));
+        var userId = user.getId();
+        var liked = false;
+        if (userRepository.existsLike(userId, workId)) {
+            userRepository.unlikeWork(userId, workId);
+        } else {
+            userRepository.likeWork(userId, workId);
+            liked = true;
+        }
+
+        return String.format("Obra com id %s: %s com sucesso",workId, liked ? "curtida" : "descurtida");
     }
+
     @Transactional
     public void delete(UUID id) {
         workRepository.findById(id)
@@ -71,7 +87,7 @@ public class WorkService {
     public <T extends WorkRequest> WorkResponse create(T dto) {
 
         User author = userRepository.findByEmail(dto.author())
-                    .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com email: " + dto.author()));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com email: " + dto.author()));
 
         Work work = switch (dto) {
             case EssayRequestDTO d -> workMapper.toEntity(d);
@@ -87,14 +103,14 @@ public class WorkService {
                     "Tipo não mapeado: " + dto.getClass().getSimpleName());
         };
         work.setAuthor(author);
-        work.setLikes(0L);
         work.setViewCount(0L);
         //todo: pode verificar por tipo tambem, ver isso dps
         if (workRepository.existsWorkByAuthorAndTitle(author, work.getTitle())) {
             throw new WorkAlreadyExistsException("Obra com mesmo título já existe para este autor");
         }
-        return workMapper.toDTO(workRepository.save(work));
+        return workMapper.toDTO(workRepository.save(work), 0L);
     }
+
     public <T extends WorkRequest> WorkResponse update(UUID id, T dto) {
         Work work = workRepository.findById(id)
                 .orElseThrow(() -> new WorkNotFoundException("Obra não encontrada"));
@@ -112,11 +128,11 @@ public class WorkService {
                     "Tipo não mapeado: " + dto.getClass().getSimpleName());
         }
 
-        if(dto.author() != null && !dto.author().isBlank()){
-            User user =userRepository.findByEmail(dto.author())
+        if (dto.author() != null && !dto.author().isBlank()) {
+            User user = userRepository.findByEmail(dto.author())
                     .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com email: " + dto.author()));
             work.setAuthor(user);
         }
-        return workMapper.toDTO(workRepository.save(work));
+        return workMapper.toDTO(workRepository.save(work), workRepository.getLikeCount(id));
     }
 }

@@ -1,0 +1,15 @@
+info:
+  name: rejectUser
+  type: http
+  seq: 3
+
+http:
+  method: PATCH
+  url: "{{api_url}}admin/reject/eca64533-6dbd-465b-863c-bb540fecdc61"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

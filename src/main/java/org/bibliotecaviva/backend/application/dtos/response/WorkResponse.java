@@ -24,7 +24,6 @@ public interface WorkResponse {
     String author();
     LocalDateTime publicationDate();
     String description();
-
     Long viewCount();
-    Long likes();
+    Long likeCount();
 }

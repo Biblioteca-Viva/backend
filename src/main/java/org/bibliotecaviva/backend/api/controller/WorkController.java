@@ -14,8 +14,10 @@ import org.bibliotecaviva.backend.application.dtos.request.visual.InfographicReq
 import org.bibliotecaviva.backend.application.dtos.response.WorkResponse;
 import org.bibliotecaviva.backend.application.dtos.response.WorkResponseDTO;
 import org.bibliotecaviva.backend.application.services.WorkService;
+import org.bibliotecaviva.backend.domain.entities.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,7 +27,7 @@ import java.util.UUID;
 @RequestMapping("/work")
 @RequiredArgsConstructor
 public class WorkController {
-    //TODO: PATCH FOR PARTIAL UPDATES IF NEEDED
+    //TODO: PATCH FOR PARTIAL UPDATES IF NEEDED, soft delete com status nas obras
     private final WorkService service;
 
     @GetMapping
@@ -40,9 +42,10 @@ public class WorkController {
     }
 
     @PostMapping("/{id}/like")
-    public ResponseEntity<Void> likeWork(@PathVariable UUID id) {
-        service.like(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> likeWork(@PathVariable UUID id,
+                           @AuthenticationPrincipal User user) {
+
+        return ResponseEntity.ok(service.like(id, user));
     }
 
     @DeleteMapping("/{id}")

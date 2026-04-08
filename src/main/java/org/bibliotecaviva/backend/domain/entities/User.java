@@ -6,13 +6,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bibliotecaviva.backend.domain.enums.Role;
+import org.bibliotecaviva.backend.domain.enums.Status;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -24,20 +23,26 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id ;
-
+    private UUID id;
     @Column(nullable = false)
     private String name;
-
     @Column(unique = true, nullable = false)
     private String email;
-
     @Column(nullable = false)
     private String password;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+    @Enumerated(EnumType.STRING)
+    private Status accountStatus;
+    @ManyToMany //create Like class if timestamp or other atributes needed
+    @JoinTable(
+            name = "likes",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "work_id")
+
+    )
+    private Set<Work> likedWorks = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -56,6 +61,10 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
+
+        if (accountStatus == Status.BLOCKED) {
+            return false;
+        }
         return true;
     }
 
@@ -66,6 +75,9 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
+        if (accountStatus == Status.PENDING || accountStatus == Status.REJECTED) {
+            return false;
+        }
         return true;
     }
 }

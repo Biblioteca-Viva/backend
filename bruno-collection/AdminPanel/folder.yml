@@ -1,0 +1,7 @@
+info:
+  name: AdminPanel
+  type: folder
+  seq: 9
+
+request:
+  auth: inherit

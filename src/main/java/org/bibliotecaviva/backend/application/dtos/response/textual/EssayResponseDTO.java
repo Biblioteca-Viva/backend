@@ -18,6 +18,6 @@ public record EssayResponseDTO(
         String themeDescription,
         String feedback,
         Long viewCount,
-        Long likes
+        Long likeCount
 ) implements WorkResponse {
 }

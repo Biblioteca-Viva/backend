@@ -15,11 +15,16 @@ import java.util.UUID;
 
 @Repository
 public interface WorkRepository extends  JpaRepository<Work, UUID> {
+
     @Query(value = """
-    SELECT w.id, w.title, w.publication_date, w.description, w.type,w.likes,w.view_count, u.name as author
+    SELECT w.id, w.title, w.publication_date, w.description, w.type, w.view_count,
+           u.name as author,
+           COUNT(l.user_id) as like_count
     FROM obras w
     JOIN users u ON u.id = w.users_id
-    WHERE (:type IS NULL OR type = :type)
+    LEFT JOIN likes l ON l.work_id = w.id
+    WHERE (:type IS NULL OR w.type = :type)
+    GROUP BY w.id, w.title, w.publication_date, w.description, w.type, w.view_count, u.name
     """, nativeQuery = true)
     List<WorkSummary> findAllSummary(@Param("type") String type);
 
@@ -28,9 +33,8 @@ public interface WorkRepository extends  JpaRepository<Work, UUID> {
     @Query("UPDATE Work w SET w.viewCount = w.viewCount + 1 WHERE w.id = :id")
     void incrementViewCount(@Param("id") UUID id);
 
-    @Modifying
-    @Transactional
-    @Query("UPDATE Work w SET w.likes = w.likes + 1 WHERE w.id = :id")
-    void incrementLikes(@Param("id") UUID id);
+    @Query(value = "SELECT COUNT(*) FROM likes WHERE work_id = :workId", nativeQuery = true)
+    long getLikeCount(@Param("workId") UUID workId);
+
     boolean existsWorkByAuthorAndTitle(User author, String title);
 }

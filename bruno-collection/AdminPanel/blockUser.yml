@@ -1,0 +1,15 @@
+info:
+  name: blockUser
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: "{{api_url}}admin/block/c63dee4a-a9df-4b4e-8b25-af11128dfeca"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

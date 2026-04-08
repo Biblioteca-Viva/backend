@@ -5,6 +5,9 @@ import org.bibliotecaviva.backend.domain.exceptions.ApiErrorException;
 import org.bibliotecaviva.backend.domain.exceptions.ApiErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AccountStatusException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -20,6 +23,15 @@ public class GlobalExceptionHandler {
         return build(ex.getStatus(), ex.getMessage(), request);
     }
 
+    @ExceptionHandler(AccountStatusException.class)
+    public ResponseEntity<ApiErrorResponse> handleAccountStatusException(AccountStatusException ex, HttpServletRequest request) {
+        String message = switch (ex){
+            case LockedException e -> "Conta bloqueada, contatar administrador";
+            case DisabledException e -> "Conta ainda nao foi ativada";
+            default -> ex.getMessage();
+        };
+        return build(HttpStatus.FORBIDDEN, message, request);
+    }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException ex,

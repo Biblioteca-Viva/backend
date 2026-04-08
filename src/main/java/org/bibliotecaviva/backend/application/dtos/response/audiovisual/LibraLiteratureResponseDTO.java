@@ -15,6 +15,6 @@ public record LibraLiteratureResponseDTO(
         String type,
         String url,
         Long viewCount,
-        Long likes
+        Long likeCount
 ) implements WorkResponse {
 }
