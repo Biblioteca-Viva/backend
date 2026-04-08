@@ -27,4 +27,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     void unlikeWork(@Param("userId") UUID userId, @Param("workId") UUID workId);
 
     List<User> findAllByAccountStatus(Status accountStatus);
+
+    boolean existsByEmail(String email);
 }
