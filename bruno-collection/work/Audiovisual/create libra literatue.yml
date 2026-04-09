@@ -14,7 +14,9 @@ http:
         "author": "aluno1@teste.com",
         "publicationDate": "2026-03-30T09:00:00",
         "description": "Adaptação da obra clássica de Graciliano Ramos para a Língua Brasileira de Sinais, com foco na expressividade facial e corporal para transmitir a dureza do sertão.",
-        "url": "https://cdn.bibliotecaviva.org/acessibilidade/libras/vidas-secas-full.mp4"
+        "url": "https://cdn.bibliotecaviva.org/acessibilidade/libras/vidas-secas-full.mp4",
+          "duration": "PT2m30s"
+
       }
   auth: inherit
 

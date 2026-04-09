@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Schema(name = "WorkResponseDTO", description = "DTO with generic informations")
-public record WorkResponseDTO(
+public record WorkSummaryResponseDTO(
         UUID id,
         String title,
         String author,
@@ -16,6 +16,6 @@ public record WorkResponseDTO(
         Long viewCount,
         Long likeCount,
         Long commentCount
-) implements WorkResponse {
+){
 }
 

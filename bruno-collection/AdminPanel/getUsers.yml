@@ -5,7 +5,11 @@ info:
 
 http:
   method: GET
-  url: "{{api_url}}admin"
+  url: "{{api_url}}admin?status=pending"
+  params:
+    - name: status
+      value: pending
+      type: query
   auth: inherit
 
 settings:

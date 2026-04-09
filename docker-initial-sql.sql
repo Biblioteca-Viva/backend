@@ -192,7 +192,7 @@ VALUES ('e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf', 'aluno1@teste.com', 'aluno1', '$
        ('eca64533-6dbd-465b-863c-bb540fecdc61', 'aluno2@teste.com', 'aluno2', '$2y$10$GFIf48kDF3iZ1gDdCbKIVe2u51YJ2p9BdHhAokyEzc9CU6l0Ol/QO', 'ALUNO', 'ACTIVE'),
        ('4c9f354b-0780-4cdb-b76f-d43e54ea3644', 'aluno3@teste.com', 'aluno3', '$2y$10$GFIf48kDF3iZ1gDdCbKIVe2u51YJ2p9BdHhAokyEzc9CU6l0Ol/QO', 'ALUNO', 'ACTIVE'),
        ('455150bd-8e40-498c-8005-cca9cefa9099', 'professor@teste.com', 'professor', '$2y$10$GFIf48kDF3iZ1gDdCbKIVe2u51YJ2p9BdHhAokyEzc9CU6l0Ol/QO', 'CURADOR', 'ACTIVE'),
-       ('febc5d09-cc12-4bc0-b29c-2cde56102619', 'admin@admin.com', 'admin', '$2y$10$GFIf48kDF3iZ1gDdCbKIVe2u51YJ2p9BdHhAokyEzc9CU6l0Ol/QO', 'ADMIN', 'ACTIVE');
+       ('febc5d09-cc12-4bc0-b29c-2cde56102619', 'admin@teste.com', 'admin', '$2y$10$GFIf48kDF3iZ1gDdCbKIVe2u51YJ2p9BdHhAokyEzc9CU6l0Ol/QO', 'ADMIN', 'ACTIVE');
 
 -- ========================================================
 -- Aluno 1: e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf
@@ -321,12 +321,12 @@ VALUES ('77777777-7777-7777-7777-777777777001', 'https://midia.bibliotecaviva.lo
         'https://midia.bibliotecaviva.local/infograficos/alimentacao-saudavel.svg'),
        ('77777777-7777-7777-7777-777777777003', 'https://midia.bibliotecaviva.local/infograficos/historia-bairro.svg');
 
-INSERT INTO multimedia (id, url)
-VALUES ('88888888-8888-8888-8888-888888888001', 'https://midia.bibliotecaviva.local/videos/vozes-juventude.mp4'),
-       ('88888888-8888-8888-8888-888888888002', 'https://midia.bibliotecaviva.local/videos/mar-de-dentro.mp4'),
-       ('88888888-8888-8888-8888-888888888003', 'https://midia.bibliotecaviva.local/videos/mestres-comunidade.mp4');
+INSERT INTO multimedia (id, url,duration)
+VALUES ('88888888-8888-8888-8888-888888888001', 'https://midia.bibliotecaviva.local/videos/vozes-juventude.mp4',400),
+       ('88888888-8888-8888-8888-888888888002', 'https://midia.bibliotecaviva.local/videos/mar-de-dentro.mp4',180),
+       ('88888888-8888-8888-8888-888888888003', 'https://midia.bibliotecaviva.local/videos/mestres-comunidade.mp4',300);
 
-INSERT INTO libra_literature (id, url)
-VALUES ('99999999-9999-9999-9999-999999999001', 'https://midia.bibliotecaviva.local/libras/menino-lua.mp4'),
-       ('99999999-9999-9999-9999-999999999002', 'https://midia.bibliotecaviva.local/libras/festa-rua.mp4'),
-       ('99999999-9999-9999-9999-999999999003', 'https://midia.bibliotecaviva.local/libras/pequenas-coragens.mp4');
+INSERT INTO libra_literature (id, url,duration)
+VALUES ('99999999-9999-9999-9999-999999999001', 'https://midia.bibliotecaviva.local/libras/menino-lua.mp4',600),
+       ('99999999-9999-9999-9999-999999999002', 'https://midia.bibliotecaviva.local/libras/festa-rua.mp4',460),
+       ('99999999-9999-9999-9999-999999999003', 'https://midia.bibliotecaviva.local/libras/pequenas-coragens.mp4',378);

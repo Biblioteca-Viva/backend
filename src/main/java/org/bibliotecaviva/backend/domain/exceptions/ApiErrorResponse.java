@@ -1,6 +1,7 @@
 package org.bibliotecaviva.backend.domain.exceptions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
@@ -15,6 +16,7 @@ public record ApiErrorResponse(
         String error,
         String message,
         String path,
+        @Schema(description = "Only presents in validations errors, otherwise wont show in the payload")
         List<FieldError> invalidFields
 ) {
     public static ApiErrorResponse of(HttpStatus status, String message, String path, List<FieldError> fields) {

@@ -1,9 +1,12 @@
 package org.bibliotecaviva.backend.application.dtos.request.audiovisual;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import org.bibliotecaviva.backend.application.dtos.request.WorkRequest;
 import org.hibernate.validator.constraints.URL;
+import org.springframework.format.annotation.DurationFormat;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 /**
@@ -19,6 +22,9 @@ public record MultimediaRequestDTO(
         @NotBlank(message = "description cannot be blank") @Size(min = 15, message = "Description must be at least 15 characters long")
         String description,
         @URL @NotBlank //Colocar um pattern no url para dominios especificos
-        String url
+        String url,
+        @NotBlank @DurationFormat(style = DurationFormat.Style.ISO8601)
+        @Schema(example = "PT3M30S or PT5M or PT45S", description = "Duration in ISO 8601 format)")
+        String duration
 ) implements WorkRequest {
 }

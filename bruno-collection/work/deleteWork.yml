@@ -5,7 +5,7 @@ info:
 
 http:
   method: DELETE
-  url: "{{api_url}}work/delete/{id}"
+  url: "{{api_url}}work/88888888-8888-8888-8888-888888888001"
   auth: inherit
 
 settings:

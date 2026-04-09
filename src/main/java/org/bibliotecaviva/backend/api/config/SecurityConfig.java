@@ -38,16 +38,20 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/register", "/swagger-ui/**", "/scalar/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/work/**").permitAll() //hasAnyRole("ADMIN", "CURADOR", "ALUNO")
-                        .requestMatchers(HttpMethod.POST, "/work/{id}/like").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/work/*/comments").hasAnyRole("ALUNO", "CURADOR")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
                         .requestMatchers(HttpMethod.PUT, "/work/*/comments/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/work/*/comments/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/work/*/comments").hasAnyRole("ALUNO", "CURADOR")
+
+                        .requestMatchers(HttpMethod.POST, "/work/{id}/like").authenticated()
+
                         .requestMatchers(HttpMethod.POST, "/work/**").hasAnyRole("ADMIN", "CURADOR")
                         .requestMatchers(HttpMethod.PUT, "/work/**").hasAnyRole("ADMIN", "CURADOR")
                         .requestMatchers(HttpMethod.DELETE, "/work/**").hasAnyRole("ADMIN", "CURADOR")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/work/**").permitAll() //hasAnyRole("ADMIN", "CURADOR", "ALUNO")
+
+                        .requestMatchers("/auth/login", "/auth/register","/auth/logout", "/swagger-ui/**", "/scalar/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

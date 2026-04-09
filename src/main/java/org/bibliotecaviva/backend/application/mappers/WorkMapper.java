@@ -7,7 +7,7 @@ import org.bibliotecaviva.backend.application.dtos.request.textual.*;
 import org.bibliotecaviva.backend.application.dtos.request.visual.ArtRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.request.visual.InfographicRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.response.WorkResponse;
-import org.bibliotecaviva.backend.application.dtos.response.WorkResponseDTO;
+import org.bibliotecaviva.backend.application.dtos.response.WorkSummaryResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.audiovisual.LibraLiteratureResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.audiovisual.MultimediaResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.textual.*;
@@ -26,9 +26,7 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface WorkMapper {
 
-    default WorkResponse toWorkDTO(WorkSummary summary) {
-        return toWorkSummary(summary);
-    }
+
 
     default WorkResponse toDTO(Work work, Long likeCount,Long commentCount) {
         return switch (work) {
@@ -50,7 +48,7 @@ public interface WorkMapper {
     }
 
     // mapeamento pra work summary
-    WorkResponseDTO toWorkSummary(WorkSummary work);
+    WorkSummaryResponseDTO toWorkSummary(WorkSummary work);
 
     // mapeamentos específicos de cada entidade
     LibraLiteratureResponseDTO toLibraLiteratureResponseDTO(LibraLiterature libraLiterature, Long likeCount,Long commentCount);

@@ -5,10 +5,10 @@ info:
 
 http:
   method: GET
-  url: "{{api_url}}work?type=Article"
+  url: "{{api_url}}work?type=multimedia"
   params:
     - name: type
-      value: Article
+      value: multimedia
       type: query
   auth: inherit
 

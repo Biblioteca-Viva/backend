@@ -14,7 +14,7 @@ import java.util.UUID;
  * marker interface for all works responses
  */
 @Schema(name = "WorkResponse", description = "Interface for all work response DTOs", oneOf =
-        {WorkResponseDTO.class, LibraLiteratureResponseDTO.class, MultimediaResponseDTO.class, ArticleResponseDTO.class,
+        { LibraLiteratureResponseDTO.class, MultimediaResponseDTO.class, ArticleResponseDTO.class,
                 CordelResponseDTO.class, EssayResponseDTO.class, ShortStoryResponseDTO.class, TaleResponseDTO.class,
                 ArtResponseDTO.class, InfographicReponseDTO.class}
 )

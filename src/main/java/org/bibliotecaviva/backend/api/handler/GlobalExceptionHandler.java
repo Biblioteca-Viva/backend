@@ -3,11 +3,13 @@ package org.bibliotecaviva.backend.api.handler;
 import jakarta.servlet.http.HttpServletRequest;
 import org.bibliotecaviva.backend.domain.exceptions.ApiErrorException;
 import org.bibliotecaviva.backend.domain.exceptions.ApiErrorResponse;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AccountStatusException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -23,12 +25,13 @@ public class GlobalExceptionHandler {
         return build(ex.getStatus(), ex.getMessage(), request);
     }
 
-    @ExceptionHandler(AccountStatusException.class)
-    public ResponseEntity<ApiErrorResponse> handleAccountStatusException(AccountStatusException ex, HttpServletRequest request) {
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiErrorResponse> handleAuthenticationException(AuthenticationException ex, HttpServletRequest request) {
         String message = switch (ex) {
             case LockedException e -> "Conta bloqueada, contatar administrador";
             case DisabledException e -> "Conta ainda nao foi ativada";
-            default -> ex.getMessage();
+            case BadCredentialsException e -> "Credenciais inválidas";
+            default -> "Erro de autenticaçãod esconhecido";
         };
         return build(HttpStatus.FORBIDDEN, message, request);
     }
@@ -44,9 +47,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
+    @ExceptionHandler(TypeMismatchException.class)
+    public ResponseEntity<ApiErrorResponse> handleTypeMismatchException(IllegalArgumentException ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, "Argumento Inválido ", request);
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleAllExceptions(Exception ex) {
-        return ResponseEntity.status(500).body("An unexpected error occurred: " + "Erro inesperado");
+    public ResponseEntity<ApiErrorResponse> handleAllExceptions(Exception ex, HttpServletRequest request) {
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Ocorreu um erro inesperado", request);
     }
 
     private ResponseEntity<ApiErrorResponse> build(HttpStatus status, String message, HttpServletRequest request) {
