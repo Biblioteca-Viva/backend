@@ -10,11 +10,12 @@ http:
     type: json
     data: |-
       {
-        "title": "Documentário: As Vozes do Cais",
-        "author": "aluno2@teste.com",
-        "publicationDate": "2026-03-30T14:00:00",
+        "title": "Docuio:  Vzdo Cs",
+        "author": "aluno1@teste.com",
+        "publicationDate": "2025-03-30T14:00:00",
         "description": "Um registro audiovisual sobre a rotina dos trabalhadores do antigo porto, mesclando entrevistas históricas e trilha sonora original.",
-        "url": "https://cdn.bibliotecaviva.org/videos/documentarios/vozes-do-cais-720p.mp4"
+        "url": "https://cdn.bibliotecaviva.org/videos/documentarios/vozes-do-cais-720p.mp4",
+        "duration": "PT2M30S"
       }
   auth: inherit
 

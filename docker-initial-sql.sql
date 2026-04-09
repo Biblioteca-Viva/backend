@@ -321,12 +321,12 @@ VALUES ('77777777-7777-7777-7777-777777777001', 'https://midia.bibliotecaviva.lo
         'https://midia.bibliotecaviva.local/infograficos/alimentacao-saudavel.svg'),
        ('77777777-7777-7777-7777-777777777003', 'https://midia.bibliotecaviva.local/infograficos/historia-bairro.svg');
 
-INSERT INTO multimedia (id, url)
-VALUES ('88888888-8888-8888-8888-888888888001', 'https://midia.bibliotecaviva.local/videos/vozes-juventude.mp4'),
-       ('88888888-8888-8888-8888-888888888002', 'https://midia.bibliotecaviva.local/videos/mar-de-dentro.mp4'),
-       ('88888888-8888-8888-8888-888888888003', 'https://midia.bibliotecaviva.local/videos/mestres-comunidade.mp4');
+INSERT INTO multimedia (id, url,duration)
+VALUES ('88888888-8888-8888-8888-888888888001', 'https://midia.bibliotecaviva.local/videos/vozes-juventude.mp4',400),
+       ('88888888-8888-8888-8888-888888888002', 'https://midia.bibliotecaviva.local/videos/mar-de-dentro.mp4',180),
+       ('88888888-8888-8888-8888-888888888003', 'https://midia.bibliotecaviva.local/videos/mestres-comunidade.mp4',300);
 
-INSERT INTO libra_literature (id, url)
-VALUES ('99999999-9999-9999-9999-999999999001', 'https://midia.bibliotecaviva.local/libras/menino-lua.mp4'),
-       ('99999999-9999-9999-9999-999999999002', 'https://midia.bibliotecaviva.local/libras/festa-rua.mp4'),
-       ('99999999-9999-9999-9999-999999999003', 'https://midia.bibliotecaviva.local/libras/pequenas-coragens.mp4');
+INSERT INTO libra_literature (id, url,duration)
+VALUES ('99999999-9999-9999-9999-999999999001', 'https://midia.bibliotecaviva.local/libras/menino-lua.mp4',600),
+       ('99999999-9999-9999-9999-999999999002', 'https://midia.bibliotecaviva.local/libras/festa-rua.mp4',460),
+       ('99999999-9999-9999-9999-999999999003', 'https://midia.bibliotecaviva.local/libras/pequenas-coragens.mp4',378);

@@ -2,6 +2,7 @@ package org.bibliotecaviva.backend.application.dtos.response.audiovisual;
 
 import org.bibliotecaviva.backend.application.dtos.response.WorkResponse;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -15,7 +16,9 @@ public record MultimediaResponseDTO(
         String url,
         Long viewCount,
         Long likeCount,
-        Long commentCount
+        Long commentCount,
+        Duration duration
+
 
 ) implements WorkResponse {
 }
