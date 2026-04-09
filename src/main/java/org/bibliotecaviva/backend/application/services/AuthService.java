@@ -24,6 +24,7 @@ public class AuthService {
     private final UserDetailsService userDetailsService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TokenBlackListService tokenBlacklistService;
 
     public LoginResponseDTO login(LoginRequestDTO request) {
         authenticationManager.authenticate(
@@ -48,6 +49,10 @@ public class AuthService {
         userRepository.save(user);
         return new RegisterResponseDTO(user.getName(), user.getEmail(),
                 "Pedido gerado com sucesso, aguarde a aprovação do administrador.");
+    }
+
+    public void invalidateToken(String token){
+        tokenBlacklistService.invalidate(token);
     }
 
 }
