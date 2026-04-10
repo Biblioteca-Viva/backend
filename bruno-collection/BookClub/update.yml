@@ -1,0 +1,26 @@
+info:
+  name: update
+  type: http
+  seq: 5
+
+http:
+  method: PUT
+  url: "{{api_url}}bookclub/{{id}}"
+  body:
+    type: json
+    data: |-
+      {
+
+        "bookName": "dom quixote",
+        "bookSynopses": "blablabla descricao muito boa",
+        "bookAuthor": "nao lembro",
+        "date": "2026-04-13T19:30:00",
+        "location": "Bibliotecao"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

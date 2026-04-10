@@ -122,9 +122,8 @@ public class WorkService {
 
     @Transactional
     public void delete(UUID id) {
-        if(!workRepository.existsById(id)){
-            throw new WorkNotFoundException("Obra com id " + id + " não encontrada");
-        }
+        workRepository.findById(id)
+                .orElseThrow(() -> new WorkNotFoundException("Obra com id " + id + " não encontrada"));
         workRepository.deleteById(id);
     }
 

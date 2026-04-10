@@ -1,0 +1,25 @@
+info:
+  name: createBookClub
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{api_url}}bookclub"
+  body:
+    type: json
+    data: |-
+      {
+        "bookName": "O hobit",
+        "bookSynopses": "Uma aventura épica de um hobbit relutante que viaja para a Montanha Solitária para recuperar um tesouro guardado por um dragão.",
+        "bookAuthor": "J.R.R. Tolkien",
+        "date": "2026-04-10T19:30:00",
+        "location": "Biblioteca Municipal"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

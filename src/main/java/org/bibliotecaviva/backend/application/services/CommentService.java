@@ -60,9 +60,8 @@ public class CommentService {
     //todo: permitir deletar o proprio comentario
     @Transactional
     public void delete(UUID commentId) {
-        if (!commentRepository.existsById(commentId)) {
-            throw new CommentNotFoundException("Comentário com id " + commentId + " não encontrado");
-        }
+        commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("Comentário com id " + commentId + " não encontrado"));
         commentRepository.deleteById(commentId);
     }
 

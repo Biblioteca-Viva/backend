@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
             case LockedException e -> "Conta bloqueada, contatar administrador";
             case DisabledException e -> "Conta ainda nao foi ativada";
             case BadCredentialsException e -> "Credenciais inválidas";
-            default -> "Erro de autenticaçãod esconhecido";
+            default -> "Erro de autenticação desconhecido";
         };
         return build(HttpStatus.FORBIDDEN, message, request);
     }

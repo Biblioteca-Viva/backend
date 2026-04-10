@@ -5,7 +5,7 @@ info:
 
 http:
   method: PATCH
-  url: "{{api_url}}admin/reject/eca64533-6dbd-465b-863c-bb540fecdc61"
+  url: "{{api_url}}admin/reject/{{id}}"
   auth: inherit
 
 settings:

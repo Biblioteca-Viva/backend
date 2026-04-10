@@ -40,16 +40,23 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
+                        .requestMatchers(HttpMethod.POST,"/bookclub/*/subscribe","/bookclub/*/unsubscribe").authenticated()
+
+                        .requestMatchers(HttpMethod.POST,"/bookclub/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,"/bookclub/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,"/bookclub/*").hasRole("ADMIN")
+
                         .requestMatchers(HttpMethod.PUT, "/work/*/comments/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/work/*/comments/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/work/*/comments").hasAnyRole("ALUNO", "CURADOR")
 
-                        .requestMatchers(HttpMethod.POST, "/work/{id}/like").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/work/*/comments").hasAnyRole("ALUNO", "CURADOR")
+                        .requestMatchers(HttpMethod.POST, "/work/*/like").authenticated()
 
                         .requestMatchers(HttpMethod.POST, "/work/**").hasAnyRole("ADMIN", "CURADOR")
                         .requestMatchers(HttpMethod.PUT, "/work/**").hasAnyRole("ADMIN", "CURADOR")
                         .requestMatchers(HttpMethod.DELETE, "/work/**").hasAnyRole("ADMIN", "CURADOR")
-                        .requestMatchers(HttpMethod.GET, "/work/**").permitAll() //hasAnyRole("ADMIN", "CURADOR", "ALUNO")
+
+                        .requestMatchers(HttpMethod.GET, "/work/**").permitAll()
 
                         .requestMatchers("/auth/login", "/auth/register","/auth/logout", "/swagger-ui/**", "/scalar/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()

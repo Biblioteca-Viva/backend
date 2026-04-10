@@ -1,16 +1,22 @@
 todo
 -
-
-- [ ] Colocar paginação
-- [ ] RefreshToken e Logout
-- [ ] 
-- [ ] Clube de leitura organizado por professores
-    - Divulgação do livro do mês
-    - adesão dos participantes
-    - agenda de encontros presenciais e
-    - espaço para resenhas (em texto e vídeo). )
-- [ ] Comentários nas publicações   
-- [ ] Notificações (ta no plano)
+- [ ] Implementar Notificações
+- [ ] Implementar busca por nome do usuário, nome da obra, tipo da obra, data de publicação, etc
+- [ ] Implementar RefreshToken e esqueceu a senha
+- [ ] Mandar duração no worksummar para audiovisual
+- [ ] (?) Implementar exclusao de conta para admin
+- [ ] Puxar dashboard com contagem de cada obra para homepage
+- [ ] Puxar dashboard com contagem total de posts,comentarios,usuarios cadastrados e cadastros pendents para dashboard de admin
+- [ ] Verificar se vai colocar obras favoritadas por usuario
+- [ ] Verificar dados de cadastro.
+- [ ] Verificar se vai ter download, e de que, existe botao no front
+- [ ] Verificar se todas as obras tem imagem associada ou é coisa do front? 
+- [ ] Verificar se precisa mesmo de contador de visualizacao
+- [x] Clube de leitura organizado por professores
+    - Divulgação do livro do mês (titulo, author,sinopse, imagem e qtd participantes)
+    - adesão dos participantes (confirmar prsença por usuário)
+    - agenda de encontros presenciais( data, local)
+    - espaço para resenhas (em texto e vídeo) [vai ser outro tipo de obra? ou so comentarios?]
 
 # Sessões do Site
 

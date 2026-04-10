@@ -1,11 +1,11 @@
 info:
-  name: deleteWork
+  name: delete
   type: http
-  seq: 8
+  seq: 6
 
 http:
   method: DELETE
-  url: "{{api_url}}work/{{id}}"
+  url: "{{api_url}}bookclub/02d868ad-ae1d-4b3c-8b19-806c15d6d743"
   auth: inherit
 
 settings:

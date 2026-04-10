@@ -5,7 +5,7 @@ info:
 
 http:
   method: PATCH
-  url: "{{api_url}}admin/block/b99e1ceb-c522-4ee7-823a-98de3311784a"
+  url: "{{api_url}}admin/block/{{id}}"
   auth: inherit
 
 settings:

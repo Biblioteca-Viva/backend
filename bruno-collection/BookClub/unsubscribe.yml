@@ -1,11 +1,11 @@
 info:
-  name: deleteWork
+  name: unsubscribe
   type: http
   seq: 8
 
 http:
-  method: DELETE
-  url: "{{api_url}}work/{{id}}"
+  method: POST
+  url: "{{api_url}}bookclub/{{id}}/unsubscribe"
   auth: inherit
 
 settings:
