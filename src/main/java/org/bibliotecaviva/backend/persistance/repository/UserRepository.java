@@ -7,7 +7,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,7 +28,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query(value = "DELETE FROM likes WHERE user_id = :userId AND work_id = :workId", nativeQuery = true)
     void unlikeWork(@Param("userId") UUID userId, @Param("workId") UUID workId);
 
-    List<User> findAllByAccountStatus(Status accountStatus);
+    Page<User> findAllByAccountStatus(Status accountStatus, Pageable pageable);
 
     boolean existsByEmail(String email);
 }

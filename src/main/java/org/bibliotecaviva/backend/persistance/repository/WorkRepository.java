@@ -10,7 +10,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.UUID;
 
 @Repository
@@ -34,8 +36,13 @@ public interface WorkRepository extends JpaRepository<Work, UUID> {
                 GROUP BY work_id
             ) cm ON cm.work_id = w.id
             WHERE (:type IS NULL OR w.type = :type)
-            """, nativeQuery = true)
-    List<WorkSummary> findAllSummary(@Param("type") String type);
+            """,
+            countQuery = """
+            SELECT COUNT(*) FROM obras w
+            WHERE (:type IS NULL OR w.type = :type)
+            """,
+            nativeQuery = true)
+    Page<WorkSummary> findAllSummary(@Param("type") String type, Pageable pageable);
 
     @Modifying
     @Transactional

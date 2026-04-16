@@ -8,10 +8,13 @@ import org.bibliotecaviva.backend.domain.exceptions.CommentNotFoundException;
 import org.bibliotecaviva.backend.domain.exceptions.WorkNotFoundException;
 import org.bibliotecaviva.backend.persistance.repository.CommentRepository;
 import org.bibliotecaviva.backend.persistance.repository.WorkRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import org.bibliotecaviva.backend.domain.enums.Role;
+import org.springframework.security.access.AccessDeniedException;
 import java.util.UUID;
 
 @Service
@@ -38,30 +41,40 @@ public class CommentService {
         return toDTO(saved);
     }
 
-    public List<CommentResponseDTO> getByWorkId(UUID workId) {
+    public Page<CommentResponseDTO> getByWorkId(UUID workId, Pageable pageable) {
         if (!workRepository.existsById(workId)) {
             throw new WorkNotFoundException("Obra com id " + workId + " não encontrada");
         }
-        return commentRepository.findByWorkIdOrderByCreatedAtDesc(workId)
-                .stream()
-                .map(this::toDTO)
-                .toList();
+        return commentRepository.findByWorkIdOrderByCreatedAtDesc(workId, pageable)
+                .map(this::toDTO);
     }
 
-    //todo: permitir editar o proprio comentario
     @Transactional
-    public CommentResponseDTO update(UUID commentId, String content) {
+    public CommentResponseDTO update(UUID commentId, UUID userId, String content) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("Comentário com id " + commentId + " não encontrado"));
+        
+        if(!comment.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("Você não pode editar este comentário");
+        }
+        
         comment.setContent(content);
         return toDTO(commentRepository.save(comment));
     }
 
-    //todo: permitir deletar o proprio comentario
+    
     @Transactional
-    public void delete(UUID commentId) {
-        commentRepository.findById(commentId)
+    public void delete(UUID commentId, User user) {
+        Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("Comentário com id " + commentId + " não encontrado"));
+        
+        boolean isOwner = comment.getUser().getId().equals(user.getId());
+        boolean isAdmin = user.getRole() == Role.ADMIN;
+        
+        if(!isOwner && !isAdmin) {
+            throw new AccessDeniedException("Você não pode deletar este comentário");
+        }
+        
         commentRepository.deleteById(commentId);
     }
 

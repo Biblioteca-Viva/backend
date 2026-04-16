@@ -46,8 +46,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT,"/bookclub/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE,"/bookclub/*").hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.PUT, "/work/*/comments/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/work/*/comments/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/work/*/comments/*").hasAnyRole("ADMIN", "CURADOR", "ALUNO")
+                        .requestMatchers(HttpMethod.DELETE, "/work/*/comments/*").hasAnyRole("ADMIN", "CURADOR", "ALUNO")
 
                         .requestMatchers(HttpMethod.POST, "/work/*/comments").hasAnyRole("ALUNO", "CURADOR")
                         .requestMatchers(HttpMethod.POST, "/work/*/like").authenticated()

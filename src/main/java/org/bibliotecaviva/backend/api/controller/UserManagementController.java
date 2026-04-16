@@ -6,11 +6,13 @@ import lombok.RequiredArgsConstructor;
 import org.bibliotecaviva.backend.application.dtos.response.UserResponseDTO;
 import org.bibliotecaviva.backend.application.services.UserManagementService;
 import org.bibliotecaviva.backend.domain.enums.Status;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -26,15 +28,16 @@ public class UserManagementController {
 
     private final UserManagementService userManagementService;
 
-    //todo: pageable
     // registrar conta de professor / trocar role pra prof
 
     @GetMapping()
     @PreAuthorize("hasRole('ADMIN')")
     @ApiResponse(responseCode = "200",description = "OK")
     @ApiResponse(responseCode = "400",description = "Invalid status value.")
-    public ResponseEntity<List<UserResponseDTO>> getAllUsers(@RequestParam(required = false) Status status) {
-        return ResponseEntity.ok(userManagementService.getAllUsers(status));
+    public ResponseEntity<Page<UserResponseDTO>> getAllUsers(
+            @RequestParam(required = false) Status status,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(userManagementService.getAllUsers(status, pageable));
     }
 
     @PatchMapping("/approve/{id}")

@@ -12,9 +12,10 @@ import org.bibliotecaviva.backend.domain.exceptions.AccountNotPendingException;
 import org.bibliotecaviva.backend.domain.exceptions.UserNotFoundException;
 import org.bibliotecaviva.backend.persistance.repository.UserRepository;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -65,14 +66,12 @@ public class UserManagementService {
     }
 
     //trocar por dto
-    public List<UserResponseDTO> getAllUsers(Status status) {
-        if(status != null){
-            return userRepository.findAllByAccountStatus(status)
-                    .stream()
-                    .map(userMapper::toDto)
-                    .toList();
+    public Page<UserResponseDTO> getAllUsers(Status status, Pageable pageable) {
+        if (status != null) {
+            return userRepository.findAllByAccountStatus(status, pageable)
+                    .map(userMapper::toDto);
         }
-        return userRepository.findAll().stream().map(userMapper::toDto).toList();
+        return userRepository.findAll(pageable).map(userMapper::toDto);
     }
 
     private @NonNull User getUser(UUID id) {

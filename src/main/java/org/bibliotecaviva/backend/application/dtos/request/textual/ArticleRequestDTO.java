@@ -1,11 +1,9 @@
 package org.bibliotecaviva.backend.application.dtos.request.textual;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import jakarta.validation.constraints.*;
 import org.bibliotecaviva.backend.application.dtos.request.WorkRequest;
-import org.hibernate.validator.constraints.URL;
 
 /**
  * DTO for {@link org.bibliotecaviva.backend.domain.entities.textual.Article}

@@ -1,6 +1,6 @@
 package org.bibliotecaviva.backend.application.services;
 
-import jakarta.persistence.EnumType;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -28,9 +28,10 @@ import org.bibliotecaviva.backend.domain.exceptions.WorkNotFoundException;
 import org.bibliotecaviva.backend.persistance.repository.CommentRepository;
 import org.bibliotecaviva.backend.persistance.repository.UserRepository;
 import org.bibliotecaviva.backend.persistance.repository.WorkRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Log4j2
@@ -48,12 +49,10 @@ public class WorkService {
      * Puxa direto da tabela works usando uma interface com atributos genericos
      * para evitar fazer joins desnecessários
      */
-    public List<WorkSummaryResponseDTO> getAll(WorkTypes type) {
-        String types =type==null? null: WorkTypes.fromString(type.name()).getValue();
-        return workRepository.findAllSummary(types)
-                .stream()
-                .map(workMapper::toWorkSummary)
-                .toList();
+    public Page<WorkSummaryResponseDTO> getAll(WorkTypes type, Pageable pageable) {
+        String types = type == null ? null : WorkTypes.fromString(type.name()).getValue();
+        return workRepository.findAllSummary(types, pageable)
+                .map(workMapper::toWorkSummary);
     }
 
     //todo: - verificar view count (vai dar gargalo ficar fazendo update assim)

@@ -5,6 +5,7 @@ import org.bibliotecaviva.backend.domain.exceptions.ApiErrorException;
 import org.bibliotecaviva.backend.domain.exceptions.ApiErrorResponse;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -50,6 +51,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TypeMismatchException.class)
     public ResponseEntity<ApiErrorResponse> handleTypeMismatchException(IllegalArgumentException ex, HttpServletRequest request) {
         return build(HttpStatus.BAD_REQUEST, "Argumento Inválido ", request);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiErrorResponse> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
+        return build(HttpStatus.FORBIDDEN, ex.getMessage(), request);
     }
 
     @ExceptionHandler(Exception.class)

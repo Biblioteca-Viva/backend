@@ -26,12 +26,14 @@ import org.bibliotecaviva.backend.application.services.WorkService;
 import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.enums.WorkTypes;
 import org.bibliotecaviva.backend.domain.exceptions.ApiErrorResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -57,8 +59,10 @@ public class WorkController {
     @Parameter(name = "type", description = "Filter by type of work (case insensitive).")
     @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = WorkSummaryResponseDTO.class)))
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid Parameter")
-    public ResponseEntity<List<WorkSummaryResponseDTO>> getAll(@RequestParam(required = false) WorkTypes type) {
-        return ResponseEntity.ok(service.getAll(type));
+    public ResponseEntity<Page<WorkSummaryResponseDTO>> getAll(
+            @RequestParam(required = false) WorkTypes type,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(service.getAll(type, pageable));
     }
 
     @GetMapping("/{id}")
