@@ -12,6 +12,7 @@ import org.bibliotecaviva.backend.application.dtos.request.visual.ArtRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.request.visual.InfographicRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.response.LikeResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.WorkResponse;
+import org.bibliotecaviva.backend.application.dtos.response.HomePageDashboardResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.WorkSummaryResponseDTO;
 import org.bibliotecaviva.backend.application.mappers.WorkMapper;
 import org.bibliotecaviva.backend.domain.entities.User;
@@ -32,6 +33,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 @Log4j2
@@ -143,4 +145,27 @@ public class WorkService {
         return new LikeResponseDTO("Obra " + (liked ? "curtida" : "descurtida"),workRepository.getLikeCount(workId));
     }
 
+    public HomePageDashboardResponseDTO getFrontPageData() {
+        var counts = workRepository.countPerType().stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        row -> (String) row[0],
+                        row -> (Long) row[1]
+                ));
+        var works = Arrays.stream(WorkTypes.values())
+                .flatMap(type -> workRepository.findTop5ByType(type.getValue()).stream())
+                .map(workMapper::toWorkSummary)
+                .toList();
+        return new HomePageDashboardResponseDTO(
+                counts.getOrDefault("LibraLiterature", 0L).intValue(),
+                counts.getOrDefault("Multimedia", 0L).intValue(),
+                counts.getOrDefault("Article", 0L).intValue(),
+                counts.getOrDefault("Cordel", 0L).intValue(),
+                counts.getOrDefault("Essay", 0L).intValue(),
+                counts.getOrDefault("ShortStory", 0L).intValue(),
+                counts.getOrDefault("Tale", 0L).intValue(),
+                counts.getOrDefault("Art", 0L).intValue(),
+                counts.getOrDefault("Infographic", 0L).intValue(),
+                works
+        );
+    }
 }

@@ -19,10 +19,10 @@ After the app is running, open for documentation:
 
 ## Registered Users
 
-| Username  | Password | Email | Role    |
-|-----------|----------|-------|---------|
-| admin     | 123456   | admin@admin.com | ADMIN   |
-| aluno1    | 123456     | aluno1@teste.com | ALUNO   ||
-| aluno2    | 123456     | aluno1@teste.com | ALUNO   ||
-| aluno3    | 123456     | aluno1@teste.com | ALUNO   ||
+| Username  | Password | Email               | Role    |
+|-----------|----------|---------------------|---------|
+| admin     | 123456   | admin@teste.com     | ADMIN   |
+| aluno1    | 123456     | aluno1@teste.com    | ALUNO   ||
+| aluno2    | 123456     | aluno1@teste.com    | ALUNO   ||
+| aluno3    | 123456     | aluno1@teste.com    | ALUNO   ||
 | professor | 123456     | professor@teste.com | CURADOR ||

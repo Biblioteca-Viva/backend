@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -43,6 +44,24 @@ public interface WorkRepository extends JpaRepository<Work, UUID> {
             """,
             nativeQuery = true)
     Page<WorkSummary> findAllSummary(@Param("type") String type, Pageable pageable);
+
+    @Query(value = "SELECT w.type, COUNT(w) FROM obras w GROUP BY w.type",nativeQuery = true)
+    List<Object[]> countPerType();
+
+    @Query(value = """
+    SELECT w.id, w.title, w.publication_date, w.description, w.type, w.view_count,
+           u.name as author,
+           COALESCE(lk.like_count, 0) as like_count,
+           COALESCE(cm.comment_count, 0) as comment_count
+    FROM obras w
+    JOIN users u ON u.id = w.users_id
+    LEFT JOIN (SELECT work_id, COUNT(user_id) as like_count FROM likes GROUP BY work_id) lk ON lk.work_id = w.id
+    LEFT JOIN (SELECT work_id, COUNT(id) as comment_count FROM comments GROUP BY work_id) cm ON cm.work_id = w.id
+    WHERE w.type = :type
+    ORDER BY w.publication_date DESC
+    LIMIT 5
+    """, nativeQuery = true)
+    List<WorkSummary> findTop5ByType(@Param("type") String type);
 
     @Modifying
     @Transactional

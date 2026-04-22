@@ -1,12 +1,12 @@
 todo
 -
 - [ ] Implementar Notificações
-- [ ] Implementar busca por nome do usuário, nome da obra, tipo da obra, data de publicação, etc
+- [ ] Implementar filtragem (ver com vai ser)
 - [ ] Implementar RefreshToken e esqueceu a senha
-- [ ] Mandar duração no worksummar para audiovisual
-- [ ] (?) Implementar exclusao de conta para admin
-- [ ] Puxar dashboard com contagem de cada obra para homepage
-- [ ] Puxar dashboard com contagem total de posts,comentarios,usuarios cadastrados e cadastros pendents para dashboard de admin
+- [ ] Mandar duração no worksummary para audiovisual
+- [ ] Implementar exclusao de conta para admin (?)
+- [ ] Dashboard com contagem de cada obra para homepage
+- [ ] Dashboard com contagem total de posts,comentarios,usuarios cadastrados e cadastros pendents para dashboard de admin
 - [ ] Verificar se vai colocar obras favoritadas por usuario
 - [ ] Verificar dados de cadastro.
 - [ ] Verificar se vai ter download, e de que, existe botao no front

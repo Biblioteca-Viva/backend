@@ -14,6 +14,7 @@ import org.bibliotecaviva.backend.application.dtos.request.audiovisual.Multimedi
 import org.bibliotecaviva.backend.application.dtos.request.textual.*;
 import org.bibliotecaviva.backend.application.dtos.request.visual.ArtRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.request.visual.InfographicRequestDTO;
+import org.bibliotecaviva.backend.application.dtos.response.HomePageDashboardResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.LikeResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.WorkResponse;
 import org.bibliotecaviva.backend.application.dtos.response.WorkSummaryResponseDTO;
@@ -71,6 +72,11 @@ public class WorkController {
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
     public ResponseEntity<WorkResponse> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(service.getById(id));
+    }
+
+    @GetMapping("/home")
+    public ResponseEntity<HomePageDashboardResponseDTO> getFrontPageData(){
+        return ResponseEntity.ok(service.getFrontPageData());
     }
 
 
