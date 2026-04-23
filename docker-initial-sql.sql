@@ -286,6 +286,51 @@ VALUES ('e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf', 'aluno1@teste.com', 'aluno1',
 INSERT INTO obras (id, title, users_id, publication_date, description, type)
 VALUES
     -- Aluno 1 (e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf)
+
+
+
+    ('44444444-4444-4444-4444-444444444001',
+     'A Janela Azul',
+     'e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf',
+     '2023-11-21',
+     'Crônica sobre memória afetiva e o olhar de infância, narrada pela perspectiva de uma menina que encontra no azul de uma janela a fronteira entre o cotidiano e a imaginação.',
+     'ShortStory'),
+
+    ('44444444-4444-4444-4444-444444444002',
+     'Chuva Mansa',
+     'eca64533-6dbd-465b-863c-bb540fecdc61',
+     '2024-02-14',
+     'Crônica ambientada em uma tarde chuvosa em Garanhuns, que acompanha dois amigos num alpendre e o silêncio carregado de uma despedida que nenhum dos dois consegue nomear.',
+     'ShortStory'),
+
+    ('44444444-4444-4444-4444-444444444003',
+     'O Trem das Seis',
+     '4c9f354b-0780-4cdb-b76f-d43e54ea3644',
+     '2024-10-01',
+     'Crônica de observação sobre os passageiros de um trem do interior, explorando o que as pessoas carregam em silêncio e o que o movimento cotidiano revela sobre memória e tempo.',
+     'ShortStory'),
+
+    ('55555555-5555-5555-5555-555555555003',
+     'O Pássaro Dourado',
+     'e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf',
+     '2024-08-03',
+     'Fábula sobre escuta e coletividade: um pássaro estranho chega a uma floresta de cantos solitários e, sem impor nada, transforma a forma como todos se relacionam com a própria voz.',
+     'Tale'),
+
+    ('55555555-5555-5555-5555-555555555001',
+     'A Pedra Encantada',
+     'eca64533-6dbd-465b-863c-bb540fecdc61',
+     '2023-12-30',
+     'Conto de fantasia regional ambientado em território Xukuru, em que o surgimento misterioso de uma pedra em forma humana divide a aldeia entre o medo e a curiosidade — até que a chuva responde.',
+     'Tale'),
+
+    ('55555555-5555-5555-5555-555555555002',
+     'O Vento Norte',
+     '4c9f354b-0780-4cdb-b76f-d43e54ea3644',
+     '2024-03-18',
+     'Conto popular sobre uma menina perdida na caatinga que segue um vento com direção própria, adaptado de narrativa oral preservando a cadência dos contadores de histórias da região.',
+     'Tale'),
+
     ('11111111-1111-1111-1111-111111111001',
      'Reportagem sobre o Rio Capibaribe',
      'e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf',
@@ -307,19 +352,7 @@ VALUES
      'Redação dissertativa-argumentativa sobre o acesso à tecnologia como fator determinante na ampliação ou redução das desigualdades sociais no Brasil contemporâneo.',
      'Essay'),
 
-    ('44444444-4444-4444-4444-444444444001',
-     'Conto da Janela Azul',
-     'e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf',
-     '2023-11-21',
-     'Conto curto sobre imaginação e amizade durante as férias de julho, narrado pela perspectiva de uma menina que descobre mundos através da janela do quarto.',
-     'ShortStory'),
 
-    ('55555555-5555-5555-5555-555555555003',
-     'Fábula do Pássaro Dourado',
-     'e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf',
-     '2024-08-03',
-     'Narrativa simbólica sobre coragem, cuidado e coletividade, protagonizada por um pássaro que aprende o valor do trabalho em grupo ao salvar sua aldeia de uma longa seca.',
-     'Tale'),
 
     ('66666666-6666-6666-6666-666666666001',
      'Cartaz Digital: Semana da Leitura',
@@ -371,19 +404,7 @@ VALUES
      'Discussão sobre os desafios da mobilidade urbana, gestão de resíduos sólidos e implementação de políticas públicas ambientais em municípios de médio porte.',
      'Essay'),
 
-    ('44444444-4444-4444-4444-444444444002',
-     'Conto da Chuva Mansa',
-     'eca64533-6dbd-465b-863c-bb540fecdc61',
-     '2024-02-14',
-     'História breve ambientada em uma tarde chuvosa no interior pernambucano, que acompanha dois amigos percorrendo a cidade em busca de abrigo e reencontrando memórias de infância.',
-     'ShortStory'),
 
-    ('55555555-5555-5555-5555-555555555001',
-     'Lenda da Pedra Encantada',
-     'eca64533-6dbd-465b-863c-bb540fecdc61',
-     '2023-12-30',
-     'Recontagem de narrativa popular com elementos fantásticos regionais, ambientada na Serra do Ororubá, onde uma pedra ancestral guarda segredos do povo indígena Xukuru.',
-     'Tale'),
 
     ('66666666-6666-6666-6666-666666666002',
      'Ilustração: Jardim da Escola',
@@ -435,19 +456,6 @@ VALUES
      'Argumentação sobre o papel das bibliotecas escolares como espaços de transformação social, cidadania e combate às desigualdades no acesso ao conhecimento.',
      'Essay'),
 
-    ('44444444-4444-4444-4444-444444444003',
-     'Conto do Trem das Seis',
-     '4c9f354b-0780-4cdb-b76f-d43e54ea3644',
-     '2024-10-01',
-     'Narrativa sobre encontros cotidianos e escolhas inesperadas, protagonizada por passageiros que compartilham memórias e segredos no último trem da tarde de uma cidade do interior.',
-     'ShortStory'),
-
-    ('55555555-5555-5555-5555-555555555002',
-     'Conto Popular do Vento Norte',
-     '4c9f354b-0780-4cdb-b76f-d43e54ea3644',
-     '2024-03-18',
-     'História oral adaptada para linguagem escrita escolar, preservando expressões populares e a cadência da narrativa falada de um antigo contador de histórias da região.',
-     'Tale'),
 
     ('66666666-6666-6666-6666-666666666003',
      'Quadrinho Curto: Biblioteca Viva',
@@ -536,36 +544,36 @@ VALUES ('33333333-3333-3333-3333-333333333001',
 
 
 -- ============================================================
--- SHORT_STORY (Conto)
+-- SHORT_STORY (Crônicas)
 -- ============================================================
 INSERT INTO short_story (id, content)
-VALUES ('44444444-4444-4444-4444-444444444001',
-        'A janela do quarto de Lara era azul. Não o azul comum de paredes ou portões, mas um azul que mudava com a luz do dia — de manhã era quase verde, à tarde dourava nas bordas e à noite ficava tão escuro que parecia não ter fundo. Nas férias de julho, enquanto as ruas ficavam quietas com a fina garoa da serra, Lara descobriu que se ela ficasse tempo suficiente olhando pela janela azul, as coisas do outro lado começavam a mudar. O muro do vizinho virava floresta. A calçada virava um rio largo. E às vezes, quando o vento balançava o mangalheiro do quintal de um jeito específico, ela via uma menina no outro lado — com trança comprida e sandálias de couro — que acenava como se sempre tivesse esperado por ela. "Você vai ou não vai?", a menina perguntou certa tarde. Lara olhou para trás: a casa estava quieta, o cheiro de café esquentado na panela, a televisão murmurando baixo no quarto da vó. Ela abriu a janela. Era azul por dentro também.'),
+VALUES
+    ('44444444-4444-4444-4444-444444444001',
+     'Toda casa de infância tem uma janela que guarda o mundo inteiro. Na minha, era a do quarto dos fundos, pintada de azul desbotado, com a tinta lascando nas bordas como se tentasse mostrar outra cor por baixo. Nas férias de julho, quando a garoa da serra fechava a rua e não tinha pra onde ir, eu ficava horas ali. Não era tédio — era uma espécie de escuta. O quintal do vizinho, a mangueira que nunca deu manga, o gato amarelo que aparecia toda tarde no muro. A janela azul me ensinou que observar é uma forma de pertencer a um lugar. Hoje moro longe daquela rua. Mas toda vez que chove fino e o frio cheira a terra molhada, eu volto àquela janela. E fico me perguntando se o gato amarelo ainda aparece.'),
 
-       ('44444444-4444-4444-4444-444444444002',
-        'A chuva começou quando Felipe e Marcos saíam da escola, e em quinze minutos a rua já era um rio. Eles correram para debaixo de um alpendre de loja fechada, encharcados até os tênis. "E agora?", disse Marcos, espremendo a barra da camisa. "A gente espera", respondeu Felipe, como se esperar fosse a coisa mais natural do mundo. Ficaram olhando a chuva bater no asfalto e transformar o bairro em outro lugar — as calçadas viraram corredeiras, os carros parados viraram ilhas, e a velha bicicleta encostada no poste do lado pareceu flutuar por um segundo. Foi naquele alpendre que Felipe contou que ia se mudar para o Recife no fim do mês. Marcos não disse nada por um tempo. Só olhou a chuva. Quando ela finalmente parou, o silêncio entre eles tinha uma textura diferente — não desconfortável, mas cheia de coisas que não precisavam ser ditas, que a chuva já tinha dito por eles.'),
+    ('44444444-4444-4444-4444-444444444002',
+     'Garanhuns tem um jeito próprio de chover. Não é a chuva grossa do litoral nem o temporal rápido do sertão — é uma chuva mansa, de sermão longo, que começa sem avisar e para quando quer. Certa tarde de fevereiro, fui pego por uma dessas chuvas na saída da escola junto com meu amigo Felipe. A gente se enfiou debaixo de um alpendre de loja fechada e ficou olhando a rua virar rio. Não falamos muito. Mas foi naquele silêncio molhado que eu entendi que ele ia embora pro Recife no fim do mês, e que as coisas iam mudar de um jeito que a gente ainda não sabia nomear. A chuva parou. A gente se despediu como se fosse qualquer tarde. Às vezes acho que a chuva entendeu melhor do que a gente o que estava acontecendo ali.'),
 
-       ('44444444-4444-4444-4444-444444444003',
-        'O trem das seis estava sempre atrasado, e os passageiros já não se surpreendiam. Sentados no vagão cor de ferrugem que cheirava a óleo e chuva velha, eles carregavam sacolas, mochilas e o cansaço específico de quem trabalhou o dia todo. Na janela do lado direito, uma senhora de cabelos brancos tricotava sem olhar para o fio. Do outro lado do corredor, um rapaz com fone de ouvido vermelho desenhava no caderno. E no banco do fundo, encostada na parede do vagão, Dona Conceição fechou os olhos e deixou o balanço do trem trazer de volta a voz do marido — morto há três anos, mas ainda presente nos trilhos, nos barulhos, nas paradas em que ele sempre descia para comprar amendoim. "Próxima estação: fim de linha", anunciou o alto-falante. Dona Conceição abriu os olhos, sorriu para ninguém em especial, e guardou o amendoim no bolso do casaco. Ainda um pouco de calor.');
+    ('44444444-4444-4444-4444-444444444003',
+     'O trem das seis era sempre a mesma coisa e nunca era igual. Os rostos mudavam, as sacolas mudavam, o cansaço tinha graduações diferentes dependendo do dia da semana. Eu pegava esse trem toda quarta-feira, e fui aprendendo a ler as pessoas como se fossem texto. A senhora do tricô que nunca olhava pro fio — ela sabia de cor cada ponto, cada nó. O rapaz do fone vermelho que desenhava no caderno pequeno — nunca vi o que ele desenhava, mas imagino que era algo que não cabia em palavras. E a dona Conceição do banco do fundo, que fechava os olhos no balançar do vagão com uma expressão que não era sono — era lembrança. O trem das seis me ensinou que as pessoas carregam mundos inteiros e não dizem nada. Basta saber olhar.');
 
 
 -- ============================================================
--- TALE (Conto popular / Fábula / Lenda)
+-- TALE (Contos)
 -- ============================================================
 INSERT INTO tale (id, content, genre)
-VALUES ('55555555-5555-5555-5555-555555555001',
-        'Na Serra do Ororubá, território do povo Xukuru de Ororubá, existe uma pedra que os mais velhos chamam de Pedra da Mãe d''Água. Dizem que ela não foi esculpida por mãos humanas — que ela simplesmente apareceu, numa manhã de eclipse, onde antes havia apenas chão de terra vermelha. A pedra tem a forma de uma mulher sentada, com as mãos espalmadas sobre os joelhos, olhando em direção ao nascente. Conta-se que nas noites de lua cheia ela brilha por dentro, como se guardasse um fogo pequeno e antigo. Os antigos da aldeia ensinavam que a pedra era a memória de uma anciã que, ao sentir que ia morrer, pediu à natureza que a transformasse em rocha para continuar cuidando do povo. E assim foi feito. Por isso, quando há seca longa, os Xukuru vão até a pedra, colocam flores silvestres ao seu redor e cantam os cantos de chuva. E a água volta — não toda de uma vez, mas aos poucos, como toda coisa boa que merece ser esperada.',
-        'fantasia regional'),
+VALUES
+    ('55555555-5555-5555-5555-555555555003',
+     'Havia uma floresta onde todos os pássaros cantavam sozinhos. Cada um tinha sua melodia, sua hora, seu galho preferido. Era bonito, mas era também um pouco triste — os cantos se perdiam no vento sem encontrar resposta. Um dia chegou à floresta um pássaro dourado que ninguém conhecia. Ele não era o maior, nem o mais colorido, mas tinha o hábito estranho de pousar ao lado dos outros e escutar antes de cantar. Depois de escutar, acrescentava apenas uma nota — uma só — que completava o que o outro havia começado. Foi a corruíra — o menor de todos — que percebeu primeiro o que ele fazia. Tentou, tímida, completar a melodia. O pássaro dourado a olhou e assobiou de volta, começando onde ela tinha parado. Aos poucos a floresta foi parando para ouvir. Até o gavião, que nunca havia cantado na frente de ninguém, completou um trecho numa manhã de neblina, e ninguém riu. Quando o pássaro dourado partiu — tão silenciosamente quanto chegou — a floresta já era outra. Não mais um conjunto de cantos solitários, mas uma conversa longa e sem fim.',
+     'fábula'),
 
-       ('55555555-5555-5555-5555-555555555002',
-        'Meu avô dizia que o Vento Norte era um velho andarilho. Não tinha casa, não tinha família, mas conhecia todos os caminhos do sertão melhor do que qualquer tropeiro. Ele ia e vinha, levando recado de uma cidade para outra — às vezes trazia cheiro de chuva que estava vindo, às vezes trazia poeira de lugar que tinha secado. Certa vez, conta a história, o Vento Norte topou com uma menina sozinha no meio da caatinga. Ela estava perdida, com sede, e chorava baixinho para não gastar energia. O vento ficou com pena e começou a soprar devagar na direção do único açude que ainda tinha água naquele verão. A menina seguiu o vento — não por confiar nele, mas porque não tinha outra escolha. Quando chegou ao açude e bebeu, olhou para trás e o vento tinha ido embora. Meu avô sempre terminava assim: "O Vento Norte não pede obrigado e não espera agradecer. Ele simplesmente segue. É assim que deve ser quem quer ajudar de verdade."',
-        'conto popular'),
+    ('55555555-5555-5555-5555-555555555001',
+     'Quando a aldeia acordou naquela manhã, a pedra já estava lá. Não havia trilha que levasse até ela, não havia marca de pé nem de roda no chão de terra vermelha ao redor. Era grande como uma mulher sentada, com as mãos espalmadas sobre os joelhos e os olhos voltados para o nascente — mas não tinha olhos de pedra; tinha uma superfície lisa e escura que capturava a luz do sol de um jeito que deixava os mais velhos desconfortáveis. Iara foi a primeira a se aproximar. Tinha doze anos e a reputação de não ter medo de nada. Colocou a mão na pedra fria e sentiu — ela jura até hoje — um batimento. Lento, profundo, como o de alguém dormindo. Os mais velhos da aldeia convocaram uma reunião naquela noite. Decidiram não tocar na pedra, não cercá-la, não tentar mover. Só observar. Três semanas depois, as primeiras nuvens de chuva apareceram num céu que estava seco há sete meses. Ninguém disse que foi a pedra. Mas todo mundo pensou.',
+     'fantasia regional'),
 
-       ('55555555-5555-5555-5555-555555555003',
-        'Havia uma floresta onde todos os pássaros cantavam sozinhos. Cada um tinha sua melodia, sua hora, seu galho preferido. Era bonito, mas era também um pouco triste — os cantos se perdiam no vento sem encontrar resposta. Um dia chegou à floresta um pássaro dourado que ninguém conhecia. Ele não era o maior, nem o mais colorido, mas tinha o hábito estranho de pousar ao lado dos outros e escutar antes de cantar. Depois de escutar, ele acrescentava apenas uma nota — uma só — que completava o que o outro havia começado. Aos poucos, os pássaros foram percebendo que suas músicas ficavam maiores quando o pássaro dourado estava perto. E foram aprendendo a escutar uns aos outros antes de cantar. A floresta ficou diferente: não mais silenciosa entre os cantos, mas cheia de um murmúrio contínuo, como se os pássaros conversassem mesmo quando não estavam cantando. O pássaro dourado partiu um dia, sem avisar. Mas deixou a escuta.',
-        'fábula');
-
-
+    ('55555555-5555-5555-5555-555555555002',
+     'A menina tinha andado três horas pela caatinga quando percebeu que não sabia mais de onde tinha vindo. O sol estava no meio do céu — o pior lugar possível para quem precisa se orientar — e a única coisa que se movia era o vento, vindo do norte com um cheiro de poeira antiga. Ela parou, bebeu o resto da água do cantil e avaliou suas opções: nenhuma boa. Foi então que o vento mudou. Não ficou mais forte — ficou diferente. Tinha uma direção que parecia querer alguma coisa, um sopro que empurrava levemente para a esquerda do caminho que ela estava seguindo. A menina desconfiou. Mas desconfiança não mata a sede. Seguiu para a esquerda. Meia hora depois encontrou o açude — pequeno, metade evaporado, mas com água. Quando terminou de beber e olhou para o horizonte, o vento já era outro, igual a todos os outros. Ela nunca contou essa história pra ninguém, porque sabia que ninguém ia acreditar. Mas na vida toda, quando estava em dúvida, fechava os olhos e esperava um vento do norte.',
+     'conto popular');
 -- ============================================================
 -- ART (Arte visual / Quadrinho / Cartaz)
 -- ============================================================
