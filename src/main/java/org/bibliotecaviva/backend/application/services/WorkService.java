@@ -155,6 +155,7 @@ public class WorkService {
                 .flatMap(type -> workRepository.findTop5ByType(type.getValue()).stream())
                 .map(workMapper::toWorkSummary)
                 .toList();
+        var mostLikes = workRepository.getMostLikedWorks().stream().map(workMapper::toWorkSummary).toList();
         return new HomePageDashboardResponseDTO(
                 counts.getOrDefault("LibraLiterature", 0L).intValue(),
                 counts.getOrDefault("Multimedia", 0L).intValue(),
@@ -165,7 +166,8 @@ public class WorkService {
                 counts.getOrDefault("Tale", 0L).intValue(),
                 counts.getOrDefault("Art", 0L).intValue(),
                 counts.getOrDefault("Infographic", 0L).intValue(),
-                works
+                works,
+                mostLikes
         );
     }
     public Long countWorks(){
