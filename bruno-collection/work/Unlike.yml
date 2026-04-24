@@ -1,10 +1,10 @@
 info:
-  name: Like
+  name: Unlike
   type: http
-  seq: 8
+  seq: 10
 
 http:
-  method: PUT
+  method: DELETE
   url: "{{api_url}}work/{{work_id}}/like"
   auth: inherit
 

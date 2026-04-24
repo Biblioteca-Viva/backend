@@ -1,6 +1,5 @@
 package org.bibliotecaviva.backend.application.services;
 
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -34,6 +33,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @Log4j2
@@ -57,13 +57,14 @@ public class WorkService {
                 .map(workMapper::toWorkSummary);
     }
 
-    //todo: - verificar view count (vai dar gargalo ficar fazendo update assim)
-    //      - da pra melhorar a performace pq ta fazendo o join com todas as tabelas desnecessariamente
+    // todo: - verificar view count (vai dar gargalo ficar fazendo update assim)
+    // - da pra melhorar a performace pq ta fazendo o join com todas as tabelas
+    // desnecessariamente
     public WorkResponse getById(UUID id) {
         var work = workRepository.findById(id)
                 .orElseThrow(() -> new WorkNotFoundException("Obra com id " + id + " não encontrada"));
         workRepository.incrementViewCount(id);
-        return workMapper.toDTO(work, workRepository.getLikeCount(id),commentRepository.countByWork_Id(id));
+        return workMapper.toDTO(work, workRepository.getLikeCount(id), commentRepository.countByWork_Id(id));
     }
 
     @Transactional
@@ -87,11 +88,11 @@ public class WorkService {
         };
         work.setAuthor(author);
         work.setViewCount(0L);
-        //todo: pode verificar por tipo tambem, ver isso dps
+        // todo: pode verificar por tipo tambem, ver isso dps
         if (workRepository.existsWorkByAuthorAndTitle(author, work.getTitle())) {
             throw new WorkAlreadyExistsException("Obra com mesmo título já existe para este autor");
         }
-        return workMapper.toDTO(workRepository.save(work), 0L,0L);
+        return workMapper.toDTO(workRepository.save(work), 0L, 0L);
     }
 
     @Transactional
@@ -117,8 +118,10 @@ public class WorkService {
                     .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com email: " + dto.author()));
             work.setAuthor(user);
         }
-        //todo: verificar update, provvavelmente pode quebrar regra de author e nome de obra
-        return workMapper.toDTO(workRepository.save(work), workRepository.getLikeCount(id), commentRepository.countByWork_Id(id));
+        // todo: verificar update, provvavelmente pode quebrar regra de author e nome de
+        // obra
+        return workMapper.toDTO(workRepository.save(work), workRepository.getLikeCount(id),
+                commentRepository.countByWork_Id(id));
     }
 
     @Transactional
@@ -128,29 +131,40 @@ public class WorkService {
         workRepository.deleteById(id);
     }
 
-    //TODO: fazer sistema melhor de like ou colocar um limitador de request ou cachear ( mesmo problema das views)
+    public List<UUID> getLikedWorkIds(User user) {
+        return userRepository.findLikedWorkIdsByUserId(user.getId());
+    }
+
+    // TODO: fazer sistema melhor de like ou colocar um limitador de request ou
+    // cachear ( mesmo problema das views)
     // pode dar gargalo fazer update toda hora assim
     @Transactional
     public LikeResponseDTO like(UUID workId, User user) {
         workRepository.findById(workId)
                 .orElseThrow(() -> new WorkNotFoundException("Obra com id " + workId + " não encontrada"));
         var userId = user.getId();
-        var liked = false;
-        if (userRepository.existsLike(userId, workId)) {
-            userRepository.unlikeWork(userId, workId);
-        } else {
-            userRepository.likeWork(userId, workId);
-            liked = true;
-        }
-        return new LikeResponseDTO("Obra " + (liked ? "curtida" : "descurtida"),workRepository.getLikeCount(workId));
+
+        userRepository.likeWork(userId, workId);
+
+        return new LikeResponseDTO(true, workRepository.getLikeCount(workId));
+    }
+
+    @Transactional
+    public LikeResponseDTO unLike(UUID workId, User user) {
+        workRepository.findById(workId)
+                .orElseThrow(() -> new WorkNotFoundException("Obra com id " + workId + " não encontrada"));
+        var userId = user.getId();
+
+        userRepository.unlikeWork(userId, workId);
+
+        return new LikeResponseDTO(false, workRepository.getLikeCount(workId));
     }
 
     public HomePageDashboardResponseDTO getFrontPageData() {
         var counts = workRepository.countPerType().stream()
                 .collect(java.util.stream.Collectors.toMap(
                         row -> (String) row[0],
-                        row -> (Long) row[1]
-                ));
+                        row -> (Long) row[1]));
         var works = Arrays.stream(WorkTypes.values())
                 .flatMap(type -> workRepository.findTop5ByType(type.getValue()).stream())
                 .map(workMapper::toWorkSummary)
@@ -167,10 +181,10 @@ public class WorkService {
                 counts.getOrDefault("Art", 0L).intValue(),
                 counts.getOrDefault("Infographic", 0L).intValue(),
                 works,
-                mostLikes
-        );
+                mostLikes);
     }
-    public Long countWorks(){
+
+    public Long countWorks() {
         return workRepository.count();
     }
 }

@@ -1,9 +1,6 @@
 package org.bibliotecaviva.backend.api.controller;
 
-
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -37,23 +34,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/work")
 @RequiredArgsConstructor
-@Tag(name = "Works",
-        description = """
-                Author in Post method are emails for now.
-                To create works,the type of work is determined by the DTO sent in the request body. The system will automatically
-                determine the type based on the fields present in the DTO. For example, if you send an ArticleRequestDTO, 
-                it will create an article. If you send a CordelRequestDTO, it will create a cordel, and so on.
-                """
-)
-@ApiResponse(responseCode = "ErrorMessage", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)),
-        description = "Error message that will show when an exception is thrown")
+@Tag(name = "Works", description = """
+        Author in Post method are emails for now.
+        To create works,the type of work is determined by the DTO sent in the request body. The system will automatically
+        determine the type based on the fields present in the DTO. For example, if you send an ArticleRequestDTO,
+        it will create an article. If you send a CordelRequestDTO, it will create a cordel, and so on.
+        """)
+@ApiResponse(responseCode = "ErrorMessage", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)), description = "Error message that will show when an exception is thrown")
 public class WorkController {
-    //TODO: PATCH FOR PARTIAL UPDATES IF NEEDED
+    // TODO: PATCH FOR PARTIAL UPDATES IF NEEDED
     private final WorkService service;
 
     @GetMapping
@@ -61,7 +56,7 @@ public class WorkController {
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid Parameter")
     public ResponseEntity<Page<WorkSummaryResponseDTO>> getAll(
             @RequestParam(required = false) WorkTypes type,
-            @Parameter(hidden = true) @PageableDefault(size = 10,sort ="publication_date",direction = Sort.Direction.DESC) Pageable pageable) {
+            @Parameter(hidden = true) @PageableDefault(size = 10, sort = "publication_date", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(service.getAll(type, pageable));
     }
 
@@ -75,10 +70,10 @@ public class WorkController {
 
     @GetMapping("/home")
     @ApiResponse(responseCode = "200")
-    public ResponseEntity<HomePageDashboardResponseDTO> getFrontPageData(){
+    public ResponseEntity<HomePageDashboardResponseDTO> getFrontPageData() {
         return ResponseEntity.ok(service.getFrontPageData());
     }
-    
+
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204", content = @Content, description = "No Content, successfully deleted")
     @ApiResponse(responseCode = "404", content = @Content, description = "Not Found")
@@ -88,18 +83,32 @@ public class WorkController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{id}/like")
-    @ApiResponse(responseCode = "200", content = @Content, description = "Liked or disliked")
+    @GetMapping("/liked")
+    @ApiResponse(responseCode = "200")
+    public ResponseEntity<List<UUID>> getLikedWorkIds(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(service.getLikedWorkIds(user));
+    }
+
+    @PutMapping("/{id}/like")
+    @ApiResponse(responseCode = "200", content = @Content, description = "Liked")
     @ApiResponse(responseCode = "404", content = @Content, description = "Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
     public ResponseEntity<LikeResponseDTO> likeWork(@PathVariable UUID id,
-                                                    @AuthenticationPrincipal User user) {
+            @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(service.like(id, user));
     }
 
+    @DeleteMapping("/{id}/like")
+    @ApiResponse(responseCode = "200", content = @Content, description = "UnLiked")
+    @ApiResponse(responseCode = "404", content = @Content, description = "Not Found")
+    @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
+    public ResponseEntity<LikeResponseDTO> unLike(@PathVariable UUID id,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(service.unLike(id, user));
+    }
+
     @PostMapping("/articles")
-    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = ArticleResponseDTO.class))
-            , description = "Created")
+    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = ArticleResponseDTO.class)), description = "Created")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
@@ -108,18 +117,17 @@ public class WorkController {
     }
 
     @PutMapping("/articles/{id}")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ArticleResponseDTO.class))
-            , description = "Updated")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ArticleResponseDTO.class)), description = "Updated")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Work or Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
-    public ResponseEntity<WorkResponse> updateArticle(@PathVariable UUID id, @RequestBody @Valid ArticleRequestDTO dto) {
+    public ResponseEntity<WorkResponse> updateArticle(@PathVariable UUID id,
+            @RequestBody @Valid ArticleRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
     @PostMapping("/cordels")
-    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = CordelResponseDTO.class)),
-            description = "Created")
+    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = CordelResponseDTO.class)), description = "Created")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
@@ -128,8 +136,7 @@ public class WorkController {
     }
 
     @PutMapping("/cordels/{id}")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = CordelResponseDTO.class)),
-            description = "Updated")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = CordelResponseDTO.class)), description = "Updated")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Work or Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
@@ -138,8 +145,7 @@ public class WorkController {
     }
 
     @PostMapping("/essays")
-    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = EssayResponseDTO.class)),
-            description = "Created")
+    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = EssayResponseDTO.class)), description = "Created")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
@@ -148,8 +154,7 @@ public class WorkController {
     }
 
     @PutMapping("/essays/{id}")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = EssayResponseDTO.class)),
-            description = "Updated")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = EssayResponseDTO.class)), description = "Updated")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Wokr or Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
@@ -158,8 +163,7 @@ public class WorkController {
     }
 
     @PostMapping("/short-stories")
-    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = ShortStoryResponseDTO.class)),
-            description = "Created")
+    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = ShortStoryResponseDTO.class)), description = "Created")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
@@ -168,18 +172,17 @@ public class WorkController {
     }
 
     @PutMapping("/short-stories/{id}")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ShortStoryResponseDTO.class)),
-            description = "Updated")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ShortStoryResponseDTO.class)), description = "Updated")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Work or Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
-    public ResponseEntity<WorkResponse> updateShortStory(@PathVariable UUID id, @RequestBody @Valid ShortStoryRequestDTO dto) {
+    public ResponseEntity<WorkResponse> updateShortStory(@PathVariable UUID id,
+            @RequestBody @Valid ShortStoryRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
     @PostMapping("/tales")
-    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = TaleResponseDTO.class)),
-            description = "Created")
+    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = TaleResponseDTO.class)), description = "Created")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
@@ -188,8 +191,7 @@ public class WorkController {
     }
 
     @PutMapping("/tales/{id}")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = TaleResponseDTO.class)),
-            description = "Updated")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = TaleResponseDTO.class)), description = "Updated")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Work or Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
@@ -198,8 +200,7 @@ public class WorkController {
     }
 
     @PostMapping("/arts")
-    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = ArtResponseDTO.class)),
-            description = "Created")
+    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = ArtResponseDTO.class)), description = "Created")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
@@ -208,8 +209,7 @@ public class WorkController {
     }
 
     @PutMapping("/arts/{id}")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ArtResponseDTO.class)),
-            description = "Updated")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ArtResponseDTO.class)), description = "Updated")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Work or  Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
@@ -227,12 +227,12 @@ public class WorkController {
     }
 
     @PutMapping("/infographics/{id}")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = InfographicReponseDTO.class)),
-            description = "Updated")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = InfographicReponseDTO.class)), description = "Updated")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Work or Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
-    public ResponseEntity<WorkResponse> updateInfographic(@PathVariable UUID id, @RequestBody @Valid InfographicRequestDTO dto) {
+    public ResponseEntity<WorkResponse> updateInfographic(@PathVariable UUID id,
+            @RequestBody @Valid InfographicRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
@@ -246,12 +246,12 @@ public class WorkController {
     }
 
     @PutMapping("/multimedias/{id}")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = MultimediaResponseDTO.class)),
-            description = "Updated")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = MultimediaResponseDTO.class)), description = "Updated")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Work or Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
-    public ResponseEntity<WorkResponse> updateMultimedia(@PathVariable UUID id, @RequestBody @Valid MultimediaRequestDTO dto) {
+    public ResponseEntity<WorkResponse> updateMultimedia(@PathVariable UUID id,
+            @RequestBody @Valid MultimediaRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
@@ -265,12 +265,12 @@ public class WorkController {
     }
 
     @PutMapping("/libra-literatures/{id}")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = LibraLiteratureResponseDTO.class)),
-            description = "Updated")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = LibraLiteratureResponseDTO.class)), description = "Updated")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Work or Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
-    public ResponseEntity<WorkResponse> updateLibraLiterature(@PathVariable UUID id, @RequestBody @Valid LibraLiteratureRequestDTO dto) {
+    public ResponseEntity<WorkResponse> updateLibraLiterature(@PathVariable UUID id,
+            @RequestBody @Valid LibraLiteratureRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 }

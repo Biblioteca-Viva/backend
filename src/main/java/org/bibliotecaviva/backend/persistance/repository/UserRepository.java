@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,8 +21,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query(value = "SELECT COUNT(*) > 0 FROM likes WHERE user_id = :userId AND work_id = :workId", nativeQuery = true)
     boolean existsLike(@Param("userId") UUID userId, @Param("workId") UUID workId);
 
+    @Query(value = "SELECT work_id FROM likes WHERE user_id = :userId", nativeQuery = true)
+    List<UUID> findLikedWorkIdsByUserId(@Param("userId") UUID userId);
+
     @Modifying
-    @Query(value = "INSERT INTO likes (user_id, work_id) VALUES (:userId, :workId)", nativeQuery = true)
+    @Query(value = "INSERT INTO likes (user_id, work_id) VALUES (:userId, :workId) ON CONFLICT (user_id, work_id) DO NOTHING", nativeQuery = true)
     void likeWork(@Param("userId") UUID userId, @Param("workId") UUID workId);
 
     @Modifying

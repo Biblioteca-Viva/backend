@@ -3,9 +3,9 @@ spring:
     name: backend
   datasource:
     driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: postgres
-    url: jdbc:postgresql://localhost:5432/bibliotecaviva
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    url: ${DB_URL}
   jpa:
     hibernate:
       ddl-auto: update
@@ -25,5 +25,5 @@ springdoc:
 
 security:
   jwt:
-    secret: 6269626c696f74656361766976612d736563726574a2d6b6579efabcdef01234
-    expiration: 86400000
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION}

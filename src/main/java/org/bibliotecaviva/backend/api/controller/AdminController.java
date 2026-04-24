@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.bibliotecaviva.backend.application.dtos.response.AdminDashboardResponseDTO;
-import org.bibliotecaviva.backend.application.dtos.response.CommentResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.CommentSummaryResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.UserResponseDTO;
 import org.bibliotecaviva.backend.application.services.CommentService;
@@ -23,12 +22,10 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
-@Tag(
-        name = "Admin Management",
-        description = "Controller responsible for handling admin operations such as retrieving user information," +
-                " activating, rejecting, and blocking users. " +
-                "Only accessible by administrators."
-)
+@Tag(name = "Admin Management", description = "Controller responsible for handling admin operations such as retrieving user information,"
+        +
+        " activating, rejecting, and blocking users. " +
+        "Only accessible by administrators.")
 public class AdminController {
 
     private final UserManagementService userManagementService;
@@ -39,8 +36,8 @@ public class AdminController {
 
     @GetMapping()
     @PreAuthorize("hasRole('ADMIN')")
-    @ApiResponse(responseCode = "200",description = "OK")
-    @ApiResponse(responseCode = "400",description = "Invalid status value.")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @ApiResponse(responseCode = "400", description = "Invalid status value.")
     public ResponseEntity<Page<UserResponseDTO>> getAllUsers(
             @RequestParam(required = false) Status status,
             @PageableDefault(size = 10) Pageable pageable) {
@@ -50,8 +47,8 @@ public class AdminController {
     @PatchMapping("/approve/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @ApiResponse(responseCode = "204", description = "User activated successfully")
-    @ApiResponse(responseCode = "400",description = "Invalid user ID or user is already active.")
-    @ApiResponse(responseCode = "404",description = "User Not Found")
+    @ApiResponse(responseCode = "400", description = "Invalid user ID or user is already active.")
+    @ApiResponse(responseCode = "404", description = "User Not Found")
     public ResponseEntity<Void> activateUser(@PathVariable UUID id) {
         userManagementService.activateUser(id);
         return ResponseEntity.noContent().build();
@@ -60,8 +57,8 @@ public class AdminController {
     @PatchMapping("/reject/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @ApiResponse(responseCode = "204", description = "User rejected successfully")
-    @ApiResponse(responseCode = "400",description = "Invalid user ID or user status is not pending.")
-    @ApiResponse(responseCode = "404",description = "User Not Found")
+    @ApiResponse(responseCode = "400", description = "Invalid user ID or user status is not pending.")
+    @ApiResponse(responseCode = "404", description = "User Not Found")
     public ResponseEntity<Void> rejectUser(@PathVariable UUID id) {
         userManagementService.rejectUser(id);
         return ResponseEntity.noContent().build();
@@ -70,8 +67,8 @@ public class AdminController {
     @PatchMapping("/block/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @ApiResponse(responseCode = "204", description = "User activated successfully")
-    @ApiResponse(responseCode = "400",description = "Invalid user ID or user is already blocked.")
-    @ApiResponse(responseCode = "404",description = "User Not Found")
+    @ApiResponse(responseCode = "400", description = "Invalid user ID or user is already blocked.")
+    @ApiResponse(responseCode = "404", description = "User Not Found")
     public ResponseEntity<Void> blockUser(@PathVariable UUID id) {
         userManagementService.blockUser(id);
         return ResponseEntity.noContent().build();
@@ -91,7 +88,6 @@ public class AdminController {
                 workService.countWorks(),
                 commentService.countComments(),
                 userManagementService.countUsers(),
-                userManagementService.countPendingUsers()
-        ));
+                userManagementService.countPendingUsers()));
     }
 }

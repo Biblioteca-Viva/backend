@@ -1,11 +1,11 @@
 info:
-  name: Like
+  name: Liked Works
   type: http
-  seq: 8
+  seq: 11
 
 http:
-  method: PUT
-  url: "{{api_url}}work/{{work_id}}/like"
+  method: GET
+  url: "{{api_url}}work/liked"
   auth: inherit
 
 settings:

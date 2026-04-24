@@ -28,7 +28,7 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    //todo: colocar coisas do cors e jwt no env
+    // todo: colocar coisas do cors e jwt no env
 
     private final JwtAuthFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
@@ -40,17 +40,21 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.POST,"/bookclub/*/subscribe","/bookclub/*/unsubscribe").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/bookclub/*/subscribe", "/bookclub/*/unsubscribe")
+                        .authenticated()
 
-                        .requestMatchers(HttpMethod.POST,"/bookclub/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT,"/bookclub/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE,"/bookclub/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/bookclub/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/bookclub/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/bookclub/*").hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.PUT, "/work/*/comments/*").hasAnyRole("ADMIN", "CURADOR", "ALUNO")
-                        .requestMatchers(HttpMethod.DELETE, "/work/*/comments/*").hasAnyRole("ADMIN", "CURADOR", "ALUNO")
+                        .requestMatchers(HttpMethod.DELETE, "/work/*/comments/*")
+                        .hasAnyRole("ADMIN", "CURADOR", "ALUNO")
 
-                        .requestMatchers(HttpMethod.POST, "/work/*/comments").hasAnyRole("ALUNO", "CURADOR")
-                        .requestMatchers(HttpMethod.POST, "/work/*/like").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/work/*/comments").hasAnyRole("ALUNO", "CURADOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/work/liked").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/work/*/like").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/work/*/like").authenticated()
 
                         .requestMatchers(HttpMethod.POST, "/work/**").hasAnyRole("ADMIN", "CURADOR")
                         .requestMatchers(HttpMethod.PUT, "/work/**").hasAnyRole("ADMIN", "CURADOR")
@@ -58,12 +62,12 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/work/**").permitAll()
 
-                        .requestMatchers("/auth/login", "/auth/register","/auth/logout", "/swagger-ui/**", "/scalar/**", "/v3/api-docs/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers("/auth/login", "/auth/register", "/auth/logout", "/swagger-ui/**",
+                                "/scalar/**", "/v3/api-docs/**")
+                        .permitAll()
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(Customizer.withDefaults())
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
