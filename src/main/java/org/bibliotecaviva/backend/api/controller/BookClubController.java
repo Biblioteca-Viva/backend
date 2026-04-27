@@ -1,5 +1,6 @@
 package org.bibliotecaviva.backend.api.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,10 @@ import org.bibliotecaviva.backend.application.dtos.response.BookClubResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.SubscribeResponseDTO;
 import org.bibliotecaviva.backend.application.services.BookClubService;
 import org.bibliotecaviva.backend.domain.entities.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,8 +48,9 @@ public class BookClubController {
     //todo: Revisar getAll e getById, colocar paginação, se for somente 1 por mes, deixar restrito para professor e admin
     //      se for varios, vai ter que ter um getByMonth ou algo do tipo, ou deixar como ta e sempre aparecer os proximos
     @GetMapping
-    public ResponseEntity<List<BookClubResponseDTO>> getAll(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(bookClubService.getAll());
+    public ResponseEntity<Page<BookClubResponseDTO>> getAll(
+            @Parameter(hidden = true) @PageableDefault( sort = "date", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(bookClubService.getAll(pageable));
     }
     @GetMapping("/{id}")
     public ResponseEntity<BookClubResponseDTO> getById(@PathVariable UUID id) {
@@ -72,7 +78,7 @@ public class BookClubController {
         return ResponseEntity.ok(bookClubService.subscribe(id, user));
     }
 
-    @PostMapping("{id}/unsubscribe")
+    @PostMapping("/{id}/unsubscribe")
     public ResponseEntity<SubscribeResponseDTO> unsubscribe(@PathVariable UUID id, @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(bookClubService.unsubscribe(id, user));
     }

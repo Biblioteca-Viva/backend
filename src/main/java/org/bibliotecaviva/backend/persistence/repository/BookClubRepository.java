@@ -2,6 +2,8 @@ package org.bibliotecaviva.backend.persistence.repository;
 
 import org.bibliotecaviva.backend.domain.entities.BookClub;
 import org.bibliotecaviva.backend.domain.entities.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,7 +20,7 @@ public interface BookClubRepository extends JpaRepository<BookClub, UUID> {
     Long countParticipants(UUID id);
 
     @Query("SELECT b, COUNT(p) FROM BookClub b LEFT JOIN b.participants p GROUP BY b")
-    List<Object[]> findAllWithParticipantCount();
+    Page<Object[]> findAllWithParticipantCount(Pageable pageable);
 
     @Query("SELECT b, COUNT(p) FROM BookClub b LEFT JOIN b.participants p WHERE b.organizer = :organizer GROUP BY b")
     List<Object[]> findAllWithParticipantCountByOrganizer(@Param("organizer") User organizer);

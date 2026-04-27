@@ -44,9 +44,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/bookclub/*/subscribe", "/bookclub/*/unsubscribe")
                         .authenticated()
 
-                        .requestMatchers(HttpMethod.POST, "/bookclub/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/bookclub/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/bookclub/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/bookclub/*").hasAnyRole("ADMIN","CURADOR")
+                        .requestMatchers(HttpMethod.PUT, "/bookclub/*").hasAnyRole("ADMIN","CURADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/bookclub/*").hasAnyRole("ADMIN","CURADOR")
 
                         .requestMatchers(HttpMethod.PUT, "/work/*/comments/*").hasAnyRole("ADMIN", "CURADOR", "ALUNO")
                         .requestMatchers(HttpMethod.DELETE, "/work/*/comments/*")

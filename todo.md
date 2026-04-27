@@ -2,7 +2,8 @@ todo
 -
 - [ ] Implementar Notificações
 - [ ] Implementar RefreshToken e esqueceu a senha
-- [ ] Mandar duração no worksummary para audiovisual
+- [ ] Linkar cordel com artes
+ - [ ] Mandar duração no worksummary para audiovisual
 - [ ] Implementar exclusao de conta para admin (?)
 - [ ] Verificar se vai colocar obras favoritadas por usuario
 - [ ] Verificar dados de cadastro.

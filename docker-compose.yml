@@ -26,6 +26,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
     depends_on:
       db:
         condition: service_healthy

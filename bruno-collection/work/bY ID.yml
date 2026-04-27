@@ -11,7 +11,7 @@ http:
 runtime:
   variables:
     - name: id
-      value: 77777777-7777-7777-7777-777777777003
+      value: 44444444-4444-4444-4444-444444444002
   scripts:
     - type: after-response
       code: bru.setGlobalEnvVar("work_id", res.getBody().id)
