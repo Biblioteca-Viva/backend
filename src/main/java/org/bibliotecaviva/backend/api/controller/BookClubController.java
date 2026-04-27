@@ -1,5 +1,6 @@
 package org.bibliotecaviva.backend.api.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,10 @@ import org.bibliotecaviva.backend.application.dtos.response.BookClubResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.SubscribeResponseDTO;
 import org.bibliotecaviva.backend.application.services.BookClubService;
 import org.bibliotecaviva.backend.domain.entities.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,7 +34,7 @@ public class BookClubController {
     private final BookClubService bookClubService;
 
     @PostMapping //todo: falta permitir prof e verificar se é o dono para permitir edição e remoção
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CURADOR')")
     public ResponseEntity<BookClubResponseDTO> create(@RequestBody @Valid BookClubRequestDTO requestDTO,
                                                       @AuthenticationPrincipal User user) {
         return ResponseEntity.status(HttpStatus.CREATED).body(bookClubService.create(requestDTO,user));
@@ -43,8 +48,9 @@ public class BookClubController {
     //todo: Revisar getAll e getById, colocar paginação, se for somente 1 por mes, deixar restrito para professor e admin
     //      se for varios, vai ter que ter um getByMonth ou algo do tipo, ou deixar como ta e sempre aparecer os proximos
     @GetMapping
-    public ResponseEntity<List<BookClubResponseDTO>> getAll(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(bookClubService.getAll());
+    public ResponseEntity<Page<BookClubResponseDTO>> getAll(
+            @Parameter(hidden = true) @PageableDefault( sort = "date", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(bookClubService.getAll(pageable));
     }
     @GetMapping("/{id}")
     public ResponseEntity<BookClubResponseDTO> getById(@PathVariable UUID id) {
@@ -52,7 +58,7 @@ public class BookClubController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CURADOR')")
     public ResponseEntity<BookClubResponseDTO> update(@PathVariable UUID id,
                                                       @RequestBody @Valid BookClubRequestDTO requestDTO,
                                                       @AuthenticationPrincipal User user) {
@@ -60,7 +66,7 @@ public class BookClubController {
     }
 
     @DeleteMapping("/{id}")//so admin/prof
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CURADOR')")
     public ResponseEntity<Void> delete(@PathVariable UUID id,
                                        @AuthenticationPrincipal User user) {
         bookClubService.delete(id, user);
@@ -72,7 +78,7 @@ public class BookClubController {
         return ResponseEntity.ok(bookClubService.subscribe(id, user));
     }
 
-    @PostMapping("{id}/unsubscribe")
+    @PostMapping("/{id}/unsubscribe")
     public ResponseEntity<SubscribeResponseDTO> unsubscribe(@PathVariable UUID id, @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(bookClubService.unsubscribe(id, user));
     }

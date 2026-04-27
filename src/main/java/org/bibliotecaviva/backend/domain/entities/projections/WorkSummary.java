@@ -1,4 +1,4 @@
-package org.bibliotecaviva.backend.domain.entities;
+package org.bibliotecaviva.backend.domain.entities.projections;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

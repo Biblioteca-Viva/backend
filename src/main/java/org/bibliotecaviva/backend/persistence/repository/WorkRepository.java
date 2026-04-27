@@ -1,9 +1,9 @@
-package org.bibliotecaviva.backend.persistance.repository;
+package org.bibliotecaviva.backend.persistence.repository;
 
 import jakarta.transaction.Transactional;
 import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.entities.Work;
-import org.bibliotecaviva.backend.domain.entities.WorkSummary;
+import org.bibliotecaviva.backend.domain.entities.projections.WorkSummary;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,8 +13,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -25,7 +25,7 @@ public interface WorkRepository extends JpaRepository<Work, UUID> {
                    u.name as author,
                    COALESCE(lk.like_count, 0)    as like_count,
                    COALESCE(cm.comment_count, 0) as comment_count,
-                    COALESCE(a.url, i.url, lt.url, mt.url) as url,
+                    COALESCE(a.url, i.url, lt.url, mt.url,cordel_illustration.url) as url,
                     COALESCE(mt.duration,lt.duration) as duration
             FROM obras w
             JOIN users u ON u.id = w.users_id
@@ -33,6 +33,8 @@ public interface WorkRepository extends JpaRepository<Work, UUID> {
             LEFT JOIN public.infographic i on w.id = i.id
             LEFT JOIN public.libra_literature lt on w.id =lt.id
             LEFT JOIN multimedia mt on w.id = mt.id
+            LEFT JOIN public.cordel c on w.id = c.id
+                LEFT JOIN public.art cordel_illustration on cordel_illustration.id = c.illustration_id
             LEFT JOIN (
                 SELECT work_id, COUNT(user_id) as like_count
                 FROM likes
@@ -107,4 +109,7 @@ public interface WorkRepository extends JpaRepository<Work, UUID> {
             LIMIT 5
 """,nativeQuery = true)
     List<WorkSummary> getMostLikedWorks();
+
+
+    Optional<Work> findWorkByTitle(String title);
 }

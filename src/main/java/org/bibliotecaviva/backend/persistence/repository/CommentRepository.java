@@ -1,4 +1,4 @@
-package org.bibliotecaviva.backend.persistance.repository;
+package org.bibliotecaviva.backend.persistence.repository;
 
 import org.bibliotecaviva.backend.domain.entities.Comment;
 import org.bibliotecaviva.backend.domain.entities.CommentSummary;

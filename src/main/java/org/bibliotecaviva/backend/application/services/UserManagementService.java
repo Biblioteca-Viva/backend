@@ -10,7 +10,7 @@ import org.bibliotecaviva.backend.domain.exceptions.AccountAlreadyActiveExceptio
 import org.bibliotecaviva.backend.domain.exceptions.AccountAlreadyBlockedException;
 import org.bibliotecaviva.backend.domain.exceptions.AccountNotPendingException;
 import org.bibliotecaviva.backend.domain.exceptions.UserNotFoundException;
-import org.bibliotecaviva.backend.persistance.repository.UserRepository;
+import org.bibliotecaviva.backend.persistence.repository.UserRepository;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

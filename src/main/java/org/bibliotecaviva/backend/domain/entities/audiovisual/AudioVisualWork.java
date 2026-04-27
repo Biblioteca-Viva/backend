@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bibliotecaviva.backend.domain.entities.Work;
-import org.bibliotecaviva.backend.persistance.converter.DurationConverter;
+import org.bibliotecaviva.backend.persistence.converter.DurationConverter;
 
 import java.time.Duration;
 

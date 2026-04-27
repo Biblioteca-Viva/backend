@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final org.bibliotecaviva.backend.persistance.repository.UserRepository userRepository;
+    private final org.bibliotecaviva.backend.persistence.repository.UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

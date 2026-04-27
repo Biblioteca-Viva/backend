@@ -12,12 +12,12 @@ import org.bibliotecaviva.backend.application.dtos.response.audiovisual.LibraLit
 import org.bibliotecaviva.backend.application.dtos.response.audiovisual.MultimediaResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.textual.*;
 import org.bibliotecaviva.backend.application.dtos.response.visual.ArtResponseDTO;
-import org.bibliotecaviva.backend.application.dtos.response.visual.InfographicReponseDTO;
+import org.bibliotecaviva.backend.application.dtos.response.visual.InfographicResponseDTO;
 import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.entities.Work;
-import org.bibliotecaviva.backend.domain.entities.WorkSummary;
 import org.bibliotecaviva.backend.domain.entities.audiovisual.LibraLiterature;
 import org.bibliotecaviva.backend.domain.entities.audiovisual.Multimedia;
+import org.bibliotecaviva.backend.domain.entities.projections.WorkSummary;
 import org.bibliotecaviva.backend.domain.entities.textual.*;
 import org.bibliotecaviva.backend.domain.entities.visual.Art;
 import org.bibliotecaviva.backend.domain.entities.visual.Infographic;
@@ -63,6 +63,7 @@ public interface WorkMapper {
 
     ArticleResponseDTO toArticleResponseDTO(Article article, Long likeCount,Long commentCount);
 
+    @Mapping(target = "url",source = "cordel.illustration.url")
     CordelResponseDTO toCordelResponseDTO(Cordel cordel, Long likeCount,Long commentCount);
 
     EssayResponseDTO toEssayResponseDTO(Essay essay, Long likeCount,Long commentCount);
@@ -73,7 +74,7 @@ public interface WorkMapper {
 
     ArtResponseDTO toArtResponseDTO(Art art, Long likeCount,Long commentCount);
 
-    InfographicReponseDTO toInfographicReponseDTO(Infographic infographic, Long likeCount,Long commentCount);
+    InfographicResponseDTO toInfographicReponseDTO(Infographic infographic, Long likeCount, Long commentCount);
 
     // daqui pra baixo separar ppor classe do mapper se prcisar, ver depois
     @Mapping(target = "author", ignore = true)

@@ -25,9 +25,9 @@ import org.bibliotecaviva.backend.domain.enums.WorkTypes;
 import org.bibliotecaviva.backend.domain.exceptions.UserNotFoundException;
 import org.bibliotecaviva.backend.domain.exceptions.WorkAlreadyExistsException;
 import org.bibliotecaviva.backend.domain.exceptions.WorkNotFoundException;
-import org.bibliotecaviva.backend.persistance.repository.CommentRepository;
-import org.bibliotecaviva.backend.persistance.repository.UserRepository;
-import org.bibliotecaviva.backend.persistance.repository.WorkRepository;
+import org.bibliotecaviva.backend.persistence.repository.CommentRepository;
+import org.bibliotecaviva.backend.persistence.repository.UserRepository;
+import org.bibliotecaviva.backend.persistence.repository.WorkRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -64,6 +64,7 @@ public class WorkService {
         var work = workRepository.findById(id)
                 .orElseThrow(() -> new WorkNotFoundException("Obra com id " + id + " não encontrada"));
         workRepository.incrementViewCount(id);
+
         return workMapper.toDTO(work, workRepository.getLikeCount(id), commentRepository.countByWork_Id(id));
     }
 
@@ -72,7 +73,6 @@ public class WorkService {
 
         User author = userRepository.findByEmail(dto.author())
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com email: " + dto.author()));
-
         Work work = switch (dto) {
             case EssayRequestDTO d -> workMapper.toEntity(d);
             case ArtRequestDTO d -> workMapper.toEntity(d);
@@ -86,6 +86,11 @@ public class WorkService {
             default -> throw new IllegalArgumentException(
                     "Tipo não mapeado: " + dto.getClass().getSimpleName());
         };
+        if(work instanceof Cordel){
+            var arte = (Art)workRepository.findWorkByTitle(((CordelRequestDTO) dto).artName())
+                    .orElseThrow(() -> new WorkNotFoundException("Obra de arte com nome " + ((CordelRequestDTO) dto).artName() + " não encontrada"));
+            ((Cordel) work).setIllustration(arte);
+        }
         work.setAuthor(author);
         work.setViewCount(0L);
         // todo: pode verificar por tipo tambem, ver isso dps
@@ -117,6 +122,11 @@ public class WorkService {
             User user = userRepository.findByEmail(dto.author())
                     .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com email: " + dto.author()));
             work.setAuthor(user);
+        }
+        if(work instanceof Cordel){
+            var arte = (Art)workRepository.findWorkByTitle(((CordelRequestDTO) dto).artName())
+                    .orElseThrow(() -> new WorkNotFoundException("Obra de arte com nome " + ((CordelRequestDTO) dto).artName() + " não encontrada"));
+            ((Cordel) work).setIllustration(arte);
         }
         // todo: verificar update, provvavelmente pode quebrar regra de author e nome de
         // obra

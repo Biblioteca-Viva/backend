@@ -1,4 +1,4 @@
-package org.bibliotecaviva.backend.persistance.repository;
+package org.bibliotecaviva.backend.persistence.repository;
 
 import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.enums.Status;

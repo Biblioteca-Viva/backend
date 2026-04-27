@@ -5,7 +5,7 @@ import org.bibliotecaviva.backend.application.dtos.response.audiovisual.LibraLit
 import org.bibliotecaviva.backend.application.dtos.response.audiovisual.MultimediaResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.textual.*;
 import org.bibliotecaviva.backend.application.dtos.response.visual.ArtResponseDTO;
-import org.bibliotecaviva.backend.application.dtos.response.visual.InfographicReponseDTO;
+import org.bibliotecaviva.backend.application.dtos.response.visual.InfographicResponseDTO;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @Schema(name = "WorkResponse", description = "Interface for all work response DTOs", oneOf =
         { LibraLiteratureResponseDTO.class, MultimediaResponseDTO.class, ArticleResponseDTO.class,
                 CordelResponseDTO.class, EssayResponseDTO.class, ShortStoryResponseDTO.class, TaleResponseDTO.class,
-                ArtResponseDTO.class, InfographicReponseDTO.class}
+                ArtResponseDTO.class, InfographicResponseDTO.class}
 )
 public interface WorkResponse {
     UUID id();

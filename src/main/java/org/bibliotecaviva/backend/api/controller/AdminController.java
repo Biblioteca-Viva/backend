@@ -32,7 +32,7 @@ public class AdminController {
     private final CommentService commentService;
     private final WorkService workService;
 
-    // registrar conta de professor / trocar role pra prof
+    //todo: registrar conta de curador / trocar role pra curador / deletar
 
     @GetMapping()
     @PreAuthorize("hasRole('ADMIN')")

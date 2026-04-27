@@ -1,4 +1,4 @@
-package org.bibliotecaviva.backend.persistance.converter;
+package org.bibliotecaviva.backend.persistence.converter;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

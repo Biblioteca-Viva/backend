@@ -20,7 +20,7 @@ import org.bibliotecaviva.backend.application.dtos.response.audiovisual.LibraLit
 import org.bibliotecaviva.backend.application.dtos.response.audiovisual.MultimediaResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.textual.*;
 import org.bibliotecaviva.backend.application.dtos.response.visual.ArtResponseDTO;
-import org.bibliotecaviva.backend.application.dtos.response.visual.InfographicReponseDTO;
+import org.bibliotecaviva.backend.application.dtos.response.visual.InfographicResponseDTO;
 import org.bibliotecaviva.backend.application.services.WorkService;
 import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.enums.WorkTypes;
@@ -218,7 +218,7 @@ public class WorkController {
     }
 
     @PostMapping("/infographics")
-    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = InfographicReponseDTO.class)), description = "Created")
+    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = InfographicResponseDTO.class)), description = "Created")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
@@ -227,7 +227,7 @@ public class WorkController {
     }
 
     @PutMapping("/infographics/{id}")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = InfographicReponseDTO.class)), description = "Updated")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = InfographicResponseDTO.class)), description = "Updated")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Work or Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")

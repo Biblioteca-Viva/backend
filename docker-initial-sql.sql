@@ -69,7 +69,6 @@ CREATE TABLE public.obras
     publication_date timestamp(6) NULL,
     title            varchar(255) NULL,
     users_id         uuid NULL,
-    likes            int8 DEFAULT 0 NOT NULL,
     view_count       int8 DEFAULT 0 NOT NULL,
     CONSTRAINT obras_pkey PRIMARY KEY (id),
     CONSTRAINT obras_type_check CHECK (((type)::text = ANY (ARRAY[('LibraLiterature':: character varying)::text, ('Multimedia':: character varying)::text, ('Article':: character varying)::text, ('Cordel':: character varying)::text, ('Essay':: character varying)::text, ('ShortStory':: character varying)::text, ('Tale':: character varying)::text, ('Art':: character varying)::text, ('Infographic':: character varying)::text])
@@ -169,8 +168,10 @@ CREATE TABLE public.cordel
     "content"    text NULL,
     rhyme_scheme varchar(255) NULL,
     id           uuid NOT NULL,
+    illustration_id uuid NULL,
     CONSTRAINT cordel_pkey PRIMARY KEY (id),
-    CONSTRAINT fkgwf8wt7aq919plt7il9iwjfsd FOREIGN KEY (id) REFERENCES public.obras (id)
+    CONSTRAINT  ilustrationfkey FOREIGN KEY (illustration_id) REFERENCES public.art (id),
+    CONSTRAINT fkgwf8wt7aq919plt7il9iwjfsd FOREIGN KEY (illustration_id) REFERENCES public.obras (id)
 );
 
 
@@ -361,6 +362,27 @@ VALUES
      'Peça visual produzida para divulgar as atividades da Semana Cultural da Escola, com identidade gráfica baseada em tipografia expressiva e cores vibrantes.',
      'Art'),
 
+    ('66616666-6666-6666-6666-666666666001',
+     'Ilustração: Cordel do Sertão Vivo',
+     'e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf',
+     '2026-01-04',
+     'Ilustração para cordel',
+     'Art'),
+
+    ('66626666-6666-6666-6666-666666666001',
+     'Ilustração: Cordel da Juventude',
+     'e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf',
+     '2026-01-04',
+     'Ilustração para cordel',
+     'Art'),
+
+    ('66636666-6666-6666-6666-666666666001',
+     'Ilustração: Cordel da Feira Popular',
+     'e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf',
+     '2026-01-04',
+     'Ilustração para cordel',
+     'Art'),
+
     ('77777777-7777-7777-7777-777777777001',
      'Infográfico: Ciclo da Água',
      'e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf',
@@ -501,20 +523,39 @@ VALUES ('11111111-1111-1111-1111-111111111001',
 
 
 -- ============================================================
+-- ART (Arte visual / Quadrinho / Cartaz)
+-- ============================================================
+INSERT INTO art (id, url)
+VALUES ('66666666-6666-6666-6666-666666666001',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4n2xFm8T2OKwmXBZnGvIxpqB1rKVvtKrEUw&s'),
+       ('66666666-6666-6666-6666-666666666002',
+        'https://i.pinimg.com/originals/00/58/69/0058690f7f7a613325d957e89822eceb.jpg'),
+       ('66666666-6666-6666-6666-666666666003',
+        'https://sme.goiania.go.gov.br/conexaoescola/wp-content/uploads/2024/03/image-17.png'),
+       ('66616666-6666-6666-6666-666666666001', 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgCT-BwTM9XX75W_0gWyqC-C0pyMJ3L0BZQg4ZbE_zQyswGLN6Ja1UHLuSoBiLvSYNqkVmcTF5L2P-xf2QlmS02F1P9HKs9tMq1t6jZtxBnTOSy5jc8jG7oKnqhY0vV17zN4dT8HCx6pqe2/s0/Casal+xilo+6.jpg'),
+       ('66626666-6666-6666-6666-666666666001', 'https://img.freepik.com/vetores-premium/cordel-brasileiro-mulher-com-cacto-e-papagaio-estilo-xilogravura_419911-1863.jpg?semt=ais_hybrid&w=740&q=80'),
+       ('66636666-6666-6666-6666-666666666001', 'https://d1o6h00a1h5k7q.cloudfront.net/imagens/img_m/13347/6027474.jpg');
+
+-- ============================================================
 -- CORDEL
 -- ============================================================
-INSERT INTO cordel (id, content, rhyme_scheme)
+
+
+INSERT INTO cordel (id, content, rhyme_scheme,illustration_id)
 VALUES ('22222222-2222-2222-2222-222222222001',
         E'Na feira de Garanhuns\nTem coisa que não tem par\nO cheiro de coentro fresco\nQue faz a gente sonhar\nO Seu Antônio de Souza\nVende rapadura no ar\n\nA dona Graça da tapioca\nChega cedo toda manhã\nCom sua frigideira quente\nE sua mão de artesã\nFaz goma com jeito e graça\nNuma dança pernambucã\n\nO repentista Zé Aboio\nChega com seu violão\nDesafia quem vier\nNo grito e no coração\nA feira ri e balança\nAo som de sua canção\n\nVem gente de todo canto\nDe Lajedo e de Bom Conselho\nTraz feijão, milho e abóbora\nCarregado no velho espelho\nDa vida simples do campo\nQue reluz como um vermelho',
-        'ABABCC'),
+        'ABABCC',
+        '66616666-6666-6666-6666-666666666001'),
 
        ('22222222-2222-2222-2222-222222222002',
         E'O sertão não é só seca\nNem só pedra e solidão\nÉ memória que não morre\nNa voz do velho sertão\nÉ cultura que resiste\nNo peito do nordestão\n\nTem a história dos ancestrais\nQue plantaram nessa terra\nSangue e suor derramados\nNo tempo de paz e guerra\nUma herança que se guarda\nComo pedra que não erra\n\nO cangaceiro virou lenda\nO vaqueiro virou poema\nA rendeira virou símbolo\nDe um povo que não se trema\nNordeste é raiz e flor\nQue nenhuma seca drema',
-        'AABBCC'),
+        'AABBCC',
+        '66626666-6666-6666-6666-666666666001'),
 
        ('22222222-2222-2222-2222-222222222003',
         E'Somos jovens do sertão\nCom olho no horizonte\nBuscamos o conhecimento\nFeito água numa fonte\nNossa escola é nossa força\nNosso estudo é nossa fronte\n\nEstudamos de manhã cedo\nE voltamos pela noite\nCarregando nosso sonho\nQue o cansaço não açoite\nPois o saber é a chave\nQue o futuro nos acoite\n\nDedico esse cordel\nA cada jovem que luta\nQue enfrenta o vestibular\nCom garra, fé e conduta\nO diploma não é fim\nMas começo de uma luta',
-        'ABABAB');
+        'ABABAB',
+        '66636666-6666-6666-6666-666666666001');
 
 
 -- ============================================================
@@ -574,16 +615,6 @@ VALUES
     ('55555555-5555-5555-5555-555555555002',
      'A menina tinha andado três horas pela caatinga quando percebeu que não sabia mais de onde tinha vindo. O sol estava no meio do céu — o pior lugar possível para quem precisa se orientar — e a única coisa que se movia era o vento, vindo do norte com um cheiro de poeira antiga. Ela parou, bebeu o resto da água do cantil e avaliou suas opções: nenhuma boa. Foi então que o vento mudou. Não ficou mais forte — ficou diferente. Tinha uma direção que parecia querer alguma coisa, um sopro que empurrava levemente para a esquerda do caminho que ela estava seguindo. A menina desconfiou. Mas desconfiança não mata a sede. Seguiu para a esquerda. Meia hora depois encontrou o açude — pequeno, metade evaporado, mas com água. Quando terminou de beber e olhou para o horizonte, o vento já era outro, igual a todos os outros. Ela nunca contou essa história pra ninguém, porque sabia que ninguém ia acreditar. Mas na vida toda, quando estava em dúvida, fechava os olhos e esperava um vento do norte.',
      'conto popular');
--- ============================================================
--- ART (Arte visual / Quadrinho / Cartaz)
--- ============================================================
-INSERT INTO art (id, url)
-VALUES ('66666666-6666-6666-6666-666666666001',
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4n2xFm8T2OKwmXBZnGvIxpqB1rKVvtKrEUw&s'),
-       ('66666666-6666-6666-6666-666666666002',
-        'https://i.pinimg.com/originals/00/58/69/0058690f7f7a613325d957e89822eceb.jpg'),
-       ('66666666-6666-6666-6666-666666666003',
-        'https://sme.goiania.go.gov.br/conexaoescola/wp-content/uploads/2024/03/image-17.png');
 
 
 -- ============================================================

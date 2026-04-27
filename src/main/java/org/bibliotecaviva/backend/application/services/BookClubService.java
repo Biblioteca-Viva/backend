@@ -11,9 +11,11 @@ import org.bibliotecaviva.backend.domain.entities.BookClub;
 import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.enums.Role;
 import org.bibliotecaviva.backend.domain.exceptions.ConflictException;
-import org.bibliotecaviva.backend.domain.exceptions.ForbbidenException;
+import org.bibliotecaviva.backend.domain.exceptions.ForbiddenException;
 import org.bibliotecaviva.backend.domain.exceptions.NotFoundException;
-import org.bibliotecaviva.backend.persistance.repository.BookClubRepository;
+import org.bibliotecaviva.backend.persistence.repository.BookClubRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -39,11 +41,11 @@ public class BookClubService {
         return bookClubMapper.toDto(next, bookClubRepository.countParticipants(next.getId()));
     }
 
-    public List<BookClubResponseDTO> getAll() {
-        return bookClubRepository.findAllWithParticipantCount().stream()
+    public Page<BookClubResponseDTO> getAll(Pageable pageable) {
+        return bookClubRepository.findAllWithParticipantCount(pageable)
                 .map(club -> bookClubMapper.toDto((BookClub) club[0], (Long) club[1])
-                )
-                .toList();
+                );
+
     }
 
     public BookClubResponseDTO getById(UUID id) {
@@ -97,7 +99,7 @@ public class BookClubService {
 
     private static void verifyOwnership(User user, BookClub club) {
         if (!club.getOrganizer().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
-            throw new ForbbidenException("Forbidden");
+            throw new ForbiddenException("Forbidden");
         }
     }
 

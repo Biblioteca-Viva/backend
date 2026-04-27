@@ -10,11 +10,11 @@ http:
     type: json
     data: |-
       {
-        "title": "Fractais Urbanos: A Geometria do Recife",
+        "title": "CORDELTESTE",
        "author": "aluno2@teste.com", 
         "publicationDate": "2026-03-30T11:45:00",
         "description": "Uma composição digital explorando as linhas arquitetônicas do Cais do Sertão sob uma perspectiva de geometria fractal e cores neon.",
-        "url": "https://cdn.bibliotecaviva.org/media/arts/2026/fractais-urbanos-01.jpg"
+        "url": "https://s5.static.brasilescola.uol.com.br/be/2023/06/xilogravura-elemento-comum-na-literatura-de-cordel-uma-das-expressoes-da-cultura-popular-do-nordeste.jpg"
       }
   auth: inherit
 

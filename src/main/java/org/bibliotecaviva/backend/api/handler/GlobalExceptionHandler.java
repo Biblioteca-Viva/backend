@@ -1,6 +1,7 @@
 package org.bibliotecaviva.backend.api.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.log4j.Log4j2;
 import org.bibliotecaviva.backend.domain.exceptions.ApiErrorException;
 import org.bibliotecaviva.backend.domain.exceptions.ApiErrorResponse;
 import org.springframework.beans.TypeMismatchException;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.List;
 
 @RestControllerAdvice
-
+@Log4j2
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ApiErrorException.class)
@@ -34,7 +35,7 @@ public class GlobalExceptionHandler {
             case BadCredentialsException e -> "Credenciais inválidas";
             default -> "Erro de autenticação desconhecido";
         };
-        return build(HttpStatus.FORBIDDEN, message, request);
+        return build(HttpStatus.UNAUTHORIZED, message, request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -49,9 +50,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(TypeMismatchException.class)
-    public ResponseEntity<ApiErrorResponse> handleTypeMismatchException(IllegalArgumentException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleTypeMismatchException(TypeMismatchException ex, HttpServletRequest request) {
         return build(HttpStatus.BAD_REQUEST, "Argumento Inválido ", request);
     }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, "Argumento Inválido ", request);
+    }
+
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiErrorResponse> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
@@ -60,6 +66,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleAllExceptions(Exception ex, HttpServletRequest request) {
+        log.error("Unhandled exception: ", ex);
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "Ocorreu um erro inesperado", request);
     }
 

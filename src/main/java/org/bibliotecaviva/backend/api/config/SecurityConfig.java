@@ -1,6 +1,7 @@
 package org.bibliotecaviva.backend.api.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -28,11 +29,11 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    // todo: colocar coisas do cors e jwt no env
 
     private final JwtAuthFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
-
+    @Value("${security.cors.allowed-origins}")
+    private List<String> allowedOrigins;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -43,9 +44,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/bookclub/*/subscribe", "/bookclub/*/unsubscribe")
                         .authenticated()
 
-                        .requestMatchers(HttpMethod.POST, "/bookclub/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/bookclub/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/bookclub/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/bookclub/*").hasAnyRole("ADMIN","CURADOR")
+                        .requestMatchers(HttpMethod.PUT, "/bookclub/*").hasAnyRole("ADMIN","CURADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/bookclub/*").hasAnyRole("ADMIN","CURADOR")
 
                         .requestMatchers(HttpMethod.PUT, "/work/*/comments/*").hasAnyRole("ADMIN", "CURADOR", "ALUNO")
                         .requestMatchers(HttpMethod.DELETE, "/work/*/comments/*")
@@ -95,7 +96,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(allowedOrigins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

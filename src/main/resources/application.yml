@@ -9,7 +9,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: true #disable in production
     properties:
         hibernate:
             format_sql: true
@@ -27,3 +27,5 @@ security:
   jwt:
     secret: ${JWT_SECRET}
     expiration: ${JWT_EXPIRATION}
+  cors:
+    allowed-origins: ${ALLOWED_ORIGINS}

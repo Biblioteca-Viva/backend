@@ -21,6 +21,8 @@ public record CordelRequestDTO(
         String content,
         //TODO: ENUM PARA ESQUEMAS
         @NotBlank(message = "Rhyme scheme can not be blank")
-        String rhymeScheme
+        String rhymeScheme,
+        String artName
+        //botar auto tbm
 ) implements WorkRequest {
 }

@@ -62,7 +62,7 @@ public class CommentController {
             @PathVariable UUID commentId,
             @RequestBody @Valid CommentRequestDTO dto,
             @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(commentService.update(commentId, user.getId(), dto.content()));
+        return ResponseEntity.ok(commentService.update(commentId, user, dto.content()));
     }
 
     @DeleteMapping("/{commentId}")

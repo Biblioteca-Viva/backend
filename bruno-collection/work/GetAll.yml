@@ -5,11 +5,7 @@ info:
 
 http:
   method: GET
-  url: "{{api_url}}work?type=infographic"
-  params:
-    - name: type
-      value: infographic
-      type: query
+  url: "{{api_url}}work"
   auth: inherit
 
 settings:

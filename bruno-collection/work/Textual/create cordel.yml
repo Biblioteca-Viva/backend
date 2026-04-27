@@ -11,12 +11,13 @@ http:
     data: |-
       { 
         
-        "title":  "Mal e o Sofrimento",  
+        "title":  "Malle e o Sofrimento",  
         "author": "aluno2@teste.com",
        "publicationDate": "2024-06-28T00:00:00.000000", 
        "description":" Cordel sobre convrsacom Deus",
        "content": "Se eu conversasse com Deus\nIria lhe perguntar\nPor que é que sofremostanto\nQuando viemos pra cá?\nQue dívida é essa\nQue a gente tem que morrer pra pagar?\n\nPerguntaria também\nComo é que ele é feito\nQue não dorme, que não come\nE assim vive satisfeito.\n Por que foi que ele não fez\n A gente do mesmo jeito?\n\nPor que existem uns felizes\n E outros que sofrem tanto?\n Nascemos do mesmo jeito,\n Moramos no mesmo canto.\n Quem foi temperar o choro\n E acabou salgando o pranto?",     
-      "rhymeScheme": "ABAABB"
+      "rhymeScheme": "ABAABB",
+        "artName":"Ilustração: Cordel do Sertão Vivo"
       }
   auth: inherit
 

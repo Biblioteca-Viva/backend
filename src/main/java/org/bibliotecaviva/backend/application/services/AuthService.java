@@ -9,7 +9,7 @@ import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.enums.Role;
 import org.bibliotecaviva.backend.domain.enums.Status;
 import org.bibliotecaviva.backend.domain.exceptions.UserAlreadyExistsException;
-import org.bibliotecaviva.backend.persistance.repository.UserRepository;
+import org.bibliotecaviva.backend.persistence.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,7 +24,6 @@ public class AuthService {
     private final UserDetailsService userDetailsService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final TokenBlackListService tokenBlacklistService;
 
     public LoginResponseDTO login(LoginRequestDTO request) {
         authenticationManager.authenticate(
@@ -51,8 +50,5 @@ public class AuthService {
                 "Pedido gerado com sucesso, aguarde a aprovação do administrador.");
     }
 
-    public void invalidateToken(String token){
-        tokenBlacklistService.invalidate(token);
-    }
 
 }

@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.bibliotecaviva.backend.application.services.JwtService;
-import org.bibliotecaviva.backend.application.services.TokenBlackListService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,7 +22,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    private final TokenBlackListService blacklistService;
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -40,10 +38,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String jwt = authHeader.substring(7);
         final String userEmail = jwtService.extractUsername(jwt);
 
-        if (blacklistService.isBlacklisted(jwt)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token invalidado");
-            return;
-        }
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
