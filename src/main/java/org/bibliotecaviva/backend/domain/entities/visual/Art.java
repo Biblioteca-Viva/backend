@@ -2,10 +2,12 @@ package org.bibliotecaviva.backend.domain.entities.visual;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.bibliotecaviva.backend.domain.entities.textual.Cordel;
 
 @Entity
 @Getter
@@ -20,4 +22,6 @@ aqui fala que Espaço digital para divulgação de desenhos, ilustrações feita
 talvez quebrar depois em entidades menores.
  */
 public class Art extends VisualWork {
+    @OneToOne(mappedBy = "illustration")
+    Cordel cordel;
 }

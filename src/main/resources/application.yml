@@ -8,7 +8,7 @@ spring:
     url: ${DB_URL}
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true #disable in production
     properties:
         hibernate:

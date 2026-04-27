@@ -63,6 +63,7 @@ public interface WorkMapper {
 
     ArticleResponseDTO toArticleResponseDTO(Article article, Long likeCount,Long commentCount);
 
+    @Mapping(target = "url",source = "cordel.illustration.url")
     CordelResponseDTO toCordelResponseDTO(Cordel cordel, Long likeCount,Long commentCount);
 
     EssayResponseDTO toEssayResponseDTO(Essay essay, Long likeCount,Long commentCount);
