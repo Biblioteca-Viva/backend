@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -210,6 +211,32 @@ class UserManagementServiceTest {
 
         assertEquals(3L, userManagementService.countPendingUsers());
         verify(userRepository).countUserByAccountStatus(Status.PENDING);
+    }
+
+    @Test
+    void findUserByEmailShouldReturnUserResponseWhenFound() {
+        User user = buildUser(UUID.randomUUID(), Status.ACTIVE);
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+
+        Optional<UserResponseDTO> response = userManagementService.findUserByEmail(user.getEmail());
+
+        assertTrue(response.isPresent());
+        assertEquals(user.getId(), response.get().id());
+        assertEquals(user.getName(), response.get().name());
+        assertEquals(user.getEmail(), response.get().email());
+        assertEquals(user.getRole(), response.get().role());
+        assertEquals(user.getAccountStatus(), response.get().accountStatus());
+    }
+
+    @Test
+    void findUserByEmailShouldReturnEmptyWhenUserDoesNotExist() {
+        String email = "ausente@teste.com";
+        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        Optional<UserResponseDTO> response = userManagementService.findUserByEmail(email);
+
+        assertTrue(response.isEmpty());
+        verify(userRepository).findByEmail(email);
     }
 
     private static User buildUser(UUID id, Status status) {

@@ -34,7 +34,7 @@ public class AuthService {
         return new LoginResponseDTO(token, user.getEmail());
     }
 
-    public RegisterResponseDTO register(RegisterRequestDTO request) {
+    private RegisterResponseDTO createUser(RegisterRequestDTO request, Role role, Status status, String successMessage) {
         if (userRepository.existsByEmail(request.email())) {
             throw new UserAlreadyExistsException("O email inserido já está em uso");
         }
@@ -42,12 +42,24 @@ public class AuthService {
                 .name(request.name())
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
-                .role(Role.ALUNO)
-                .accountStatus(Status.PENDING)
+                .role(role)
+                .accountStatus(status)
                 .build();
+
         userRepository.save(user);
-        return new RegisterResponseDTO(user.getName(), user.getEmail(),
-                "Pedido gerado com sucesso, aguarde a aprovação do administrador.");
+        return new RegisterResponseDTO(user.getName(), user.getEmail(), successMessage);
+    }
+
+    public RegisterResponseDTO registerCurador(RegisterRequestDTO request) {
+        return createUser(request, Role.CURADOR, Status.ACTIVE, "Curador cadastrado com sucesso!");
+    }
+
+    public RegisterResponseDTO registerAluno(RegisterRequestDTO request) {
+        return createUser(request, Role.ALUNO, Status.PENDING, "Pedido gerado com sucesso, aguarde a aprovação do administrador!");
+    }
+
+    public RegisterResponseDTO registerAdmin(RegisterRequestDTO request) {
+        return createUser(request, Role.ADMIN, Status.ACTIVE, "Admin cadastrado com sucesso!");
     }
 
 

@@ -37,7 +37,7 @@ public class AdminController {
     private final BookClubReviewService bookClubReviewService;
     private final UsersImportService usersImportService;
 
-    //todo: registrar conta de curador / trocar role pra curador / deletar
+    //todo: trocar role pra curador / deletar
 
     @GetMapping()
     @PreAuthorize("hasRole('ADMIN')")

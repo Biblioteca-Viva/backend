@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -106,7 +107,13 @@ public class UserManagementService {
     public Long countUsers() {
         return userRepository.count();
     }
+
     public Long countPendingUsers() {
         return userRepository.countUserByAccountStatus(Status.PENDING);
+    }
+
+    public Optional<UserResponseDTO> findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(user -> new UserResponseDTO(user.getId(), user.getName(), user.getEmail(), user.getRole(), user.getAccountStatus()));
     }
 }

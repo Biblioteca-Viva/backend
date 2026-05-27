@@ -1,11 +1,11 @@
 info:
-  name: Register
+  name: Register Aluno
   type: http
   seq: 1
 
 http:
   method: POST
-  url: "{{api_url}}auth/register"
+  url: "{{api_url}}auth/register/aluno"
   body:
     type: json
     data: |-
@@ -20,3 +20,22 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+
+docs: |-
+  # Register Aluno
+
+  Cria uma conta de aluno sem exigir token.
+
+  ## Regras
+  - Cria usuario com role `ALUNO`.
+  - A conta nasce com status `PENDING`.
+  - Email duplicado retorna `409`.
+
+  ## Body
+  ```json
+  {
+    "name": "teste123",
+    "email": "teste123@teste.com",
+    "password": "123456"
+  }
+  ```

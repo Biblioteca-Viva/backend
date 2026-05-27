@@ -1,0 +1,51 @@
+info:
+  name: importUsers
+  type: http
+  seq: 9
+
+http:
+  method: POST
+  url: "{{api_url}}admin/users/import"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  # Import Users
+
+  Importa usuarios a partir de uma planilha `.xlsx`.
+
+  ## Regras
+  - Requer token Bearer de usuario `ADMIN`.
+  - A requisicao deve ser `multipart/form-data`.
+  - O campo do arquivo deve se chamar `file`.
+  - A primeira aba da planilha deve ter cabecalho com `name`, `email` e `password`.
+  - Linhas em branco sao ignoradas no contador `totalRows`.
+  - Linhas validas sao salvas mesmo quando outras linhas possuem erro.
+  - Usuarios importados sao criados como `ALUNO` com status `ACTIVE`.
+
+  ## Resposta
+  ```json
+  {
+    "totalRows": 2,
+    "createdCount": 1,
+    "failedCount": 1,
+    "erros": [
+      {
+        "row": 3,
+        "email": "email-invalido",
+        "message": "Email invalido"
+      }
+    ]
+  }
+  ```
+
+  ## Respostas esperadas
+  - `200`: planilha processada.
+  - `400`: arquivo ausente, extensao invalida, planilha vazia, cabecalho ausente/incompleto ou arquivo ilegivel.
+  - `401`: token ausente ou invalido.
+  - `403`: usuario autenticado nao e admin.

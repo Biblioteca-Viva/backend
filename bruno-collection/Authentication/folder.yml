@@ -5,3 +5,17 @@ info:
 
 request:
   auth: inherit
+
+docs: |-
+  # Authentication
+
+  ## Public
+  - `POST /auth/login`: autentica usuario ativo e retorna JWT.
+  - `POST /auth/register/aluno`: cadastra usuario `ALUNO` com status `PENDING`.
+  - `POST /auth/logout`: invalida o JWT atual.
+
+  ## Admin
+  - `POST /auth/register/curador`: cadastra usuario `CURADOR` com status `ACTIVE`.
+  - `POST /auth/register/admin`: cadastra usuario `ADMIN` com status `ACTIVE`.
+
+  Os cadastros de `CURADOR` e `ADMIN` exigem token Bearer de usuario `ADMIN`.

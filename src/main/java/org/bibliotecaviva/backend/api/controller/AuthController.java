@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.bibliotecaviva.backend.application.dtos.request.LoginRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.request.RegisterRequestDTO;
@@ -41,11 +42,25 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
-    @PostMapping("/register")
+    @PostMapping("/register/aluno")
     @ApiResponse(responseCode = "201", description = "Created")
-    @ApiResponse(responseCode = "403", description = "Conflict, email already exists", content = @Content)
-    public ResponseEntity<RegisterResponseDTO> register(@RequestBody RegisterRequestDTO request) {
-        return new ResponseEntity<>(authService.register(request), HttpStatus.CREATED);
+    @ApiResponse(responseCode = "409", description = "Conflict, email already exists", content = @Content)
+    public ResponseEntity<RegisterResponseDTO> registerAluno(@Valid @RequestBody RegisterRequestDTO request) {
+        return new ResponseEntity<>(authService.registerAluno(request), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/register/curador")
+    @ApiResponse(responseCode = "201", description = "Created")
+    @ApiResponse(responseCode = "409", description = "Conflict, email already exists", content = @Content)
+    public ResponseEntity<RegisterResponseDTO> registerCurador(@Valid @RequestBody RegisterRequestDTO request) {
+        return new ResponseEntity<>(authService.registerCurador(request), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/register/admin")
+    @ApiResponse(responseCode = "201", description = "Created")
+    @ApiResponse(responseCode = "409", description = "Conflict, email already exists", content = @Content)
+    public ResponseEntity<RegisterResponseDTO> registerAdmin(@Valid @RequestBody RegisterRequestDTO request) {
+        return new ResponseEntity<>(authService.registerAdmin(request), HttpStatus.CREATED);
     }
 
     @ApiResponse(responseCode = "401", description = "No token to remove or invalid token.", content = @Content)

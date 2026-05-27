@@ -20,10 +20,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AuthControllerIntegrationTest extends IntegrationTestSupport {
 
     @Test
-    void registerShouldCreatePendingStudent() throws Exception {
+    void registerAlunoShouldCreatePendingStudent() throws Exception {
         String email = uniqueEmail("registro");
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/auth/register/aluno")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of(
                                 "name", "Novo aluno",
@@ -42,10 +42,10 @@ class AuthControllerIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void registerShouldRejectDuplicatedEmail() throws Exception {
+    void registerAlunoShouldRejectDuplicatedEmail() throws Exception {
         User existing = createActiveStudent();
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/auth/register/aluno")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of(
                                 "name", "Outro aluno",
@@ -54,6 +54,76 @@ class AuthControllerIntegrationTest extends IntegrationTestSupport {
                         ))))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.status").value(409));
+    }
+
+    @Test
+    void adminShouldRegisterCuratorAndAdminAsActiveUsers() throws Exception {
+        User admin = createActiveAdmin();
+        String authorization = bearer(admin);
+        String curatorEmail = uniqueEmail("novo-curador");
+        String adminEmail = uniqueEmail("novo-admin");
+
+        mockMvc.perform(post("/auth/register/curador")
+                        .header("Authorization", authorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of(
+                                "name", "Novo curador",
+                                "email", curatorEmail,
+                                "password", RAW_PASSWORD
+                        ))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("Novo curador"))
+                .andExpect(jsonPath("$.email").value(curatorEmail))
+                .andExpect(jsonPath("$.message").value("Curador cadastrado com sucesso!"));
+
+        mockMvc.perform(post("/auth/register/admin")
+                        .header("Authorization", authorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of(
+                                "name", "Novo admin",
+                                "email", adminEmail,
+                                "password", RAW_PASSWORD
+                        ))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("Novo admin"))
+                .andExpect(jsonPath("$.email").value(adminEmail))
+                .andExpect(jsonPath("$.message").value("Admin cadastrado com sucesso!"));
+
+        User savedCurator = userRepository.findByEmail(curatorEmail).orElseThrow();
+        assertEquals(Role.CURADOR, savedCurator.getRole());
+        assertEquals(Status.ACTIVE, savedCurator.getAccountStatus());
+        assertTrue(passwordEncoder.matches(RAW_PASSWORD, savedCurator.getPassword()));
+
+        User savedAdmin = userRepository.findByEmail(adminEmail).orElseThrow();
+        assertEquals(Role.ADMIN, savedAdmin.getRole());
+        assertEquals(Status.ACTIVE, savedAdmin.getAccountStatus());
+        assertTrue(passwordEncoder.matches(RAW_PASSWORD, savedAdmin.getPassword()));
+    }
+
+    @Test
+    void nonAdminShouldNotRegisterCuratorOrAdmin() throws Exception {
+        User curator = createActiveCurator();
+        String authorization = bearer(curator);
+
+        mockMvc.perform(post("/auth/register/curador")
+                        .header("Authorization", authorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of(
+                                "name", "Curador recusado",
+                                "email", uniqueEmail("curador-negado"),
+                                "password", RAW_PASSWORD
+                        ))))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(post("/auth/register/admin")
+                        .header("Authorization", authorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of(
+                                "name", "Admin recusado",
+                                "email", uniqueEmail("admin-negado"),
+                                "password", RAW_PASSWORD
+                        ))))
+                .andExpect(status().isForbidden());
     }
 
     @Test

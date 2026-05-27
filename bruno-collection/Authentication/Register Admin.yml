@@ -1,0 +1,34 @@
+info:
+  name: Register Admin
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{api_url}}auth/register/admin"
+  auth: inherit
+  body:
+    type: json
+    data: |-
+      {
+        "name":"admin teste",
+        "email":"admin.teste@teste.com",
+        "password":"123456"
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  # Register Admin
+
+  Cria uma conta de administrador.
+
+  ## Regras
+  - Requer token Bearer de usuario `ADMIN`.
+  - Cria usuario com role `ADMIN`.
+  - A conta nasce com status `ACTIVE`.
+  - Email duplicado retorna `409`.

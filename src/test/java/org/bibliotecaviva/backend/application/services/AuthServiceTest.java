@@ -72,12 +72,12 @@ class AuthServiceTest {
     }
 
     @Test
-    void registerShouldCreatePendingStudentWithEncodedPassword() {
+    void registerAlunoShouldCreatePendingStudentWithEncodedPassword() {
         RegisterRequestDTO request = new RegisterRequestDTO("Aluno", "aluno@teste.com", "123456");
         when(userRepository.existsByEmail(request.email())).thenReturn(false);
         when(passwordEncoder.encode(request.password())).thenReturn("encoded-password");
 
-        RegisterResponseDTO response = authService.register(request);
+        RegisterResponseDTO response = authService.registerAluno(request);
 
         assertEquals(request.name(), response.name());
         assertEquals(request.email(), response.email());
@@ -94,11 +94,55 @@ class AuthServiceTest {
     }
 
     @Test
-    void registerShouldFailWhenEmailAlreadyExists() {
+    void registerCuradorShouldCreateActiveCuratorWithEncodedPassword() {
+        RegisterRequestDTO request = new RegisterRequestDTO("Curador", "curador@teste.com", "123456");
+        when(userRepository.existsByEmail(request.email())).thenReturn(false);
+        when(passwordEncoder.encode(request.password())).thenReturn("encoded-password");
+
+        RegisterResponseDTO response = authService.registerCurador(request);
+
+        assertEquals(request.name(), response.name());
+        assertEquals(request.email(), response.email());
+        assertEquals("Curador cadastrado com sucesso!", response.message());
+
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        User saved = userCaptor.getValue();
+        assertEquals(request.name(), saved.getName());
+        assertEquals(request.email(), saved.getEmail());
+        assertEquals("encoded-password", saved.getPassword());
+        assertEquals(Role.CURADOR, saved.getRole());
+        assertEquals(Status.ACTIVE, saved.getAccountStatus());
+    }
+
+    @Test
+    void registerAdminShouldCreateActiveAdminWithEncodedPassword() {
+        RegisterRequestDTO request = new RegisterRequestDTO("Admin", "admin@teste.com", "123456");
+        when(userRepository.existsByEmail(request.email())).thenReturn(false);
+        when(passwordEncoder.encode(request.password())).thenReturn("encoded-password");
+
+        RegisterResponseDTO response = authService.registerAdmin(request);
+
+        assertEquals(request.name(), response.name());
+        assertEquals(request.email(), response.email());
+        assertEquals("Admin cadastrado com sucesso!", response.message());
+
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        User saved = userCaptor.getValue();
+        assertEquals(request.name(), saved.getName());
+        assertEquals(request.email(), saved.getEmail());
+        assertEquals("encoded-password", saved.getPassword());
+        assertEquals(Role.ADMIN, saved.getRole());
+        assertEquals(Status.ACTIVE, saved.getAccountStatus());
+    }
+
+    @Test
+    void registerAlunoShouldFailWhenEmailAlreadyExists() {
         RegisterRequestDTO request = new RegisterRequestDTO("Aluno", "aluno@teste.com", "123456");
         when(userRepository.existsByEmail(request.email())).thenReturn(true);
 
-        assertThrows(UserAlreadyExistsException.class, () -> authService.register(request));
+        assertThrows(UserAlreadyExistsException.class, () -> authService.registerAluno(request));
 
         verify(passwordEncoder, never()).encode(any());
         verify(userRepository, never()).save(any());

@@ -17,7 +17,16 @@ docs: |-
   - `PATCH /admin/reject/{id}`: rejeita uma conta pendente.
   - `PATCH /admin/block/{id}`: bloqueia uma conta.
   - `DELETE /admin/users/{id}`: exclui permanentemente uma conta.
+  - `POST /admin/users/import`: importa usuarios por planilha `.xlsx`.
 
   A exclusao permanente remove o usuario, seus comentarios, resenhas,
   likes e inscricoes em clubes. Obras publicadas pelo usuario continuam
   no catalogo com o nome do autor preservado em texto.
+
+  ## Importacao por planilha
+  - Requer `multipart/form-data`.
+  - O campo multipart deve se chamar `file`.
+  - A planilha deve ter as colunas `name`, `email` e `password`.
+  - Linhas validas sao importadas mesmo quando outras linhas falham.
+  - Usuarios importados entram como `ALUNO` com status `ACTIVE`.
+  - Erros por linha retornam no campo `erros`.

@@ -76,8 +76,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/work/**").hasAnyRole("ADMIN", "CURADOR")
                         .requestMatchers(HttpMethod.GET, "/work/**").permitAll()
 
-                        .requestMatchers("/auth/login", "/auth/register", "/auth/logout",
-                                         "/swagger-ui/**", "/scalar/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/auth/login", "/auth/register/aluno", "/auth/logout",
+                                "/swagger-ui/**", "/scalar/**", "/v3/api-docs/**").permitAll()
+
+                        .requestMatchers("/auth/register/curador", "/auth/register/admin").hasAnyRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/user/find-by-email").hasAnyRole("ADMIN", "CURADOR")
 
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session

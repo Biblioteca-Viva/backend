@@ -1,0 +1,40 @@
+info:
+  name: findByEmail
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{api_url}}user/find-by-email?email={{email}}"
+  params:
+    - name: email
+      value: "{{email}}"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  # Find User By Email
+
+  Busca um usuario pelo email.
+
+  ## Regras
+  - Requer token Bearer de usuario `ADMIN` ou `CURADOR`.
+  - `ALUNO` recebe `403`.
+  - Retorna `404` quando o email nao existe.
+
+  ## Resposta `200`
+  ```json
+  {
+    "id": "uuid-do-usuario",
+    "name": "Aluno",
+    "email": "aluno1@teste.com",
+    "role": "ALUNO",
+    "accountStatus": "active"
+  }
+  ```
