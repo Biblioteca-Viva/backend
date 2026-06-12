@@ -18,5 +18,8 @@ public interface CommentSummary {
 
     LocalDateTime getCreatedAt();
 
-
+        UUID getReplyId();
+        String getReplyContent();
+        String getReplyAuthor();
+        LocalDateTime getReplyCreatedAt();
 }

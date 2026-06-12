@@ -18,9 +18,10 @@ public interface CommentRepository extends JpaRepository<Comment, UUID> {
 
     @Query("SELECT c.id AS id, c.content AS content, c.createdAt AS createdAt, " +
             "u.name AS userName,u.id as userId, " +
-            "w.title AS workTitle,w.id as workId " +
-            "FROM Comment c JOIN c.user u JOIN c.work w")
-    Page<CommentSummary> findAllWithUserAndWork(Pageable pageable);
+            "w.title AS workTitle,w.id as workId, " +
+            "rp.content as replyContent, rp.id as replyId, rp.createdAt as replyCreatedAt, rp.user.name as replyAuthor " +
+            "FROM Comment c JOIN c.user u JOIN c.work w left JOIN c.reply rp")
+    Page<CommentSummary> findAllWithDetails(Pageable pageable);
 
     @Modifying
     @Query(value = """

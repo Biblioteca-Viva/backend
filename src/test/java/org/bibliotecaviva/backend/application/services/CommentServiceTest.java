@@ -129,7 +129,7 @@ class CommentServiceTest {
         when(summary.getUserName()).thenReturn("Aluno");
         when(summary.getWorkTitle()).thenReturn("Obra");
         when(summary.getCreatedAt()).thenReturn(createdAt);
-        when(commentRepository.findAllWithUserAndWork(pageable)).thenReturn(new PageImpl<>(List.of(summary)));
+        when(commentRepository.findAllWithDetails(pageable)).thenReturn(new PageImpl<>(List.of(summary)));
 
         Page<CommentSummaryResponseDTO> response = commentService.getAll(pageable);
 

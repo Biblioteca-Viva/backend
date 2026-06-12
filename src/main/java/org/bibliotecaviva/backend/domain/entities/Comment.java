@@ -4,9 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "comments")
@@ -44,6 +42,8 @@ public class Comment {
     @ToString.Exclude
     private Set<User> likedBy = new HashSet<>();
 
+    @OneToOne(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private CommentReply reply;
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

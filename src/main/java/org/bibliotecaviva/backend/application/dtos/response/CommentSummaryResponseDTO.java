@@ -10,6 +10,10 @@ public record CommentSummaryResponseDTO(
         String userId,
         String workTitle,
         String workId,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        UUID replyId,
+        String replyContent,
+        String replyAuthor,
+        LocalDateTime replyCreatedAt
 ) {
 }

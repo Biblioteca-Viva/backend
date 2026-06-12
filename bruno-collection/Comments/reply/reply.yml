@@ -1,0 +1,26 @@
+info:
+  name: reply
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{api_url}}work/{{work_id}}/comments/{{commentId}}/reply"
+  body:
+    type: json
+    data: |-
+      {
+        "content": "Muito obrigado"
+      }
+  auth: inherit
+
+runtime:
+  variables:
+    - name: commentId
+      value: c9000003-0000-0000-0000-000000000002
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
