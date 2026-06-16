@@ -10,14 +10,14 @@ http:
     type: json
     data: |-
       {
-        "content": "Muito obrigado"
+        "content": "valeu!"
       }
   auth: inherit
 
 runtime:
   variables:
     - name: commentId
-      value: c9000003-0000-0000-0000-000000000002
+      value: c4000003-0000-0000-0000-000000000002
 
 settings:
   encodeUrl: true

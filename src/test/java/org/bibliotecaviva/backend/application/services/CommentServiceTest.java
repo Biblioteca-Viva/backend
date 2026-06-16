@@ -33,9 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -137,7 +135,6 @@ class CommentServiceTest {
         when(summary.getWorkTitle()).thenReturn("Obra");
         when(summary.getCreatedAt()).thenReturn(createdAt);
         when(commentRepository.findAllWithDetails(pageable)).thenReturn(new PageImpl<>(List.of(summary)));
-
         Page<CommentSummaryResponseDTO> response = commentService.getAll(pageable);
 
         assertEquals(1, response.getTotalElements());
@@ -434,18 +431,31 @@ class CommentServiceTest {
     @Test
     void deleteReplyShouldAllowOwner() {
         UUID replyId = UUID.randomUUID();
+
         User owner = buildUser(UUID.randomUUID(), Role.ALUNO);
+
+        Comment comment = buildComment(
+                UUID.randomUUID(),
+                "Muito bom",
+                buildUser(UUID.randomUUID(), Role.ALUNO),
+                buildArticle(UUID.randomUUID(), buildUser(UUID.randomUUID(), Role.ALUNO))
+        );
+
         CommentReply reply = CommentReply.builder()
                 .id(replyId)
                 .content("Resposta")
                 .user(owner)
+                .comment(comment)
                 .build();
 
-        when(replyRepository.findById(replyId)).thenReturn(Optional.of(reply));
+        comment.setReply(reply);
+
+        when(replyRepository.findById(replyId))
+                .thenReturn(Optional.of(reply));
 
         commentService.deleteReply(replyId, owner);
 
-        verify(replyRepository).delete(reply);
+        assertNull(comment.getReply());
     }
 
     @Test
@@ -453,17 +463,28 @@ class CommentServiceTest {
         UUID replyId = UUID.randomUUID();
         User owner = buildUser(UUID.randomUUID(), Role.ALUNO);
         User admin = buildUser(UUID.randomUUID(), Role.ADMIN);
+
+        Comment comment = buildComment(
+                UUID.randomUUID(),
+                "Muito bom",
+                buildUser(UUID.randomUUID(), Role.ALUNO),
+                buildArticle(UUID.randomUUID(), buildUser(UUID.randomUUID(), Role.ALUNO))
+        );
         CommentReply reply = CommentReply.builder()
                 .id(replyId)
                 .content("Resposta")
                 .user(owner)
+                .comment(comment)
                 .build();
 
-        when(replyRepository.findById(replyId)).thenReturn(Optional.of(reply));
+        comment.setReply(reply);
+
+        when(replyRepository.findById(replyId))
+                .thenReturn(Optional.of(reply));
 
         commentService.deleteReply(replyId, admin);
 
-        verify(replyRepository).delete(reply);
+        assertNull(comment.getReply());
     }
 
     @Test

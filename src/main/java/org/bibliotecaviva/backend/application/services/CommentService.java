@@ -175,13 +175,14 @@ public class CommentService {
     public void deleteReply(UUID replyId, User user) {
         CommentReply reply = replyRepository.findById(replyId)
                 .orElseThrow(() -> new CommentNotFoundException("Resposta com id " + replyId + " não encontrada"));
-
+        var parent = reply.getComment();
         boolean isAdmin = user.getRole() == Role.ADMIN;
         boolean isOwner = reply.getUser().getId().equals(user.getId());
 
         if (!isAdmin && !isOwner) {
             throw new AccessDeniedException("Você não pode deletar esta resposta");
         }
+        parent.setReply(null);
         replyRepository.delete(reply);
     }
 
