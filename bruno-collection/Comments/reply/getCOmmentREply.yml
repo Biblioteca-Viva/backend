@@ -11,7 +11,7 @@ http:
 runtime:
   variables:
     - name: comment_id
-      value: c9000003-0000-0000-0000-000000000002
+      value: c8000003-0000-0000-0000-000000000002
 
 settings:
   encodeUrl: true
