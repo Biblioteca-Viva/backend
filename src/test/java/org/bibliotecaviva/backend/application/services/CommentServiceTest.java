@@ -1,15 +1,19 @@
 package org.bibliotecaviva.backend.application.services;
 
+import org.bibliotecaviva.backend.application.dtos.response.CommentReplyResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.CommentResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.CommentSummaryResponseDTO;
 import org.bibliotecaviva.backend.domain.entities.Comment;
+import org.bibliotecaviva.backend.domain.entities.CommentReply;
 import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.entities.projections.CommentSummary;
 import org.bibliotecaviva.backend.domain.entities.textual.Article;
 import org.bibliotecaviva.backend.domain.enums.Role;
 import org.bibliotecaviva.backend.domain.enums.Status;
 import org.bibliotecaviva.backend.domain.exceptions.CommentNotFoundException;
+import org.bibliotecaviva.backend.domain.exceptions.ReplyAlreadyExistsException;
 import org.bibliotecaviva.backend.domain.exceptions.WorkNotFoundException;
+import org.bibliotecaviva.backend.persistence.repository.CommentReplyRepository;
 import org.bibliotecaviva.backend.persistence.repository.CommentRepository;
 import org.bibliotecaviva.backend.persistence.repository.WorkRepository;
 import org.junit.jupiter.api.Test;
@@ -49,6 +53,9 @@ class CommentServiceTest {
 
     @InjectMocks
     private CommentService commentService;
+
+    @Mock
+    private CommentReplyRepository replyRepository;
 
     @Test
     void createShouldPersistCommentForExistingWork() {
@@ -271,4 +278,303 @@ class CommentServiceTest {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
+
+    //replies
+    @Test
+    void replyShouldAllowAdmin() {
+        User workAuthor = buildUser(UUID.randomUUID(), Role.ALUNO);
+        User admin = buildUser(UUID.randomUUID(), Role.ADMIN);
+        Article work = buildArticle(UUID.randomUUID(), workAuthor);
+        Comment comment = buildComment(UUID.randomUUID(), "Comentario", workAuthor, work);
+        UUID replyId = UUID.randomUUID();
+        LocalDateTime replyCreatedAt = LocalDateTime.now();
+
+        when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
+        when(replyRepository.save(any(CommentReply.class))).thenAnswer(inv -> {
+            CommentReply reply = inv.getArgument(0);
+            reply.setId(replyId);
+            reply.setCreatedAt(replyCreatedAt);
+            return reply;
+        });
+
+        CommentReplyResponseDTO response = commentService.reply(comment.getId(), "Resposta do admin", admin);
+
+        assertEquals(replyId, response.id());
+        assertEquals("Resposta do admin", response.content());
+        assertEquals(admin.getName(), response.authorName());
+        assertEquals(replyCreatedAt, response.createdAt());
+        verify(replyRepository).save(any(CommentReply.class));
+    }
+
+    @Test
+    void replyShouldAllowWorkAuthor() {
+        User workAuthor = buildUser(UUID.randomUUID(), Role.ALUNO);
+        User commenter = buildUser(UUID.randomUUID(), Role.ALUNO);
+        Article work = buildArticle(UUID.randomUUID(), workAuthor);
+        Comment comment = buildComment(UUID.randomUUID(), "Comentario", commenter, work);
+        UUID replyId = UUID.randomUUID();
+        LocalDateTime replyCreatedAt = LocalDateTime.now();
+
+        when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
+        when(replyRepository.save(any(CommentReply.class))).thenAnswer(inv -> {
+            CommentReply reply = inv.getArgument(0);
+            reply.setId(replyId);
+            reply.setCreatedAt(replyCreatedAt);
+            return reply;
+        });
+
+        CommentReplyResponseDTO response = commentService.reply(comment.getId(), "Resposta do autor", workAuthor);
+
+        assertEquals("Resposta do autor", response.content());
+        assertEquals(workAuthor.getName(), response.authorName());
+        verify(replyRepository).save(any(CommentReply.class));
+    }
+
+    @Test
+    void replyShouldFailWhenUserIsNeitherAdminNorWorkAuthor() {
+        User workAuthor = buildUser(UUID.randomUUID(), Role.ALUNO);
+        User thirdParty = buildUser(UUID.randomUUID(), Role.ALUNO);
+        Article work = buildArticle(UUID.randomUUID(), workAuthor);
+        Comment comment = buildComment(UUID.randomUUID(), "Comentario", thirdParty, work);
+
+        when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
+
+        assertThrows(AccessDeniedException.class,
+                () -> commentService.reply(comment.getId(), "Tentativa", thirdParty));
+
+        verify(replyRepository, never()).save(any());
+    }
+
+    @Test
+    void replyShouldFailWhenCommentAlreadyHasReply() {
+        User workAuthor = buildUser(UUID.randomUUID(), Role.ALUNO);
+        Article work = buildArticle(UUID.randomUUID(), workAuthor);
+        Comment comment = buildComment(UUID.randomUUID(), "Comentario", workAuthor, work);
+        CommentReply existingReply = CommentReply.builder()
+                .id(UUID.randomUUID())
+                .content("Resposta existente")
+                .user(workAuthor)
+                .comment(comment)
+                .build();
+        comment.setReply(existingReply);
+
+        when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
+
+        assertThrows(ReplyAlreadyExistsException.class,
+                () -> commentService.reply(comment.getId(), "Segunda resposta", workAuthor));
+
+        verify(replyRepository, never()).save(any());
+    }
+
+    @Test
+    void replyShouldFailWhenCommentDoesNotExist() {
+        UUID commentId = UUID.randomUUID();
+        User admin = buildUser(UUID.randomUUID(), Role.ADMIN);
+
+        when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
+
+        assertThrows(CommentNotFoundException.class,
+                () -> commentService.reply(commentId, "Resposta", admin));
+
+        verify(replyRepository, never()).save(any());
+    }
+
+    // =========================================================
+    // getByReplyByCommentId()
+    // =========================================================
+
+    @Test
+    void getByReplyByCommentIdShouldReturnReplyWhenExists() {
+        UUID commentId = UUID.randomUUID();
+        User author = buildUser(UUID.randomUUID(), Role.ALUNO);
+        CommentReply reply = CommentReply.builder()
+                .id(UUID.randomUUID())
+                .content("Resposta")
+                .user(author)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        when(commentRepository.existsById(commentId)).thenReturn(true);
+        when(replyRepository.findByCommentId(commentId)).thenReturn(Optional.of(reply));
+
+        CommentReplyResponseDTO response = commentService.getByReplyByCommentId(commentId);
+
+        assertEquals(reply.getId(), response.id());
+        assertEquals("Resposta", response.content());
+        assertEquals(author.getName(), response.authorName());
+    }
+
+    @Test
+    void getByReplyByCommentIdShouldFailWhenCommentDoesNotExist() {
+        UUID commentId = UUID.randomUUID();
+
+        when(commentRepository.existsById(commentId)).thenReturn(false);
+
+        assertThrows(CommentNotFoundException.class,
+                () -> commentService.getByReplyByCommentId(commentId));
+
+        verify(replyRepository, never()).findByCommentId(any());
+    }
+
+    @Test
+    void getByReplyByCommentIdShouldFailWhenReplyDoesNotExist() {
+        UUID commentId = UUID.randomUUID();
+
+        when(commentRepository.existsById(commentId)).thenReturn(true);
+        when(replyRepository.findByCommentId(commentId)).thenReturn(Optional.empty());
+
+        assertThrows(CommentNotFoundException.class,
+                () -> commentService.getByReplyByCommentId(commentId));
+    }
+
+    // =========================================================
+    // deleteReply()
+    // =========================================================
+
+    @Test
+    void deleteReplyShouldAllowOwner() {
+        UUID replyId = UUID.randomUUID();
+        User owner = buildUser(UUID.randomUUID(), Role.ALUNO);
+        CommentReply reply = CommentReply.builder()
+                .id(replyId)
+                .content("Resposta")
+                .user(owner)
+                .build();
+
+        when(replyRepository.findById(replyId)).thenReturn(Optional.of(reply));
+
+        commentService.deleteReply(replyId, owner);
+
+        verify(replyRepository).delete(reply);
+    }
+
+    @Test
+    void deleteReplyShouldAllowAdmin() {
+        UUID replyId = UUID.randomUUID();
+        User owner = buildUser(UUID.randomUUID(), Role.ALUNO);
+        User admin = buildUser(UUID.randomUUID(), Role.ADMIN);
+        CommentReply reply = CommentReply.builder()
+                .id(replyId)
+                .content("Resposta")
+                .user(owner)
+                .build();
+
+        when(replyRepository.findById(replyId)).thenReturn(Optional.of(reply));
+
+        commentService.deleteReply(replyId, admin);
+
+        verify(replyRepository).delete(reply);
+    }
+
+    @Test
+    void deleteReplyShouldFailWhenUserIsNeitherOwnerNorAdmin() {
+        UUID replyId = UUID.randomUUID();
+        User owner = buildUser(UUID.randomUUID(), Role.ALUNO);
+        User thirdParty = buildUser(UUID.randomUUID(), Role.ALUNO);
+        CommentReply reply = CommentReply.builder()
+                .id(replyId)
+                .content("Resposta")
+                .user(owner)
+                .build();
+
+        when(replyRepository.findById(replyId)).thenReturn(Optional.of(reply));
+
+        assertThrows(AccessDeniedException.class,
+                () -> commentService.deleteReply(replyId, thirdParty));
+
+        verify(replyRepository, never()).delete(any());
+    }
+
+    @Test
+    void deleteReplyShouldFailWhenReplyDoesNotExist() {
+        UUID replyId = UUID.randomUUID();
+        User admin = buildUser(UUID.randomUUID(), Role.ADMIN);
+
+        when(replyRepository.findById(replyId)).thenReturn(Optional.empty());
+
+        assertThrows(CommentNotFoundException.class,
+                () -> commentService.deleteReply(replyId, admin));
+
+        verify(replyRepository, never()).delete(any());
+    }
+
+    // =========================================================
+    // updateReply()
+    // =========================================================
+
+    @Test
+    void updateReplyShouldAllowOwner() {
+        UUID commentId = UUID.randomUUID();
+        User owner = buildUser(UUID.randomUUID(), Role.ALUNO);
+        CommentReply reply = CommentReply.builder()
+                .id(UUID.randomUUID())
+                .content("Antigo")
+                .user(owner)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        when(replyRepository.findByCommentId(commentId)).thenReturn(Optional.of(reply));
+        when(replyRepository.save(reply)).thenReturn(reply);
+
+        CommentReplyResponseDTO response = commentService.updateReply(commentId, "Atualizado", owner);
+
+        assertEquals("Atualizado", reply.getContent());
+        assertEquals("Atualizado", response.content());
+        verify(replyRepository).save(reply);
+    }
+
+    @Test
+    void updateReplyShouldAllowAdmin() {
+        UUID commentId = UUID.randomUUID();
+        User owner = buildUser(UUID.randomUUID(), Role.ALUNO);
+        User admin = buildUser(UUID.randomUUID(), Role.ADMIN);
+        CommentReply reply = CommentReply.builder()
+                .id(UUID.randomUUID())
+                .content("Antigo")
+                .user(owner)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        when(replyRepository.findByCommentId(commentId)).thenReturn(Optional.of(reply));
+        when(replyRepository.save(reply)).thenReturn(reply);
+
+        CommentReplyResponseDTO response = commentService.updateReply(commentId, "Atualizado pelo admin", admin);
+
+        assertEquals("Atualizado pelo admin", reply.getContent());
+        assertEquals("Atualizado pelo admin", response.content());
+        verify(replyRepository).save(reply);
+    }
+
+    @Test
+    void updateReplyShouldFailWhenUserIsNeitherOwnerNorAdmin() {
+        UUID commentId = UUID.randomUUID();
+        User owner = buildUser(UUID.randomUUID(), Role.ALUNO);
+        User thirdParty = buildUser(UUID.randomUUID(), Role.ALUNO);
+        CommentReply reply = CommentReply.builder()
+                .id(UUID.randomUUID())
+                .content("Antigo")
+                .user(owner)
+                .build();
+
+        when(replyRepository.findByCommentId(commentId)).thenReturn(Optional.of(reply));
+
+        assertThrows(AccessDeniedException.class,
+                () -> commentService.updateReply(commentId, "Tentativa", thirdParty));
+
+        verify(replyRepository, never()).save(any());
+    }
+
+    @Test
+    void updateReplyShouldFailWhenReplyDoesNotExist() {
+        UUID commentId = UUID.randomUUID();
+        User owner = buildUser(UUID.randomUUID(), Role.ALUNO);
+
+        when(replyRepository.findByCommentId(commentId)).thenReturn(Optional.empty());
+
+        assertThrows(CommentNotFoundException.class,
+                () -> commentService.updateReply(commentId, "Atualizado", owner));
+
+        verify(replyRepository, never()).save(any());
+    }
+
 }

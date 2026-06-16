@@ -78,4 +78,187 @@ class CommentControllerIntegrationTest extends IntegrationTestSupport {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404));
     }
+
+    @Test
+    void shouldCreateAndGetReply() throws Exception {
+        User curator = createActiveCurator();
+        User student = createActiveStudent();
+        Article work = createArticleInDatabase(curator);
+
+        // student cria comentário
+        JsonNode createComment = jsonFrom(mockMvc.perform(post("/work/{workId}/comments", work.getId())
+                        .header("Authorization", bearer(student))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("content", "Comentario"))))
+                .andExpect(status().isCreated())
+                .andReturn());
+        UUID commentId = UUID.fromString(createComment.get("id").asText());
+
+        // curator (autor da obra) responde
+        mockMvc.perform(post("/work/{workId}/comments/{commentId}/reply", work.getId(), commentId)
+                        .header("Authorization", bearer(curator))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("content", "Resposta do autor"))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.content").value("Resposta do autor"))
+                .andExpect(jsonPath("$.authorName").value(curator.getName()))
+                .andExpect(jsonPath("$.id").isNotEmpty());
+
+        // GET da reply pelo commentId
+        mockMvc.perform(get("/work/{workId}/comments/{commentId}/reply", work.getId(), commentId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").value("Resposta do autor"))
+                .andExpect(jsonPath("$.authorName").value(curator.getName()));
+    }
+
+    @Test
+    void replyShouldFailWhenCommentAlreadyHasReply() throws Exception {
+        User curator = createActiveCurator();
+        User student = createActiveStudent();
+        Article work = createArticleInDatabase(curator);
+
+        JsonNode createComment = jsonFrom(mockMvc.perform(post("/work/{workId}/comments", work.getId())
+                        .header("Authorization", bearer(student))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("content", "Comentario"))))
+                .andExpect(status().isCreated())
+                .andReturn());
+        UUID commentId = UUID.fromString(createComment.get("id").asText());
+
+        // primeira reply — deve funcionar
+        mockMvc.perform(post("/work/{workId}/comments/{commentId}/reply", work.getId(), commentId)
+                        .header("Authorization", bearer(curator))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("content", "Primeira resposta"))))
+                .andExpect(status().isCreated());
+
+        // segunda reply no mesmo comentário — deve falhar
+        mockMvc.perform(post("/work/{workId}/comments/{commentId}/reply", work.getId(), commentId)
+                        .header("Authorization", bearer(curator))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("content", "Segunda resposta"))))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void replyShouldFailWhenUserIsNeitherAdminNorWorkAuthor() throws Exception {
+        User curator = createActiveCurator();
+        User student = createActiveStudent();
+        User thirdParty = createActiveStudent();
+        Article work = createArticleInDatabase(curator);
+
+        JsonNode createComment = jsonFrom(mockMvc.perform(post("/work/{workId}/comments", work.getId())
+                        .header("Authorization", bearer(student))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("content", "Comentario"))))
+                .andExpect(status().isCreated())
+                .andReturn());
+        UUID commentId = UUID.fromString(createComment.get("id").asText());
+
+        mockMvc.perform(post("/work/{workId}/comments/{commentId}/reply", work.getId(), commentId)
+                        .header("Authorization", bearer(thirdParty))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("content", "Tentativa de terceiro"))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void replyShouldFailWhenCommentDoesNotExist() throws Exception {
+        User admin = createActiveAdmin();
+
+        mockMvc.perform(post("/work/{workId}/comments/{commentId}/reply", UUID.randomUUID(), UUID.randomUUID())
+                        .header("Authorization", bearer(admin))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("content", "Resposta"))))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404));
+    }
+
+    @Test
+    void shouldUpdateAndDeleteReply() throws Exception {
+        User curator = createActiveCurator();
+        User admin = createActiveAdmin();
+        User student = createActiveStudent();
+        Article work = createArticleInDatabase(curator);
+
+        JsonNode createComment = jsonFrom(mockMvc.perform(post("/work/{workId}/comments", work.getId())
+                        .header("Authorization", bearer(student))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("content", "Comentario"))))
+                .andExpect(status().isCreated())
+                .andReturn());
+        UUID commentId = UUID.fromString(createComment.get("id").asText());
+
+        JsonNode createReply = jsonFrom(mockMvc.perform(post("/work/{workId}/comments/{commentId}/reply", work.getId(), commentId)
+                        .header("Authorization", bearer(curator))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("content", "Resposta original"))))
+                .andExpect(status().isCreated())
+                .andReturn());
+        UUID replyId = UUID.fromString(createReply.get("id").asText());
+
+        // curator atualiza a própria reply
+        mockMvc.perform(put("/work/{workId}/comments/{commentId}/reply", work.getId(), commentId)
+                        .header("Authorization", bearer(curator))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("content", "Resposta atualizada"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").value("Resposta atualizada"));
+
+        // admin deleta a reply
+        mockMvc.perform(delete("/work/{workId}/comments/{commentId}/reply/{replyId}", work.getId(), commentId, replyId)
+                        .header("Authorization", bearer(admin)))
+                .andExpect(status().isNoContent());
+
+        // GET após delete retorna 404
+        mockMvc.perform(get("/work/{workId}/comments/{commentId}/reply", work.getId(), commentId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateReplyShouldFailWhenUserIsNeitherOwnerNorAdmin() throws Exception {
+        User curator = createActiveCurator();
+        User student = createActiveStudent();
+        User thirdParty = createActiveStudent();
+        Article work = createArticleInDatabase(curator);
+
+        JsonNode createComment = jsonFrom(mockMvc.perform(post("/work/{workId}/comments", work.getId())
+                        .header("Authorization", bearer(student))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("content", "Comentario"))))
+                .andExpect(status().isCreated())
+                .andReturn());
+        UUID commentId = UUID.fromString(createComment.get("id").asText());
+
+        mockMvc.perform(post("/work/{workId}/comments/{commentId}/reply", work.getId(), commentId)
+                        .header("Authorization", bearer(curator))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("content", "Resposta original"))))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(put("/work/{workId}/comments/{commentId}/reply", work.getId(), commentId)
+                        .header("Authorization", bearer(thirdParty))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("content", "Tentativa de terceiro"))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getReplyOnCommentWithNoReplyShouldReturnNotFound() throws Exception {
+        User student = createActiveStudent();
+        User curator = createActiveCurator();
+        Article work = createArticleInDatabase(curator);
+
+        JsonNode createComment = jsonFrom(mockMvc.perform(post("/work/{workId}/comments", work.getId())
+                        .header("Authorization", bearer(student))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("content", "Comentario sem resposta"))))
+                .andExpect(status().isCreated())
+                .andReturn());
+        UUID commentId = UUID.fromString(createComment.get("id").asText());
+
+        mockMvc.perform(get("/work/{workId}/comments/{commentId}/reply", work.getId(), commentId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404));
+    }
 }

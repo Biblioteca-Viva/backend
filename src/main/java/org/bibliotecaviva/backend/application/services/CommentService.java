@@ -157,6 +157,8 @@ public class CommentService {
                 .user(user)
                 .build();
 
+        comment.setReply(reply);
+
         return toReplyDTO(replyRepository.save(reply));
     }
 
