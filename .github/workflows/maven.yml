@@ -1,23 +1,14 @@
 name: Backend CI
-
 on:
   workflow_dispatch:
   push:
     branches: ["main"]
-    paths: ["backend/**"] 
   pull_request:
     types: [opened, synchronize, reopened]
     branches: ["main"]
-    paths: ["backend/**"]
-
-
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
-
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
@@ -27,13 +18,8 @@ jobs:
         with:
           java-version: "21"
           distribution: "temurin"
-          cache: "maven" 
-          
-      - name: Iniciar Base de Dados
-        run: docker compose up -d
-
-      - name: Aguardar Base de Dados
-        run: sleep 15
+          cache: "maven"
+          cache-dependency-path: pom.xml
 
       - name: Dar permissão de execução para o Maven Wrapper
         run: chmod +x mvnw
