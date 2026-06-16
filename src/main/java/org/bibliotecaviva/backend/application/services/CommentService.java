@@ -1,14 +1,20 @@
 package org.bibliotecaviva.backend.application.services;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.bibliotecaviva.backend.application.dtos.response.CommentReplyResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.CommentResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.CommentSummaryResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.LikeResponseDTO;
 import org.bibliotecaviva.backend.domain.entities.Comment;
+import org.bibliotecaviva.backend.domain.entities.CommentReply;
 import org.bibliotecaviva.backend.domain.entities.projections.CommentSummary;
 import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.exceptions.CommentNotFoundException;
+import org.bibliotecaviva.backend.domain.exceptions.ReplyAlreadyExistsException;
 import org.bibliotecaviva.backend.domain.exceptions.WorkNotFoundException;
+import org.bibliotecaviva.backend.persistence.repository.CommentReplyRepository;
 import org.bibliotecaviva.backend.persistence.repository.CommentRepository;
 import org.bibliotecaviva.backend.persistence.repository.WorkRepository;
 import org.springframework.data.domain.Page;
@@ -26,7 +32,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final WorkRepository workRepository;
-
+    private final CommentReplyRepository replyRepository;
     //todo: Verificar spam, criar algo que não permita
 
     @Transactional
@@ -53,7 +59,7 @@ public class CommentService {
     }
 
     public Page<CommentSummaryResponseDTO> getAll(Pageable pageable){ // todo: ta extourando n+1 dps corrijo
-        return commentRepository.findAllWithUserAndWork(pageable)
+        return commentRepository.findAllWithDetails(pageable)
                 .map(this::toSummaryDTO);
     }
     @Transactional
@@ -92,7 +98,8 @@ public class CommentService {
                 comment.getContent(),
                 comment.getUser().getName(),
                 comment.getCreatedAt(),
-                commentRepository.getLikeCount(comment.getId())
+                commentRepository.getLikeCount(comment.getId()),
+                comment.getReply() != null ? toReplyDTO(comment.getReply()) : null
         );
     }
     //somente pra dashboard
@@ -104,7 +111,11 @@ public class CommentService {
                 comment.getUserId(),
                 comment.getWorkTitle(),
                 comment.getWorkId(),
-                comment.getCreatedAt()
+                comment.getCreatedAt(),
+                comment.getReplyId(),
+                comment.getReplyContent(),
+                comment.getReplyAuthor(),
+                comment.getReplyCreatedAt()
         );
     }
 
@@ -125,4 +136,78 @@ public class CommentService {
         long likeCount = commentRepository.getLikeCount(id);
         return new LikeResponseDTO(false, likeCount);
     }
+
+    @Transactional
+    public CommentReplyResponseDTO reply(UUID commentId, String content, User user) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("Comentário com id " + commentId + " não encontrado"));
+
+        boolean isAdmin = user.getRole() == Role.ADMIN;
+        boolean isWorkOwner = comment.getWork().getAuthor().getId().equals(user.getId());
+
+        if (!isAdmin && !isWorkOwner) {
+            throw new AccessDeniedException("Apenas administradores ou o autor da obra podem responder comentários");
+        }
+        if(comment.getReply() != null){
+            throw new ReplyAlreadyExistsException("Só pode existir uma resposta para esse comentário!");
+        }
+        CommentReply reply = CommentReply.builder()
+                .content(content)
+                .comment(comment)
+                .user(user)
+                .build();
+
+        comment.setReply(reply);
+
+        return toReplyDTO(replyRepository.save(reply));
+    }
+
+    public CommentReplyResponseDTO getByReplyByCommentId(UUID commentId) {
+        if (!commentRepository.existsById(commentId)) {
+            throw new CommentNotFoundException("Comentário com id " + commentId + " não encontrado");
+        }
+        var reply = replyRepository.findByCommentId(commentId)
+                .orElseThrow(()-> new CommentNotFoundException("Não existe resposta para esse comentario"));
+        return toReplyDTO(reply);
+    }
+
+    @Transactional
+    public void deleteReply(UUID replyId, User user) {
+        CommentReply reply = replyRepository.findById(replyId)
+                .orElseThrow(() -> new CommentNotFoundException("Resposta com id " + replyId + " não encontrada"));
+
+        boolean isAdmin = user.getRole() == Role.ADMIN;
+        boolean isOwner = reply.getUser().getId().equals(user.getId());
+
+        if (!isAdmin && !isOwner) {
+            throw new AccessDeniedException("Você não pode deletar esta resposta");
+        }
+        replyRepository.delete(reply);
+    }
+
+    private CommentReplyResponseDTO toReplyDTO(CommentReply reply) {
+        return new CommentReplyResponseDTO(
+                reply.getId(),
+                reply.getContent(),
+                reply.getUser().getName(),
+                reply.getCreatedAt()
+        );
+    }
+
+    @Transactional
+    public CommentReplyResponseDTO updateReply(UUID commentId, String content, User user) {
+        CommentReply reply = replyRepository.findByCommentId(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("Resposta não encontrada"));
+
+        boolean isAdmin = user.getRole() == Role.ADMIN;
+        boolean isOwner = reply.getUser().getId().equals(user.getId());
+
+        if (!isAdmin && !isOwner) {
+            throw new AccessDeniedException("Você não pode editar esta resposta");
+        }
+
+        reply.setContent(content);
+        return toReplyDTO(replyRepository.save(reply));
+    }
 }
+

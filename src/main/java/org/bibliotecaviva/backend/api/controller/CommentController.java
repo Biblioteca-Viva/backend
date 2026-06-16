@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.bibliotecaviva.backend.application.dtos.request.CommentReplyRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.request.CommentRequestDTO;
+import org.bibliotecaviva.backend.application.dtos.response.CommentReplyResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.CommentResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.LikeResponseDTO;
 import org.bibliotecaviva.backend.application.services.CommentService;
@@ -92,6 +94,45 @@ public class CommentController {
     public ResponseEntity<LikeResponseDTO> unLike(@PathVariable UUID commentId,
                                                   @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(commentService.unLike(commentId, user));
+    }
+
+    @PostMapping("/{commentId}/reply")
+    @ApiResponse(responseCode = "201", description = "Reply created")
+    @ApiResponse(responseCode = "403", description = "Not authorized")
+    @ApiResponse(responseCode = "404", description = "Comment not found")
+    public ResponseEntity<CommentReplyResponseDTO> reply(
+            @PathVariable UUID commentId,
+            @RequestBody @Valid CommentReplyRequestDTO dto,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(commentService.reply(commentId, dto.content(), user));
+    }
+
+    @GetMapping("/{commentId}/reply")
+    @ApiResponse(responseCode = "200", description = "Replies retrieved")
+    public ResponseEntity<CommentReplyResponseDTO> getReply(
+            @PathVariable UUID commentId){
+        return ResponseEntity.ok(commentService.getByReplyByCommentId(commentId));
+    }
+
+    @PutMapping("/{commentId}/reply")
+    @ApiResponse(responseCode = "200", description = "Reply updated")
+    @ApiResponse(responseCode = "403", description = "Not authorized")
+    @ApiResponse(responseCode = "404", description = "Reply not found")
+    public ResponseEntity<CommentReplyResponseDTO> updateReply(
+            @PathVariable UUID commentId,
+            @RequestBody @Valid CommentReplyRequestDTO dto,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(commentService.updateReply(commentId, dto.content(), user));
+    }
+
+    @DeleteMapping("/{commentId}/reply/{replyId}")
+    @ApiResponse(responseCode = "204", description = "Reply deleted")
+    public ResponseEntity<Void> deleteReply(
+            @PathVariable UUID replyId,
+            @AuthenticationPrincipal User user) {
+        commentService.deleteReply(replyId, user);
+        return ResponseEntity.noContent().build();
     }
 
 }

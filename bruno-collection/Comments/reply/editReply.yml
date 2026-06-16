@@ -1,0 +1,28 @@
+info:
+  name: editReply
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{api_url}}work/{{work_id}}/comments/{{commentId}}/reply"
+  body:
+    type: json
+    data: |-
+      {
+        "content": "valeu tamo junto"
+      }
+  auth: inherit
+
+runtime:
+  variables:
+    - name: commentId
+      value: c9000003-0000-0000-0000-000000000002
+    - name: id
+      value: 96e5e2a8-228d-4d78-9cd8-1b92d41acd1a
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

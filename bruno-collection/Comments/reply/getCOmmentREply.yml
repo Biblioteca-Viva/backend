@@ -1,0 +1,20 @@
+info:
+  name: getCOmmentREply
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{api_url}}work/{{work_id}}/comments/{{comment_id}}/reply"
+  auth: inherit
+
+runtime:
+  variables:
+    - name: comment_id
+      value: c9000003-0000-0000-0000-000000000002
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
