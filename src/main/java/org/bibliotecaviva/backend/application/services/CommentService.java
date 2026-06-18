@@ -58,7 +58,7 @@ public class CommentService {
                 .map(this::toDTO);
     }
 
-    public Page<CommentSummaryResponseDTO> getAll(Pageable pageable){ // todo: ta extourando n+1 dps corrijo
+    public Page<CommentSummaryResponseDTO> getAll(Pageable pageable){
         return commentRepository.findAllWithDetails(pageable)
                 .map(this::toSummaryDTO);
     }
