@@ -12,7 +12,6 @@ import org.bibliotecaviva.backend.application.dtos.response.LoginResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.RegisterResponseDTO;
 import org.bibliotecaviva.backend.application.services.AuthService;
 import org.bibliotecaviva.backend.application.services.JwtService;
-import org.bibliotecaviva.backend.application.services.TokenBlacklistService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +32,6 @@ public class AuthController {
 
     private final AuthService authService;
     private final JwtService jwtService;
-    private final TokenBlacklistService tokenBlacklistService;
 
     @PostMapping("/login")
     @ApiResponse(responseCode = "200", description = "OK")
@@ -71,8 +69,6 @@ public class AuthController {
         if (authorization == null || !authorization.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        String token = authorization.substring(7);
-        tokenBlacklistService.blacklist(token, jwtService.extractExpiration(token));
         return ResponseEntity.noContent().build();
     }
 
