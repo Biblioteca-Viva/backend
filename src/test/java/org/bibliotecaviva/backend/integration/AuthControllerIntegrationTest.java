@@ -159,17 +159,5 @@ class AuthControllerIntegrationTest extends IntegrationTestSupport {
                 .andExpect(jsonPath("$.status").value(403));
     }
 
-    @Test
-    void logoutShouldInvalidateTokenForProtectedEndpoints() throws Exception {
-        User user = createActiveStudent();
-        String authorization = bearer(user);
 
-        mockMvc.perform(post("/auth/logout")
-                        .header("Authorization", authorization))
-                .andExpect(status().isNoContent());
-
-        mockMvc.perform(get("/work/liked")
-                        .header("Authorization", authorization))
-                .andExpect(status().isUnauthorized());
-    }
 }

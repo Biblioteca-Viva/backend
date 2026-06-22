@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.bibliotecaviva.backend.application.dtos.request.BookClubRequestDTO;
+import org.bibliotecaviva.backend.application.dtos.response.BookClubParticipants;
 import org.bibliotecaviva.backend.application.dtos.response.BookClubResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.SubscribeResponseDTO;
 import org.bibliotecaviva.backend.application.services.BookClubService;
@@ -73,6 +74,10 @@ public class BookClubController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{id}/participants")
+    public ResponseEntity<BookClubParticipants> getParticipants(@PathVariable UUID id){
+        return ResponseEntity.ok(bookClubService.getParticipants(id));
+    }
     @PostMapping("/{id}/subscribe")
     public ResponseEntity<SubscribeResponseDTO> subscribe(@PathVariable UUID id, @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(bookClubService.subscribe(id, user));

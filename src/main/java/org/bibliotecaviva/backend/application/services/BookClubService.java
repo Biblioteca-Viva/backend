@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.bibliotecaviva.backend.application.dtos.request.BookClubRequestDTO;
+import org.bibliotecaviva.backend.application.dtos.response.BookClubParticipants;
 import org.bibliotecaviva.backend.application.dtos.response.BookClubResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.SubscribeResponseDTO;
 import org.bibliotecaviva.backend.application.mappers.BookClubMapper;
@@ -16,6 +17,7 @@ import org.bibliotecaviva.backend.domain.exceptions.NotFoundException;
 import org.bibliotecaviva.backend.persistence.repository.BookClubRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,6 +25,9 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -113,6 +118,7 @@ public class BookClubService {
         return new SubscribeResponseDTO("Presença cancelada com sucesso");
     }
 
+
     private static void verifyOwnership(User user, BookClub club) {
         if (user.getRole() == Role.ADMIN) {
             return;
@@ -122,4 +128,14 @@ public class BookClubService {
         }
     }
 
+    public BookClubParticipants getParticipants(UUID id) {
+        var bookClub = bookClubRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException("Clube do livro com id " + id + " não encontrado"));
+        var organizer = bookClub.getOrganizer();
+        var participants = bookClub.getParticipants().stream().map(User::getName).toList();
+
+        return new BookClubParticipants(organizer.getName(),
+                participants);
+
+    }
 }
