@@ -18,3 +18,12 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+
+docs: |-
+  # Get Comment Reply
+
+  Consulta a resposta vinculada ao comentario. A rota e publica.
+
+  ## Respostas esperadas
+  - `200`: resposta retornada.
+  - `404`: comentario ou resposta nao encontrado.

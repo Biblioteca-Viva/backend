@@ -12,6 +12,7 @@ import org.bibliotecaviva.backend.application.dtos.response.audiovisual.LibraLit
 import org.bibliotecaviva.backend.application.dtos.response.audiovisual.MultimediaResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.textual.*;
 import org.bibliotecaviva.backend.application.dtos.response.visual.ArtResponseDTO;
+import org.bibliotecaviva.backend.application.dtos.response.visual.IllustrationResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.visual.InfographicResponseDTO;
 import org.bibliotecaviva.backend.domain.entities.Work;
 import org.bibliotecaviva.backend.domain.entities.audiovisual.LibraLiterature;
@@ -65,8 +66,9 @@ public interface WorkMapper {
     ArticleResponseDTO toPoemResponseDTO(Poem poem, Long likeCount, Long commentCount);
 
     @Mapping(target = "author", expression = "java(cordel.resolveAuthorName())")
-    @Mapping(target = "url", source = "cordel.illustration.url")
     CordelResponseDTO toCordelResponseDTO(Cordel cordel, Long likeCount, Long commentCount);
+
+    IllustrationResponseDTO toIllustrationResponseDTO(Art art);
 
     @Mapping(target = "author", expression = "java(essay.resolveAuthorName())")
     EssayResponseDTO toEssayResponseDTO(Essay essay, Long likeCount, Long commentCount);

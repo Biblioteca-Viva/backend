@@ -81,7 +81,7 @@ public class CommentService {
     public void delete(UUID commentId, User user) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("Comentário com id " + commentId + " não encontrado"));
-        
+
         boolean isOwner = comment.getUser().getId().equals(user.getId());
         boolean isAdmin = user.getRole() == Role.ADMIN;
 
@@ -143,7 +143,8 @@ public class CommentService {
                 .orElseThrow(() -> new CommentNotFoundException("Comentário com id " + commentId + " não encontrado"));
 
         boolean isAdmin = user.getRole() == Role.ADMIN;
-        boolean isWorkOwner = comment.getWork().getAuthor().getId().equals(user.getId());
+        boolean isWorkOwner = comment.getWork().getAuthor() != null
+                && comment.getWork().getAuthor().getId().equals(user.getId());
 
         if (!isAdmin && !isWorkOwner) {
             throw new AccessDeniedException("Apenas administradores ou o autor da obra podem responder comentários");

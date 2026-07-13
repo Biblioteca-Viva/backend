@@ -24,3 +24,24 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+
+docs: |-
+  # Create Comment Reply
+
+  Cria a unica resposta permitida para o comentario indicado por `commentId`.
+
+  ## Regras
+  - Requer `Authorization: Bearer <token>`.
+  - Um `ADMIN` pode responder qualquer comentario.
+  - O usuario vinculado como autor da obra pode responder, incluindo um `ALUNO`.
+  - Outros usuarios recebem `403`.
+  - `content` e obrigatorio e aceita no maximo 200 caracteres.
+  - Se o comentario ja possuir uma resposta, retorna `409`.
+
+  ## Respostas esperadas
+  - `201`: resposta criada.
+  - `400`: conteudo invalido.
+  - `409`: o comentario ja possui uma resposta.
+  - `401`: usuario nao autenticado.
+  - `403`: usuario sem permissao para responder.
+  - `404`: comentario nao encontrado.
