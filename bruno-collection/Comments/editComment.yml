@@ -10,17 +10,36 @@ http:
     type: json
     data: |-
       {
-        "content": "Comentário editado pelo admin."
+        "content": "Comentário editado pelo autor."
       }
   auth: inherit
 
 runtime:
   variables:
+    - name: work_id
+      value: 88888888-8888-8888-8888-888888888003
     - name: comment_id
-      value: c8b708e2-eb1a-4561-ba1a-48539202d79f
+      value: c8000003-0000-0000-0000-000000000001
 
 settings:
   encodeUrl: true
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+
+docs: |-
+  # Edit Comment
+
+  Edita o conteudo de um comentario. Para editar uma resposta, use a rota da pasta `reply`.
+
+  ## Regras
+  - Requer `Authorization: Bearer <token>`.
+  - Os IDs iniciais apontam para registros do seed local.
+  - Somente o autor do comentario ou um usuario `ADMIN` pode editar.
+
+  ## Respostas esperadas
+  - `200`: comentario atualizado.
+  - `400`: conteudo invalido.
+  - `401`: usuario nao autenticado.
+  - `403`: usuario autenticado sem permissao sobre o comentario.
+  - `404`: comentario nao encontrado.

@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.entities.Work;
 import org.bibliotecaviva.backend.domain.entities.projections.WorkSummary;
+import org.bibliotecaviva.backend.domain.entities.visual.Art;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -109,7 +110,8 @@ public interface WorkRepository extends JpaRepository<Work, UUID> {
     List<WorkSummary> getMostLikedWorks();
 
 
-    Optional<Work> findWorkByTitle(String title);
+    @Query("SELECT art FROM Art art WHERE art.title = :title")
+    Optional<Art> findArtByTitle(@Param("title") String title);
 
     boolean existsWorkByAuthorAndTitle(User author, String title);
 

@@ -92,9 +92,7 @@ public class WorkService {
                     "Tipo não mapeado: " + dto.getClass().getSimpleName());
         };
         if (work instanceof Cordel && hasText(((CordelRequestDTO) dto).artName())) {
-            var arte = (Art) workRepository.findWorkByTitle(((CordelRequestDTO) dto).artName())
-                    .orElseThrow(() -> new WorkNotFoundException("Obra de arte com nome " + ((CordelRequestDTO) dto).artName() + " não encontrada"));
-            ((Cordel) work).setIllustration(arte);
+            ((Cordel) work).setIllustration(findArtByTitle(((CordelRequestDTO) dto).artName()));
         }
 
         if (dto.authorEmail() != null && dto.authorName() == null) {
@@ -144,9 +142,7 @@ public class WorkService {
         }
 
         if (work instanceof Cordel && hasText(((CordelRequestDTO) dto).artName())) {
-            var arte = (Art) workRepository.findWorkByTitle(((CordelRequestDTO) dto).artName())
-                    .orElseThrow(() -> new WorkNotFoundException("Obra de arte com nome " + ((CordelRequestDTO) dto).artName() + " não encontrada"));
-            ((Cordel) work).setIllustration(arte);
+            ((Cordel) work).setIllustration(findArtByTitle(((CordelRequestDTO) dto).artName()));
         }
         return workMapper.toDTO(workRepository.save(work), workRepository.getLikeCount(id),
                 commentRepository.countByWork_Id(id));
@@ -219,5 +215,11 @@ public class WorkService {
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    private Art findArtByTitle(String title) {
+        return workRepository.findArtByTitle(title)
+                .orElseThrow(() -> new WorkNotFoundException(
+                        "Obra de arte com nome " + title + " não encontrada"));
     }
 }
