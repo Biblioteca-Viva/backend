@@ -29,3 +29,8 @@ security:
     expiration: ${JWT_EXPIRATION}
   cors:
     allowed-origins: ${ALLOWED_ORIGINS}
+resend:
+  api-key: ${RESEND_API_KEY}
+  from-email: ${RESEND_FROM_EMAIL}
+password-reset:
+  pepper: ${PASSWORD_RESET_PEPPER}

@@ -78,6 +78,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/work/**").permitAll()
 
                         .requestMatchers("/auth/login", "/auth/register/aluno", "/auth/logout",
+                                "/auth/password-reset/request", "/auth/password-reset/verify",
+                                "/auth/password-reset/confirm",
                                 "/swagger-ui/**", "/scalar/**", "/v3/api-docs/**").permitAll()
 
                         .requestMatchers("/auth/register/curador", "/auth/register/admin").hasAnyRole("ADMIN")
