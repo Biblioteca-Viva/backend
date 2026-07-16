@@ -160,6 +160,51 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
+    void cordelShouldReturnLinkedIllustrationAndRejectUnknownArt() throws Exception {
+        User curator = createActiveCurator();
+        String authorization = bearer(curator);
+        String firstArtTitle = uniqueTitle("First illustration");
+        UUID firstArtId = createWorkThroughApi("arts", artPayload(firstArtTitle, curator.getEmail()), authorization);
+        String cordelTitle = uniqueTitle("Illustrated cordel");
+        Map<String, Object> cordel = baseWorkPayload(cordelTitle, curator.getEmail());
+        cordel.put("content", "Cordel content");
+        cordel.put("rhymeScheme", "ABAB");
+        cordel.put("artName", firstArtTitle);
+
+        JsonNode created = jsonFrom(mockMvc.perform(post("/work/cordels")
+                        .header("Authorization", authorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(cordel)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.illustration.id").value(firstArtId.toString()))
+                .andExpect(jsonPath("$.illustration.title").value(firstArtTitle))
+                .andExpect(jsonPath("$.illustration.url").value("https://example.com/arte.png"))
+                .andReturn());
+        UUID cordelId = UUID.fromString(created.get("id").asText());
+
+        String secondArtTitle = uniqueTitle("Second illustration");
+        UUID secondArtId = createWorkThroughApi("arts", artPayload(secondArtTitle, curator.getEmail()), authorization);
+        cordel.put("title", uniqueTitle("Updated cordel"));
+        cordel.put("artName", secondArtTitle);
+        mockMvc.perform(put("/work/cordels/{id}", cordelId)
+                        .header("Authorization", authorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(cordel)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.illustration.id").value(secondArtId.toString()))
+                .andExpect(jsonPath("$.illustration.title").value(secondArtTitle));
+
+        Map<String, Object> invalid = new LinkedHashMap<>(cordel);
+        invalid.put("title", uniqueTitle("Invalid illustrated cordel"));
+        invalid.put("artName", uniqueTitle("Missing art"));
+        mockMvc.perform(post("/work/cordels")
+                        .header("Authorization", authorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(invalid)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void homeShouldAggregateCountsAndHighlights() throws Exception {
         User curator = createActiveCurator();
         String authorization = bearer(curator);
@@ -209,6 +254,23 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
 
     private static Stream<Arguments> workCases() {
         return Stream.of(
+                Arguments.of(new WorkEndpointCase(
+                        "poems",
+                        "POEM",
+                        "Poem",
+                        p -> {
+                            p.put("content", "Poem content");
+                            p.put("rhymeScheme", "AABB");
+                            p.put("poemType", "Sonnet");
+                        },
+                        p -> {
+                            p.put("content", "Updated poem content");
+                            p.put("rhymeScheme", "ABAB");
+                            p.put("poemType", "Free verse");
+                        },
+                        Map.of("content", "Poem content"),
+                        Map.of("content", "Updated poem content")
+                )),
                 Arguments.of(new WorkEndpointCase(
                         "articles",
                         "ARTICLE",

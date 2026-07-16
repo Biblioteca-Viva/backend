@@ -243,6 +243,71 @@ class CommentServiceTest {
         assertEquals(6L, commentService.countComments());
     }
 
+    @Test
+    void likeShouldPersistLikeAndReturnCurrentCount() {
+        UUID commentId = UUID.randomUUID();
+        User user = buildUser(UUID.randomUUID(), Role.ALUNO);
+        when(commentRepository.getLikeCount(commentId)).thenReturn(4L);
+
+        var response = commentService.like(commentId, user);
+
+        assertTrue(response.liked());
+        assertEquals(4L, response.likeCount());
+        verify(commentRepository).likeComment(user.getId(), commentId);
+    }
+
+    @Test
+    void unlikeShouldDeleteLikeAndReturnCurrentCount() {
+        UUID commentId = UUID.randomUUID();
+        User user = buildUser(UUID.randomUUID(), Role.ALUNO);
+        when(commentRepository.getLikeCount(commentId)).thenReturn(1L);
+
+        var response = commentService.unLike(commentId, user);
+
+        assertFalse(response.liked());
+        assertEquals(1L, response.likeCount());
+        verify(commentRepository).unlikeComment(user.getId(), commentId);
+    }
+
+    @Test
+    void updateShouldAllowAdminWhoIsNotCommentOwner() {
+        UUID commentId = UUID.randomUUID();
+        User owner = buildUser(UUID.randomUUID(), Role.ALUNO);
+        User admin = buildUser(UUID.randomUUID(), Role.ADMIN);
+        Comment comment = buildComment(commentId, "Old", owner, buildArticle(UUID.randomUUID(), owner));
+        when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+        when(commentRepository.save(comment)).thenReturn(comment);
+        when(commentRepository.getLikeCount(commentId)).thenReturn(0L);
+
+        CommentResponseDTO response = commentService.update(commentId, admin, "Updated by admin");
+
+        assertEquals("Updated by admin", response.content());
+        verify(commentRepository).save(comment);
+    }
+
+    @Test
+    void getByWorkIdShouldIncludeEmbeddedReply() {
+        User commenter = buildUser(UUID.randomUUID(), Role.ALUNO);
+        User author = buildUser(UUID.randomUUID(), Role.CURADOR);
+        Article work = buildArticle(UUID.randomUUID(), author);
+        Comment comment = buildComment(UUID.randomUUID(), "Question", commenter, work);
+        CommentReply reply = CommentReply.builder().id(UUID.randomUUID()).content("Answer")
+                .user(author).comment(comment).createdAt(LocalDateTime.now()).build();
+        comment.setReply(reply);
+        Pageable pageable = PageRequest.of(0, 10);
+        when(workRepository.existsById(work.getId())).thenReturn(true);
+        when(commentRepository.findByWorkIdOrderByCreatedAtDesc(work.getId(), pageable))
+                .thenReturn(new PageImpl<>(List.of(comment)));
+        when(commentRepository.getLikeCount(comment.getId())).thenReturn(2L);
+
+        CommentResponseDTO response = commentService.getByWorkId(work.getId(), pageable).getContent().getFirst();
+
+        assertNotNull(response.reply());
+        assertEquals(reply.getId(), response.reply().id());
+        assertEquals("Answer", response.reply().content());
+        assertEquals(author.getName(), response.reply().authorName());
+    }
+
     private static User buildUser(UUID id, Role role) {
         return User.builder()
                 .id(id)
@@ -338,6 +403,19 @@ class CommentServiceTest {
 
         assertThrows(AccessDeniedException.class,
                 () -> commentService.reply(comment.getId(), "Tentativa", thirdParty));
+
+        verify(replyRepository, never()).save(any());
+    }
+
+    @Test
+    void replyShouldDenyNonAdminWhenWorkHasNoRegisteredAuthor() {
+        User commenter = buildUser(UUID.randomUUID(), Role.ALUNO);
+        Article work = buildArticle(UUID.randomUUID(), null);
+        Comment comment = buildComment(UUID.randomUUID(), "Comment", commenter, work);
+        when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
+
+        assertThrows(AccessDeniedException.class,
+                () -> commentService.reply(comment.getId(), "Attempt", commenter));
 
         verify(replyRepository, never()).save(any());
     }

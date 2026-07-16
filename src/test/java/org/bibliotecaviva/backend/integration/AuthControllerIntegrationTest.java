@@ -20,6 +20,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AuthControllerIntegrationTest extends IntegrationTestSupport {
 
     @Test
+    void logoutShouldValidateBearerHeaderFormat() throws Exception {
+        User user = createActiveStudent();
+        mockMvc.perform(post("/auth/logout").header("Authorization", bearer(user)))
+                .andExpect(status().isNoContent());
+        mockMvc.perform(post("/auth/logout"))
+                .andExpect(status().isUnauthorized());
+        mockMvc.perform(post("/auth/logout").header("Authorization", "Basic credentials"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void registerAlunoShouldCreatePendingStudent() throws Exception {
         String email = uniqueEmail("registro");
 
