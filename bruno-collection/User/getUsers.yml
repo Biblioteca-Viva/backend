@@ -1,0 +1,53 @@
+info:
+  name: getUsers
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{api_url}}user?page=0&size=10"
+  params:
+    - name: page
+      value: "0"
+      type: query
+    - name: size
+      value: "10"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  # Get Users
+
+  Lista os perfis cadastrados com paginacao.
+
+  ## Regras
+  - Requer token Bearer de usuario `ADMIN` ou `CURADOR`.
+  - `ALUNO` recebe `403`.
+  - `status` e opcional e aceita `pending`, `active`, `rejected` ou `blocked`.
+  - A rota e somente de leitura; operacoes administrativas continuam em `/admin`.
+
+  Para filtrar, acrescente `&status=active` a URL ou adicione o parametro `status`
+  na aba de query params do Bruno.
+
+  ## Item retornado em `content`
+  ```json
+  {
+    "id": "uuid-do-usuario",
+    "name": "Aluno",
+    "email": "aluno1@teste.com",
+    "role": "ALUNO",
+    "accountStatus": "active"
+  }
+  ```
+
+  ## Respostas esperadas
+  - `200`: pagina de usuarios retornada.
+  - `400`: valor de `status` invalido.
+  - `401`: usuario nao autenticado.
+  - `403`: usuario sem perfil `ADMIN` ou `CURADOR`.

@@ -21,6 +21,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class BookClubControllerIntegrationTest extends IntegrationTestSupport {
 
     @Test
+    void participantsShouldBePublicAndExposeOrganizerAndStudents() throws Exception {
+        User organizer = createActiveCurator();
+        User student = createActiveStudent();
+        BookClub club = createBookClubInDatabase(organizer, futureDate(2));
+        club.getParticipants().add(student);
+        bookClubRepository.saveAndFlush(club);
+
+        mockMvc.perform(get("/bookclub/{id}/participants", club.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.organizer").value(organizer.getName()))
+                .andExpect(jsonPath("$.students[0]").value(student.getName()));
+    }
+
+    @Test
     void shouldCreateListGetNextUpdateSubscribeUnsubscribeAndDeleteBookClub() throws Exception {
         User curator = createActiveCurator();
         User student = createActiveStudent();

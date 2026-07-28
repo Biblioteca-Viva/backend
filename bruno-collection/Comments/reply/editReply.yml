@@ -26,3 +26,20 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+
+docs: |-
+  # Edit Comment Reply
+
+  Edita a resposta vinculada ao comentario indicado por `commentId`.
+
+  ## Regras
+  - Requer `Authorization: Bearer <token>`.
+  - Somente o autor da resposta ou um `ADMIN` pode editar.
+  - `content` e obrigatorio e aceita no maximo 200 caracteres.
+
+  ## Respostas esperadas
+  - `200`: resposta atualizada.
+  - `400`: conteudo invalido.
+  - `401`: usuario nao autenticado.
+  - `403`: usuario sem permissao.
+  - `404`: resposta nao encontrada.

@@ -10,6 +10,8 @@ http:
 
 runtime:
   variables:
+    - name: work_id
+      value: 88888888-8888-8888-8888-888888888003
     - name: comment_id
       value: c8000003-0000-0000-0000-000000000002
 
@@ -26,6 +28,8 @@ docs: |-
 
   ## Comportamento
   - Requer `Authorization: Bearer <token>`.
+  - Os IDs iniciais apontam para registros do seed local.
+  - Qualquer usuario autenticado pode curtir comentarios.
   - Curtir o mesmo comentario mais de uma vez nao duplica o registro e nao deve quebrar.
   - A resposta retorna `liked: true` e o `likeCount` atual.
 

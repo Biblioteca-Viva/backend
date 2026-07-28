@@ -16,6 +16,7 @@ http:
         "description": "Cordel sobre conversa com Deus",
         "content": "Se eu conversasse com Deus\nIria lhe perguntar\nPor que e que sofremos tanto\nQuando viemos pra ca?",
         "rhymeScheme": "ABAABB",
+        "artName": "Ilustração: Jardim da Escola",
         "studentClass": "Terceiro B"
       }
   auth: inherit
@@ -35,7 +36,23 @@ docs: |-
   ## Regras importantes
   - `artName` e opcional.
   - Quando `artName` for enviado, ele precisa ser o titulo de uma arte existente.
+  - A resposta detalhada retorna a arte em `illustration`, com `id`, `title` e `url`.
+  - Quando nao houver arte vinculada, `illustration` sera `null`.
+  - A URL da arte existe somente em `illustration.url`; nao ha mais um campo `url` na raiz do cordel.
   - O mesmo autor nao pode ter duas obras com o mesmo `title`.
+
+  ## Trecho da resposta `201`
+  ```json
+  {
+    "id": "uuid-do-cordel",
+    "title": "Malle e o Sofrimento",
+    "illustration": {
+      "id": "uuid-da-arte",
+      "title": "Ilustracao: Jardim da Escola",
+      "url": "https://endereco-da-imagem"
+    }
+  }
+  ```
 
   ## Respostas esperadas
   - `201`: cordel criado.

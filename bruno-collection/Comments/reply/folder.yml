@@ -5,3 +5,11 @@ info:
 
 request:
   auth: inherit
+
+docs: |-
+  # Replies
+
+  Cada comentario aceita uma unica resposta.
+
+  A resposta pode ser criada por um `ADMIN` ou pelo usuario vinculado como autor da obra, incluindo o aluno autor.
+  Depois de criada, somente seu autor ou um `ADMIN` pode editar ou excluir.

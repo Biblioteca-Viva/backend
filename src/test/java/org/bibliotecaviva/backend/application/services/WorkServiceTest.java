@@ -1,6 +1,7 @@
 package org.bibliotecaviva.backend.application.services;
 
 import org.bibliotecaviva.backend.application.dtos.request.textual.ArticleRequestDTO;
+import org.bibliotecaviva.backend.application.dtos.request.textual.CordelRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.response.HomePageDashboardResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.WorkResponse;
 import org.bibliotecaviva.backend.application.dtos.response.WorkSummaryResponseDTO;
@@ -9,6 +10,8 @@ import org.bibliotecaviva.backend.application.mappers.WorkMapper;
 import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.entities.projections.WorkSummary;
 import org.bibliotecaviva.backend.domain.entities.textual.Article;
+import org.bibliotecaviva.backend.domain.entities.textual.Cordel;
+import org.bibliotecaviva.backend.domain.entities.visual.Art;
 import org.bibliotecaviva.backend.domain.enums.Role;
 import org.bibliotecaviva.backend.domain.enums.Status;
 import org.bibliotecaviva.backend.domain.enums.WorkTypes;
@@ -33,6 +36,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -149,6 +153,51 @@ class WorkServiceTest {
     }
 
     @Test
+    void createCordelShouldLinkArtFoundByTitle() {
+        CordelRequestDTO request = buildCordelRequest("Illustration");
+        Cordel cordel = buildCordel(null, request.title());
+        Art art = Art.builder().id(UUID.randomUUID()).title("Illustration").url("https://example.com/art.png").build();
+        WorkResponse expected = mock(WorkResponse.class);
+        when(workMapper.toEntity(request)).thenReturn(cordel);
+        when(workRepository.findArtByTitle("Illustration")).thenReturn(Optional.of(art));
+        when(workRepository.save(cordel)).thenReturn(cordel);
+        when(workMapper.toDTO(cordel, 0L, 0L)).thenReturn(expected);
+
+        WorkResponse response = workService.create(request);
+
+        assertSame(expected, response);
+        assertSame(art, cordel.getIllustration());
+        assertEquals("External Author", cordel.getAuthorName());
+        verify(workRepository).findArtByTitle("Illustration");
+    }
+
+    @Test
+    void createCordelShouldFailWhenArtDoesNotExist() {
+        CordelRequestDTO request = buildCordelRequest("Missing Art");
+        Cordel cordel = buildCordel(null, request.title());
+        when(workMapper.toEntity(request)).thenReturn(cordel);
+        when(workRepository.findArtByTitle("Missing Art")).thenReturn(Optional.empty());
+
+        assertThrows(WorkNotFoundException.class, () -> workService.create(request));
+
+        verify(workRepository, never()).save(any());
+    }
+
+    @Test
+    void createCordelShouldSkipArtLookupWhenArtNameIsBlank() {
+        CordelRequestDTO request = buildCordelRequest(" ");
+        Cordel cordel = buildCordel(null, request.title());
+        WorkResponse expected = mock(WorkResponse.class);
+        when(workMapper.toEntity(request)).thenReturn(cordel);
+        when(workRepository.save(cordel)).thenReturn(cordel);
+        when(workMapper.toDTO(cordel, 0L, 0L)).thenReturn(expected);
+
+        assertSame(expected, workService.create(request));
+        assertNull(cordel.getIllustration());
+        verify(workRepository, never()).findArtByTitle(anyString());
+    }
+
+    @Test
     void updateShouldFailWhenAuthorEmailIsBlankAndNoUserMatches() {
         UUID id = UUID.randomUUID();
         User author = buildUser(UUID.randomUUID(), "autor@teste.com");
@@ -208,6 +257,37 @@ class WorkServiceTest {
 
         assertThrows(UserNotFoundException.class, () -> workService.update(id, request));
 
+        verify(workRepository, never()).save(any());
+    }
+
+    @Test
+    void updateCordelShouldReplaceLinkedIllustration() {
+        UUID id = UUID.randomUUID();
+        CordelRequestDTO request = buildCordelRequest("New Art");
+        Cordel cordel = buildCordel(id, "Old Cordel");
+        Art art = Art.builder().id(UUID.randomUUID()).title("New Art").url("https://example.com/new.png").build();
+        WorkResponse expected = mock(WorkResponse.class);
+        when(workRepository.findById(id)).thenReturn(Optional.of(cordel));
+        when(workRepository.findArtByTitle("New Art")).thenReturn(Optional.of(art));
+        when(workRepository.save(cordel)).thenReturn(cordel);
+        when(workRepository.getLikeCount(id)).thenReturn(1L);
+        when(commentRepository.countByWork_Id(id)).thenReturn(2L);
+        when(workMapper.toDTO(cordel, 1L, 2L)).thenReturn(expected);
+
+        assertSame(expected, workService.update(id, request));
+        assertSame(art, cordel.getIllustration());
+        verify(workMapper).partialUpdate(request, cordel);
+    }
+
+    @Test
+    void updateCordelShouldFailWhenRequestedArtDoesNotExist() {
+        UUID id = UUID.randomUUID();
+        CordelRequestDTO request = buildCordelRequest("Missing Art");
+        Cordel cordel = buildCordel(id, "Cordel");
+        when(workRepository.findById(id)).thenReturn(Optional.of(cordel));
+        when(workRepository.findArtByTitle("Missing Art")).thenReturn(Optional.empty());
+
+        assertThrows(WorkNotFoundException.class, () -> workService.update(id, request));
         verify(workRepository, never()).save(any());
     }
 
@@ -278,6 +358,13 @@ class WorkServiceTest {
         );
     }
 
+    private static CordelRequestDTO buildCordelRequest(String artName) {
+        return new CordelRequestDTO(
+                "Cordel Test", null, "External Author", LocalDateTime.now().minusDays(1),
+                "Description valid for unit test", "Cordel content", "ABAB", artName, "Class A"
+        );
+    }
+
     private static User buildUser(UUID id, String email) {
         return User.builder()
                 .id(id)
@@ -299,6 +386,12 @@ class WorkServiceTest {
                 .content("Conteudo")
                 .viewCount(0L)
                 .build();
+    }
+
+    private static Cordel buildCordel(UUID id, String title) {
+        return Cordel.builder().id(id).title(title).publicationDate(LocalDateTime.now().minusDays(1))
+                .description("Description").content("Content").rhymeScheme("ABAB")
+                .studentClass("Class A").viewCount(0L).build();
     }
 
     private static ArticleResponseDTO buildArticleResponse(UUID id, String title, Long likes, Long comments) {
