@@ -2,6 +2,7 @@ package org.bibliotecaviva.backend.application.services;
 
 import org.bibliotecaviva.backend.application.dtos.request.textual.ArticleRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.request.textual.CordelRequestDTO;
+import org.bibliotecaviva.backend.application.dtos.request.visual.ArtRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.response.HomePageDashboardResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.WorkResponse;
 import org.bibliotecaviva.backend.application.dtos.response.WorkSummaryResponseDTO;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -61,6 +63,9 @@ class WorkServiceTest {
 
     @Mock
     private CommentRepository commentRepository;
+
+    @Mock
+    private CloudinaryService cloudinaryService;
 
     @InjectMocks
     private WorkService workService;
@@ -195,6 +200,75 @@ class WorkServiceTest {
         assertSame(expected, workService.create(request));
         assertNull(cordel.getIllustration());
         verify(workRepository, never()).findArtByTitle(anyString());
+    }
+
+    @Test
+    void createVisualWorkShouldUploadImageAndSetUrl() {
+        User author = buildUser(UUID.randomUUID(), "autor@teste.com");
+        ArtRequestDTO request = new ArtRequestDTO("Arte", author.getEmail(), null, LocalDateTime.now(), "Desc", "Turma");
+        Art mapped = Art.builder().title("Arte").author(author).build();
+        Art saved = Art.builder().id(UUID.randomUUID()).title("Arte").url("https://res.cloudinary.com/test/image.png").author(author).build();
+        WorkResponse expected = mock(WorkResponse.class);
+        MockMultipartFile image = new MockMultipartFile("image", "art.png", "image/png", "bytes".getBytes());
+
+        when(userRepository.findByEmail(request.authorEmail())).thenReturn(Optional.of(author));
+        when(workMapper.toEntity(request)).thenReturn(mapped);
+        when(cloudinaryService.uploadImage(image)).thenReturn("https://res.cloudinary.com/test/image.png");
+        when(workRepository.save(mapped)).thenReturn(saved);
+        when(workMapper.toDTO(saved, 0L, 0L)).thenReturn(expected);
+
+        WorkResponse response = workService.create(request, image);
+
+        assertSame(expected, response);
+        assertEquals("https://res.cloudinary.com/test/image.png", mapped.getUrl());
+        verify(cloudinaryService).uploadImage(image);
+        verify(workRepository).save(mapped);
+    }
+
+    @Test
+    void updateVisualWorkShouldUploadImageWhenImageProvided() {
+        UUID id = UUID.randomUUID();
+        User author = buildUser(UUID.randomUUID(), "autor@teste.com");
+        Art existing = Art.builder().id(id).title("Arte Antiga").url("https://old.url/image.png").author(author).build();
+        ArtRequestDTO request = new ArtRequestDTO("Arte Nova", author.getEmail(), null, LocalDateTime.now(), "Desc", "Turma");
+        WorkResponse expected = mock(WorkResponse.class);
+        MockMultipartFile image = new MockMultipartFile("image", "new.png", "image/png", "bytes".getBytes());
+
+        when(workRepository.findById(id)).thenReturn(Optional.of(existing));
+        when(userRepository.findByEmail(author.getEmail())).thenReturn(Optional.of(author));
+        when(cloudinaryService.uploadImage(image)).thenReturn("https://res.cloudinary.com/new/image.png");
+        when(workRepository.save(existing)).thenReturn(existing);
+        when(workRepository.getLikeCount(id)).thenReturn(0L);
+        when(commentRepository.countByWork_Id(id)).thenReturn(0L);
+        when(workMapper.toDTO(existing, 0L, 0L)).thenReturn(expected);
+
+        WorkResponse response = workService.update(id, request, image);
+
+        assertSame(expected, response);
+        assertEquals("https://res.cloudinary.com/new/image.png", existing.getUrl());
+        verify(cloudinaryService).uploadImage(image);
+    }
+
+    @Test
+    void updateVisualWorkShouldKeepExistingUrlWhenImageIsNull() {
+        UUID id = UUID.randomUUID();
+        User author = buildUser(UUID.randomUUID(), "autor@teste.com");
+        Art existing = Art.builder().id(id).title("Arte Antiga").url("https://old.url/image.png").author(author).build();
+        ArtRequestDTO request = new ArtRequestDTO("Arte Nova", author.getEmail(), null, LocalDateTime.now(), "Desc", "Turma");
+        WorkResponse expected = mock(WorkResponse.class);
+
+        when(workRepository.findById(id)).thenReturn(Optional.of(existing));
+        when(userRepository.findByEmail(author.getEmail())).thenReturn(Optional.of(author));
+        when(workRepository.save(existing)).thenReturn(existing);
+        when(workRepository.getLikeCount(id)).thenReturn(0L);
+        when(commentRepository.countByWork_Id(id)).thenReturn(0L);
+        when(workMapper.toDTO(existing, 0L, 0L)).thenReturn(expected);
+
+        WorkResponse response = workService.update(id, request, null);
+
+        assertSame(expected, response);
+        assertEquals("https://old.url/image.png", existing.getUrl());
+        verify(cloudinaryService, never()).uploadImage(any());
     }
 
     @Test

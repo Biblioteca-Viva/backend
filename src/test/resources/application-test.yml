@@ -27,3 +27,6 @@ resend:
 
 password-reset:
   pepper: codex-test-password-reset-pepper
+
+cloudinary:
+  url:

@@ -34,3 +34,5 @@ resend:
   from-email: ${RESEND_FROM_EMAIL}
 password-reset:
   pepper: ${PASSWORD_RESET_PEPPER}
+cloudinary:
+  url: ${CLOUDINARY_URL:}

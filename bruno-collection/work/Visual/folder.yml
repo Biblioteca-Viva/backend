@@ -5,3 +5,15 @@ info:
 
 request:
   auth: inherit
+
+docs: |-
+  # Obras Visuais (Visual Works)
+
+  Endpoints para gerenciamento de obras visuais:
+  - **Art / Ilustração** (`/work/arts`)
+  - **Infographic / Infográfico** (`/work/infographics`)
+
+  ## Particularidades
+  - Todos os endpoints de criação e atualização de obras visuais operam com `multipart/form-data`.
+  - As imagens são validadas estritamente (formatos permitidos: `.jpg`, `.jpeg`, `.png`) e enviadas ao **Cloudinary**.
+  - A URL pública e segura retornada pelo Cloudinary é gravada na entidade e retornada no payload de resposta (`url`).

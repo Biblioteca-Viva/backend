@@ -28,9 +28,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -216,41 +218,50 @@ public class WorkController {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
-    @PostMapping("/arts")
+    @PostMapping(value = "/arts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = ArtResponseDTO.class)), description = "Created")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
-    public ResponseEntity<WorkResponse> createArt(@RequestBody @Valid ArtRequestDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
+    public ResponseEntity<WorkResponse> createArt(
+            @RequestPart("data") @Valid ArtRequestDTO dto,
+            @RequestPart("image") MultipartFile image) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto, image));
     }
 
-    @PutMapping("/arts/{id}")
+    @PutMapping(value = "/arts/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ArtResponseDTO.class)), description = "Updated")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Work or  Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
-    public ResponseEntity<WorkResponse> updateArt(@PathVariable UUID id, @RequestBody @Valid ArtRequestDTO dto) {
-        return ResponseEntity.ok(service.update(id, dto));
+    public ResponseEntity<WorkResponse> updateArt(
+            @PathVariable UUID id,
+            @RequestPart("data") @Valid ArtRequestDTO dto,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        return ResponseEntity.ok(service.update(id, dto, image));
     }
 
-    @PostMapping("/infographics")
+    @PostMapping(value = "/infographics", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = InfographicResponseDTO.class)), description = "Created")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
-    public ResponseEntity<WorkResponse> createInfographic(@RequestBody @Valid InfographicRequestDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
+    public ResponseEntity<WorkResponse> createInfographic(
+            @RequestPart("data") @Valid InfographicRequestDTO dto,
+            @RequestPart("image") MultipartFile image) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto, image));
     }
 
-    @PutMapping("/infographics/{id}")
+    @PutMapping(value = "/infographics/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = InfographicResponseDTO.class)), description = "Updated")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
     @ApiResponse(responseCode = "404", content = @Content, description = "Work or Author Not Found")
     @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
-    public ResponseEntity<WorkResponse> updateInfographic(@PathVariable UUID id,
-                                                          @RequestBody @Valid InfographicRequestDTO dto) {
-        return ResponseEntity.ok(service.update(id, dto));
+    public ResponseEntity<WorkResponse> updateInfographic(
+            @PathVariable UUID id,
+            @RequestPart("data") @Valid InfographicRequestDTO dto,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        return ResponseEntity.ok(service.update(id, dto, image));
     }
 
     @PostMapping("/multimedias")

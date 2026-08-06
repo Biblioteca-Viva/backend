@@ -1,0 +1,56 @@
+info:
+  name: update art
+  type: http
+  seq: 3
+
+http:
+  method: PUT
+  url: "{{api_url}}work/arts/{{id}}"
+  body:
+    type: multipart-form
+    data:
+      - name: data
+        type: text
+        value: |2-
+            {
+                "title": "Arte Digital Contemporânea",
+                "authorEmail": null,
+                "authorName": "Nome do Autor Externo",
+                "publicationDate": "2026-03-30T11:45:00",
+                "description": "Uma composição digital detalhada explorando linhas arquitetônicas e cores vibrantes.",
+                "description": "Uma composição digital detalhada explorando linhas arquitetônicas e cores vibrantes.",
+                "studentClass": "Terceiro B"
+              }
+        contentType: application/json
+      - name: image
+        type: file
+        value:
+          - /home/dimas/Downloads/WhatsApp Image 2026-07-24 at 10.46.59.jpeg
+  auth: inherit
+
+runtime:
+  variables:
+    - name: id
+      value: 18856a5b-47e4-40fa-be5a-1aba33cf0941
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  # Update Art (Ilustração)
+
+  Atualiza uma obra visual do tipo Arte existente.
+  Requer usuário autenticado com perfil `ADMIN` ou `CURADOR`.
+
+  ## Formato da Requisição
+  - Content-Type: `multipart/form-data`
+  - Part `data` (`application/json`): Campos a atualizar.
+  - Part `image` (`file` - Opcional): Se fornecida, faz upload de nova imagem e substitui a URL. Se omitida/vazia, a imagem e URL anteriores são preservadas.
+
+  ## Respostas Esperadas
+  - `200`: Obra atualizada com sucesso.
+  - `400`: Formato de imagem inválido ou campos inválidos.
+  - `404`: Obra ou autor não encontrado.

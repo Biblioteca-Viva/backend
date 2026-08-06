@@ -36,6 +36,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.web.multipart.MultipartFile;
+import org.bibliotecaviva.backend.domain.entities.visual.VisualWork;
+
 @Log4j2
 @Service
 @RequiredArgsConstructor
@@ -46,6 +49,7 @@ public class WorkService {
     private final WorkMapper workMapper;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final CloudinaryService cloudinaryService;
 
     /**
      * Puxa direto da tabela works usando uma interface com atributos genericos
@@ -70,6 +74,11 @@ public class WorkService {
 
     @Transactional
     public <T extends WorkRequest> WorkResponse create(T dto) {
+        return create(dto, null);
+    }
+
+    @Transactional
+    public <T extends WorkRequest> WorkResponse create(T dto, MultipartFile image) {
         if (dto.authorEmail() != null && dto.authorName() != null) {
             throw new IllegalArgumentException("Informe apenas um dos campos: email ou nome");
         }
@@ -91,6 +100,12 @@ public class WorkService {
             default -> throw new IllegalArgumentException(
                     "Tipo não mapeado: " + dto.getClass().getSimpleName());
         };
+
+        // Upload de imagem para obras visuais
+        if (work instanceof VisualWork visualWork && image != null && !image.isEmpty()) {
+            visualWork.setUrl(cloudinaryService.uploadImage(image));
+        }
+
         if (work instanceof Cordel && hasText(((CordelRequestDTO) dto).artName())) {
             ((Cordel) work).setIllustration(findArtByTitle(((CordelRequestDTO) dto).artName()));
         }
@@ -114,6 +129,11 @@ public class WorkService {
 
     @Transactional
     public <T extends WorkRequest> WorkResponse update(UUID id, T dto) {
+        return update(id, dto, null);
+    }
+
+    @Transactional
+    public <T extends WorkRequest> WorkResponse update(UUID id, T dto, MultipartFile image) {
         Work work = workRepository.findById(id)
                 .orElseThrow(() -> new WorkNotFoundException("Obra não encontrada"));
         switch (dto) {
@@ -129,6 +149,11 @@ public class WorkService {
             case PoemRequestDTO d -> workMapper.partialUpdate(d, (Poem) work);
             default -> throw new IllegalArgumentException(
                     "Tipo não mapeado: " + dto.getClass().getSimpleName());
+        }
+
+        // Upload de nova imagem em update para obras visuais
+        if (work instanceof VisualWork visualWork && image != null && !image.isEmpty()) {
+            visualWork.setUrl(cloudinaryService.uploadImage(image));
         }
 
         if (dto.authorEmail() != null && dto.authorName() == null) {

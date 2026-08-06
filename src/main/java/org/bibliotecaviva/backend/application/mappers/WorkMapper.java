@@ -141,17 +141,21 @@ public interface WorkMapper {
     @Mapping(target = "author", ignore = true)
     void partialUpdate(TaleRequestDTO taleRequestDTO, @MappingTarget Tale tale);
 
+    @Mapping(target = "url", ignore = true)
     @Mapping(target = "author", ignore = true)
     Art toEntity(ArtRequestDTO artRequestDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "url", ignore = true)
     @Mapping(target = "author", ignore = true)
     void partialUpdate(ArtRequestDTO artRequestDTO, @MappingTarget Art art);
 
+    @Mapping(target = "url", ignore = true)
     @Mapping(target = "author", ignore = true)
     Infographic toEntity(InfographicRequestDTO infographicRequestDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "url", ignore = true)
     @Mapping(target = "author", ignore = true)
     void partialUpdate(InfographicRequestDTO infographicRequestDTO, @MappingTarget Infographic infographic);
 }
