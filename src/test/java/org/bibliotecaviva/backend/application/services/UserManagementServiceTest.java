@@ -12,6 +12,7 @@ import org.bibliotecaviva.backend.domain.exceptions.UserNotFoundException;
 import org.bibliotecaviva.backend.persistence.repository.BookClubRepository;
 import org.bibliotecaviva.backend.persistence.repository.BookClubReviewRepository;
 import org.bibliotecaviva.backend.persistence.repository.CommentRepository;
+import org.bibliotecaviva.backend.persistence.repository.RefreshTokenRepository;
 import org.bibliotecaviva.backend.persistence.repository.UserRepository;
 import org.bibliotecaviva.backend.persistence.repository.WorkRepository;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,9 @@ class UserManagementServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private RefreshTokenRepository refreshTokenRepository;
 
     @Mock
     private UserMapper userMapper;
@@ -124,7 +128,9 @@ class UserManagementServiceTest {
         userManagementService.blockUser(id);
 
         assertEquals(Status.BLOCKED, user.getAccountStatus());
+        assertEquals(1L, user.getSessionVersion());
         verify(userRepository).save(user);
+        verify(refreshTokenRepository).revokeAllByUserId(id);
     }
 
     @Test

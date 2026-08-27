@@ -31,6 +31,25 @@ CREATE TABLE public.password_reset_challenges
         REFERENCES public.users (id) ON DELETE CASCADE
 );
 
+CREATE TABLE public.refresh_tokens
+(
+    id                     uuid                     NOT NULL,
+    user_id                uuid                     NOT NULL,
+    token_hash             varchar(64)              NOT NULL,
+    expires_at             timestamp with time zone NOT NULL,
+    revoked                boolean                  NOT NULL DEFAULT false,
+    created_at             timestamp with time zone NOT NULL,
+    replaced_by_token_hash varchar(64)              NULL,
+    family_id              uuid                     NOT NULL DEFAULT gen_random_uuid(),
+    CONSTRAINT refresh_tokens_pkey PRIMARY KEY (id),
+    CONSTRAINT uk_refresh_tokens_token_hash UNIQUE (token_hash),
+    CONSTRAINT fk_refresh_tokens_user FOREIGN KEY (user_id)
+        REFERENCES public.users (id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_refresh_tokens_user_id ON public.refresh_tokens (user_id);
+CREATE INDEX idx_refresh_tokens_family_id ON public.refresh_tokens (family_id);
+
 CREATE TABLE public.book_club
 (
     id            uuid NOT NULL,

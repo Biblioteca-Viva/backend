@@ -13,6 +13,7 @@ import org.bibliotecaviva.backend.domain.exceptions.UserNotFoundException;
 import org.bibliotecaviva.backend.persistence.repository.BookClubRepository;
 import org.bibliotecaviva.backend.persistence.repository.BookClubReviewRepository;
 import org.bibliotecaviva.backend.persistence.repository.CommentRepository;
+import org.bibliotecaviva.backend.persistence.repository.RefreshTokenRepository;
 import org.bibliotecaviva.backend.persistence.repository.UserRepository;
 import org.bibliotecaviva.backend.persistence.repository.WorkRepository;
 import org.jspecify.annotations.NonNull;
@@ -28,6 +29,7 @@ import java.util.UUID;
 public class UserManagementService {
 
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final UserMapper userMapper;
     private final WorkRepository workRepository;
     private final CommentRepository commentRepository;
@@ -71,7 +73,9 @@ public class UserManagementService {
             throw new AccountAlreadyBlockedException("User with id: " + id + " is already blocked");
         }
         user.setAccountStatus(Status.BLOCKED);
+        user.setSessionVersion(user.getSessionVersion() + 1);
         userRepository.save(user);
+        refreshTokenRepository.revokeAllByUserId(id);
     }
 
     @Transactional
