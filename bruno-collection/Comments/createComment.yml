@@ -19,3 +19,19 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+
+docs: |-
+  # Create Comment
+
+  Cria um comentario na obra indicada por `work_id`.
+
+  ## Regras
+  - Requer `Authorization: Bearer <token>` de `ALUNO`, `CURADOR` ou `ADMIN`.
+  - `content` e obrigatorio e nao pode estar em branco.
+  - O comentario criado retorna o campo `reply` como `null`.
+
+  ## Respostas esperadas
+  - `201`: comentario criado.
+  - `400`: conteudo invalido.
+  - `401`: usuario nao autenticado.
+  - `404`: obra nao encontrada.

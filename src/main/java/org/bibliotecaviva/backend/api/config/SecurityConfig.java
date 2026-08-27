@@ -32,6 +32,7 @@ import java.util.Set;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final RateLimitingFilter rateLimitingFilter;
     private final UserDetailsService userDetailsService;
     @Value("${security.cors.allowed-origins}")
     private List<String> allowedOrigins;
@@ -67,8 +68,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/work/*/like").authenticated()
 
                         .requestMatchers(HttpMethod.POST, "/work/*/comments").hasAnyRole("ALUNO", "CURADOR", "ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/work/*/comments/*").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/work/*/comments/*").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/work/*/comments/*/reply").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/work/*/comments/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/work/*/comments/**").authenticated()
 
 
                         .requestMatchers(HttpMethod.POST, "/work/**").hasAnyRole("ADMIN", "CURADOR")
@@ -76,19 +78,23 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/work/**").hasAnyRole("ADMIN", "CURADOR")
                         .requestMatchers(HttpMethod.GET, "/work/**").permitAll()
 
-                        .requestMatchers("/auth/login", "/auth/register/aluno", "/auth/logout",
+                        .requestMatchers("/auth/login", "/auth/register/aluno", "/auth/refresh", "/auth/logout",
+                                "/auth/password-reset/request", "/auth/password-reset/verify",
+                                "/auth/password-reset/confirm",
                                 "/swagger-ui/**", "/scalar/**", "/v3/api-docs/**").permitAll()
 
                         .requestMatchers("/auth/register/curador", "/auth/register/admin").hasAnyRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.GET, "/user/find-by-email").hasAnyRole("ADMIN", "CURADOR")
+                        .requestMatchers(HttpMethod.GET, "/user", "/user/find-by-email")
+                        .hasAnyRole("ADMIN", "CURADOR")
 
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(Customizer.withDefaults())
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(rateLimitingFilter, JwtAuthFilter.class);
 
         return http.build();
     }

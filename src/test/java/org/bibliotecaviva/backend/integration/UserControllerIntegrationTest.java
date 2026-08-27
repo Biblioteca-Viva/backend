@@ -12,6 +12,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerIntegrationTest extends IntegrationTestSupport {
 
     @Test
+    void curatorShouldListRegisteredProfilesWithStatusFilter() throws Exception {
+        User curator = createActiveCurator();
+        User target = createActiveStudent();
+
+        mockMvc.perform(get("/user")
+                        .header("Authorization", bearer(curator))
+                        .queryParam("status", "ACTIVE")
+                        .queryParam("page", "0")
+                        .queryParam("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[?(@.id == '%s')]", target.getId()).exists());
+    }
+
+    @Test
+    void studentShouldNotListRegisteredProfiles() throws Exception {
+        User student = createActiveStudent();
+
+        mockMvc.perform(get("/user").header("Authorization", bearer(student)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void adminShouldFindUserByEmail() throws Exception {
         User admin = createActiveAdmin();
         User target = createActiveStudent();

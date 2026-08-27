@@ -4,6 +4,7 @@ CREATE TABLE public.users
     email          varchar(255) NOT NULL,
     "name"         varchar(255) NOT NULL,
     "password"     varchar(255) NOT NULL,
+    session_version bigint       DEFAULT 0 NOT NULL,
     "role"         varchar(255) NOT NULL,
     account_status varchar(255) NOT NULL,
     CONSTRAINT uk6dotkott2kjsp8vw4d0m25fb7 UNIQUE (email),
@@ -11,6 +12,43 @@ CREATE TABLE public.users
     CONSTRAINT users_role_check CHECK (((role)::text = ANY (ARRAY[('CURADOR':: character varying)::text, ('ALUNO':: character varying)::text, ('ADMIN':: character varying)::text])
 ) )
 );
+
+CREATE TABLE public.password_reset_challenges
+(
+    id                     uuid                     NOT NULL,
+    user_id                uuid                     NOT NULL,
+    code_hash              varchar(64)              NOT NULL,
+    code_expires_at        timestamp with time zone NOT NULL,
+    failed_attempts        integer                  NOT NULL,
+    last_sent_at           timestamp with time zone NOT NULL,
+    reset_token_hash       varchar(64)              NULL,
+    reset_token_expires_at timestamp with time zone NULL,
+    verified               boolean                  NOT NULL,
+    CONSTRAINT password_reset_challenges_pkey PRIMARY KEY (id),
+    CONSTRAINT uk_password_reset_challenge_user UNIQUE (user_id),
+    CONSTRAINT uk_password_reset_challenge_token UNIQUE (reset_token_hash),
+    CONSTRAINT fk_password_reset_challenge_user FOREIGN KEY (user_id)
+        REFERENCES public.users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE public.refresh_tokens
+(
+    id                     uuid                     NOT NULL,
+    user_id                uuid                     NOT NULL,
+    token_hash             varchar(64)              NOT NULL,
+    expires_at             timestamp with time zone NOT NULL,
+    revoked                boolean                  NOT NULL DEFAULT false,
+    created_at             timestamp with time zone NOT NULL,
+    replaced_by_token_hash varchar(64)              NULL,
+    family_id              uuid                     NOT NULL DEFAULT gen_random_uuid(),
+    CONSTRAINT refresh_tokens_pkey PRIMARY KEY (id),
+    CONSTRAINT uk_refresh_tokens_token_hash UNIQUE (token_hash),
+    CONSTRAINT fk_refresh_tokens_user FOREIGN KEY (user_id)
+        REFERENCES public.users (id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_refresh_tokens_user_id ON public.refresh_tokens (user_id);
+CREATE INDEX idx_refresh_tokens_family_id ON public.refresh_tokens (family_id);
 
 CREATE TABLE public.book_club
 (

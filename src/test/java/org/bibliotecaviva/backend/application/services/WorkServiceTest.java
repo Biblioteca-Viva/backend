@@ -1,6 +1,8 @@
 package org.bibliotecaviva.backend.application.services;
 
 import org.bibliotecaviva.backend.application.dtos.request.textual.ArticleRequestDTO;
+import org.bibliotecaviva.backend.application.dtos.request.textual.CordelRequestDTO;
+import org.bibliotecaviva.backend.application.dtos.request.visual.ArtRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.response.HomePageDashboardResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.WorkResponse;
 import org.bibliotecaviva.backend.application.dtos.response.WorkSummaryResponseDTO;
@@ -9,6 +11,8 @@ import org.bibliotecaviva.backend.application.mappers.WorkMapper;
 import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.entities.projections.WorkSummary;
 import org.bibliotecaviva.backend.domain.entities.textual.Article;
+import org.bibliotecaviva.backend.domain.entities.textual.Cordel;
+import org.bibliotecaviva.backend.domain.entities.visual.Art;
 import org.bibliotecaviva.backend.domain.enums.Role;
 import org.bibliotecaviva.backend.domain.enums.Status;
 import org.bibliotecaviva.backend.domain.enums.WorkTypes;
@@ -22,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +38,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,6 +63,9 @@ class WorkServiceTest {
 
     @Mock
     private CommentRepository commentRepository;
+
+    @Mock
+    private CloudinaryService cloudinaryService;
 
     @InjectMocks
     private WorkService workService;
@@ -149,6 +158,120 @@ class WorkServiceTest {
     }
 
     @Test
+    void createCordelShouldLinkArtFoundByTitle() {
+        CordelRequestDTO request = buildCordelRequest("Illustration");
+        Cordel cordel = buildCordel(null, request.title());
+        Art art = Art.builder().id(UUID.randomUUID()).title("Illustration").url("https://example.com/art.png").build();
+        WorkResponse expected = mock(WorkResponse.class);
+        when(workMapper.toEntity(request)).thenReturn(cordel);
+        when(workRepository.findArtByTitle("Illustration")).thenReturn(Optional.of(art));
+        when(workRepository.save(cordel)).thenReturn(cordel);
+        when(workMapper.toDTO(cordel, 0L, 0L)).thenReturn(expected);
+
+        WorkResponse response = workService.create(request);
+
+        assertSame(expected, response);
+        assertSame(art, cordel.getIllustration());
+        assertEquals("External Author", cordel.getAuthorName());
+        verify(workRepository).findArtByTitle("Illustration");
+    }
+
+    @Test
+    void createCordelShouldFailWhenArtDoesNotExist() {
+        CordelRequestDTO request = buildCordelRequest("Missing Art");
+        Cordel cordel = buildCordel(null, request.title());
+        when(workMapper.toEntity(request)).thenReturn(cordel);
+        when(workRepository.findArtByTitle("Missing Art")).thenReturn(Optional.empty());
+
+        assertThrows(WorkNotFoundException.class, () -> workService.create(request));
+
+        verify(workRepository, never()).save(any());
+    }
+
+    @Test
+    void createCordelShouldSkipArtLookupWhenArtNameIsBlank() {
+        CordelRequestDTO request = buildCordelRequest(" ");
+        Cordel cordel = buildCordel(null, request.title());
+        WorkResponse expected = mock(WorkResponse.class);
+        when(workMapper.toEntity(request)).thenReturn(cordel);
+        when(workRepository.save(cordel)).thenReturn(cordel);
+        when(workMapper.toDTO(cordel, 0L, 0L)).thenReturn(expected);
+
+        assertSame(expected, workService.create(request));
+        assertNull(cordel.getIllustration());
+        verify(workRepository, never()).findArtByTitle(anyString());
+    }
+
+    @Test
+    void createVisualWorkShouldUploadImageAndSetUrl() {
+        User author = buildUser(UUID.randomUUID(), "autor@teste.com");
+        ArtRequestDTO request = new ArtRequestDTO("Arte", author.getEmail(), null, LocalDateTime.now(), "Desc", "Turma");
+        Art mapped = Art.builder().title("Arte").author(author).build();
+        Art saved = Art.builder().id(UUID.randomUUID()).title("Arte").url("https://res.cloudinary.com/test/image.png").author(author).build();
+        WorkResponse expected = mock(WorkResponse.class);
+        MockMultipartFile image = new MockMultipartFile("image", "art.png", "image/png", "bytes".getBytes());
+
+        when(userRepository.findByEmail(request.authorEmail())).thenReturn(Optional.of(author));
+        when(workMapper.toEntity(request)).thenReturn(mapped);
+        when(cloudinaryService.uploadImage(image)).thenReturn("https://res.cloudinary.com/test/image.png");
+        when(workRepository.save(mapped)).thenReturn(saved);
+        when(workMapper.toDTO(saved, 0L, 0L)).thenReturn(expected);
+
+        WorkResponse response = workService.create(request, image);
+
+        assertSame(expected, response);
+        assertEquals("https://res.cloudinary.com/test/image.png", mapped.getUrl());
+        verify(cloudinaryService).uploadImage(image);
+        verify(workRepository).save(mapped);
+    }
+
+    @Test
+    void updateVisualWorkShouldUploadImageWhenImageProvided() {
+        UUID id = UUID.randomUUID();
+        User author = buildUser(UUID.randomUUID(), "autor@teste.com");
+        Art existing = Art.builder().id(id).title("Arte Antiga").url("https://old.url/image.png").author(author).build();
+        ArtRequestDTO request = new ArtRequestDTO("Arte Nova", author.getEmail(), null, LocalDateTime.now(), "Desc", "Turma");
+        WorkResponse expected = mock(WorkResponse.class);
+        MockMultipartFile image = new MockMultipartFile("image", "new.png", "image/png", "bytes".getBytes());
+
+        when(workRepository.findById(id)).thenReturn(Optional.of(existing));
+        when(userRepository.findByEmail(author.getEmail())).thenReturn(Optional.of(author));
+        when(cloudinaryService.uploadImage(image)).thenReturn("https://res.cloudinary.com/new/image.png");
+        when(workRepository.save(existing)).thenReturn(existing);
+        when(workRepository.getLikeCount(id)).thenReturn(0L);
+        when(commentRepository.countByWork_Id(id)).thenReturn(0L);
+        when(workMapper.toDTO(existing, 0L, 0L)).thenReturn(expected);
+
+        WorkResponse response = workService.update(id, request, image);
+
+        assertSame(expected, response);
+        assertEquals("https://res.cloudinary.com/new/image.png", existing.getUrl());
+        verify(cloudinaryService).uploadImage(image);
+    }
+
+    @Test
+    void updateVisualWorkShouldKeepExistingUrlWhenImageIsNull() {
+        UUID id = UUID.randomUUID();
+        User author = buildUser(UUID.randomUUID(), "autor@teste.com");
+        Art existing = Art.builder().id(id).title("Arte Antiga").url("https://old.url/image.png").author(author).build();
+        ArtRequestDTO request = new ArtRequestDTO("Arte Nova", author.getEmail(), null, LocalDateTime.now(), "Desc", "Turma");
+        WorkResponse expected = mock(WorkResponse.class);
+
+        when(workRepository.findById(id)).thenReturn(Optional.of(existing));
+        when(userRepository.findByEmail(author.getEmail())).thenReturn(Optional.of(author));
+        when(workRepository.save(existing)).thenReturn(existing);
+        when(workRepository.getLikeCount(id)).thenReturn(0L);
+        when(commentRepository.countByWork_Id(id)).thenReturn(0L);
+        when(workMapper.toDTO(existing, 0L, 0L)).thenReturn(expected);
+
+        WorkResponse response = workService.update(id, request, null);
+
+        assertSame(expected, response);
+        assertEquals("https://old.url/image.png", existing.getUrl());
+        verify(cloudinaryService, never()).uploadImage(any());
+    }
+
+    @Test
     void updateShouldFailWhenAuthorEmailIsBlankAndNoUserMatches() {
         UUID id = UUID.randomUUID();
         User author = buildUser(UUID.randomUUID(), "autor@teste.com");
@@ -208,6 +331,37 @@ class WorkServiceTest {
 
         assertThrows(UserNotFoundException.class, () -> workService.update(id, request));
 
+        verify(workRepository, never()).save(any());
+    }
+
+    @Test
+    void updateCordelShouldReplaceLinkedIllustration() {
+        UUID id = UUID.randomUUID();
+        CordelRequestDTO request = buildCordelRequest("New Art");
+        Cordel cordel = buildCordel(id, "Old Cordel");
+        Art art = Art.builder().id(UUID.randomUUID()).title("New Art").url("https://example.com/new.png").build();
+        WorkResponse expected = mock(WorkResponse.class);
+        when(workRepository.findById(id)).thenReturn(Optional.of(cordel));
+        when(workRepository.findArtByTitle("New Art")).thenReturn(Optional.of(art));
+        when(workRepository.save(cordel)).thenReturn(cordel);
+        when(workRepository.getLikeCount(id)).thenReturn(1L);
+        when(commentRepository.countByWork_Id(id)).thenReturn(2L);
+        when(workMapper.toDTO(cordel, 1L, 2L)).thenReturn(expected);
+
+        assertSame(expected, workService.update(id, request));
+        assertSame(art, cordel.getIllustration());
+        verify(workMapper).partialUpdate(request, cordel);
+    }
+
+    @Test
+    void updateCordelShouldFailWhenRequestedArtDoesNotExist() {
+        UUID id = UUID.randomUUID();
+        CordelRequestDTO request = buildCordelRequest("Missing Art");
+        Cordel cordel = buildCordel(id, "Cordel");
+        when(workRepository.findById(id)).thenReturn(Optional.of(cordel));
+        when(workRepository.findArtByTitle("Missing Art")).thenReturn(Optional.empty());
+
+        assertThrows(WorkNotFoundException.class, () -> workService.update(id, request));
         verify(workRepository, never()).save(any());
     }
 
@@ -278,6 +432,13 @@ class WorkServiceTest {
         );
     }
 
+    private static CordelRequestDTO buildCordelRequest(String artName) {
+        return new CordelRequestDTO(
+                "Cordel Test", null, "External Author", LocalDateTime.now().minusDays(1),
+                "Description valid for unit test", "Cordel content", "ABAB", artName, "Class A"
+        );
+    }
+
     private static User buildUser(UUID id, String email) {
         return User.builder()
                 .id(id)
@@ -299,6 +460,12 @@ class WorkServiceTest {
                 .content("Conteudo")
                 .viewCount(0L)
                 .build();
+    }
+
+    private static Cordel buildCordel(UUID id, String title) {
+        return Cordel.builder().id(id).title(title).publicationDate(LocalDateTime.now().minusDays(1))
+                .description("Description").content("Content").rhymeScheme("ABAB")
+                .studentClass("Class A").viewCount(0L).build();
     }
 
     private static ArticleResponseDTO buildArticleResponse(UUID id, String title, Long likes, Long comments) {

@@ -1,19 +1,11 @@
 Todo-list
 -------------------------------------
 Nao precisa fazer agora:
-- [ ] Notificações (Se precisar)
-- [ ] Fluxo com refreshToken e acessToken (Fazer em conjunto com front, e trocar por cookies)
-- [ ] Esqueceu a senha
+
+- [x] Fluxo com refreshToken e acessToken (Refatoração concluída com cookies HttpOnly, rotação e segurança no backend)
 -------------------------------------
 - [ ] Slug pra navegação pra perfil do usuário(precisa se ofr ter navegacao) e pra obras (mais legivel, porem desncessário)
-- [ ] Mandar duração no worksummary (se n der pra pegar direto no front)
-- [ ] admin,professor e autor da obra podem responder comentários
-- [ ] Colocar novo tipo de obra(poemas)
-__________________________
-- [ ] Testes
-    - Testes unitários
-    - Testes de integração
-    - Testes de interface (end-to-end)
+
 ------------------
 # Sessões do Site
 

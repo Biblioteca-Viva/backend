@@ -19,4 +19,20 @@ security:
     allowed-origins: http://localhost:3000
   jwt:
     secret: Y29kZXgtdGVzdC1qd3Qtc2VjcmV0LWZvci1sb2NhbC10ZXN0aW5nLWFwcA==
-    expiration: 86400000
+    expiration: 900000
+    refresh-token-expiration: 604800000
+  cookie:
+    secure: false
+    same-site: Lax
+  rate-limit:
+    enabled: false
+
+resend:
+  api-key: re_test_key
+  from-email: Biblioteca Viva <onboarding@resend.dev>
+
+password-reset:
+  pepper: codex-test-password-reset-pepper
+
+cloudinary:
+  url:

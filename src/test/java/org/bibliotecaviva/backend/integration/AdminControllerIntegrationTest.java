@@ -23,6 +23,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AdminControllerIntegrationTest extends IntegrationTestSupport {
 
     @Test
+    void adminShouldListCommentAndReviewSummaries() throws Exception {
+        User admin = createActiveAdmin();
+        User curator = createActiveCurator();
+        User student = createActiveStudent();
+        Article work = createArticleInDatabase(curator);
+        Comment comment = createCommentInDatabase(student, work, "Summary comment");
+        BookClub club = createBookClubInDatabase(curator, LocalDateTime.now().plusMonths(2));
+        BookClubReview review = createBookClubReviewInDatabase(student, club, "Summary review", BigDecimal.valueOf(4));
+
+        mockMvc.perform(get("/admin/comments").header("Authorization", bearer(admin)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[?(@.id == '%s')]", comment.getId()).exists());
+        mockMvc.perform(get("/admin/reviews").header("Authorization", bearer(admin)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[?(@.id == '%s')]", review.getId()).exists());
+    }
+
+    @Test
     void adminShouldListUsersFilteredByStatus() throws Exception {
         User admin = createActiveAdmin();
         User pending = createPendingStudent();
