@@ -28,10 +28,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Tag(
         name = "Comments",
-        description = "" +
-                "User will be able to edit and deleted their own comments(but its not implemented), only admins can for now" +
-                "Controller responsible for handling operations related to comments on works, including creating, " +
-                "retrieving, updating, and deleting comments.")
+        description = "Operations for comments and their replies on published works.")
 public class CommentController {
 
     private final CommentService commentService;
@@ -98,6 +95,7 @@ public class CommentController {
 
     @PostMapping("/{commentId}/reply")
     @ApiResponse(responseCode = "201", description = "Reply created")
+    @ApiResponse(responseCode = "409", description = "Comment already has a reply")
     @ApiResponse(responseCode = "403", description = "Not authorized")
     @ApiResponse(responseCode = "404", description = "Comment not found")
     public ResponseEntity<CommentReplyResponseDTO> reply(

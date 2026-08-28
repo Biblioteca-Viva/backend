@@ -44,6 +44,9 @@ class WorkServiceLikeTest {
     @Mock
     private CommentRepository commentRepository;
 
+    @Mock
+    private CloudinaryService cloudinaryService;
+
     @InjectMocks
     private WorkService workService;
 

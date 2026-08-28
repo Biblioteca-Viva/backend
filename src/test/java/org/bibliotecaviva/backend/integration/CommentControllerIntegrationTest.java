@@ -1,6 +1,7 @@
 package org.bibliotecaviva.backend.integration;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.bibliotecaviva.backend.domain.entities.Comment;
 import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.entities.textual.Article;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,42 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 class CommentControllerIntegrationTest extends IntegrationTestSupport {
+
+    @Test
+    void studentLinkedAsWorkAuthorShouldReplyWithoutForbiddenResponse() throws Exception {
+        User studentAuthor = createActiveStudent();
+        User commenter = createActiveStudent();
+        Article work = createArticleInDatabase(studentAuthor);
+        Comment comment = createCommentInDatabase(commenter, work, "Question for the author");
+
+        mockMvc.perform(post("/work/{workId}/comments/{commentId}/reply", work.getId(), comment.getId())
+                        .header("Authorization", bearer(studentAuthor))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("content", "Student author response"))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.content").value("Student author response"))
+                .andExpect(jsonPath("$.authorName").value(studentAuthor.getName()));
+    }
+
+    @Test
+    void authenticatedUserShouldLikeAndUnlikeComment() throws Exception {
+        User author = createActiveCurator();
+        User commenter = createActiveStudent();
+        User voter = createActiveStudent();
+        Article work = createArticleInDatabase(author);
+        Comment comment = createCommentInDatabase(commenter, work, "Comment to like");
+
+        mockMvc.perform(put("/work/{workId}/comments/{commentId}/like", work.getId(), comment.getId())
+                        .header("Authorization", bearer(voter)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.liked").value(true))
+                .andExpect(jsonPath("$.likeCount").value(1));
+        mockMvc.perform(delete("/work/{workId}/comments/{commentId}/like", work.getId(), comment.getId())
+                        .header("Authorization", bearer(voter)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.liked").value(false))
+                .andExpect(jsonPath("$.likeCount").value(0));
+    }
 
     @Test
     void shouldCreateListUpdateDenyThirdPartyAndDeleteComment() throws Exception {

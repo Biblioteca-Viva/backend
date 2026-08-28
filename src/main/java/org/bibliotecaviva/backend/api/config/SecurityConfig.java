@@ -67,8 +67,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/work/*/like").authenticated()
 
                         .requestMatchers(HttpMethod.POST, "/work/*/comments").hasAnyRole("ALUNO", "CURADOR", "ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/work/*/comments/*").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/work/*/comments/*").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/work/*/comments/*/reply").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/work/*/comments/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/work/*/comments/**").authenticated()
 
 
                         .requestMatchers(HttpMethod.POST, "/work/**").hasAnyRole("ADMIN", "CURADOR")
@@ -77,11 +78,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/work/**").permitAll()
 
                         .requestMatchers("/auth/login", "/auth/register/aluno", "/auth/logout",
+                                "/auth/password-reset/request", "/auth/password-reset/verify",
+                                "/auth/password-reset/confirm",
                                 "/swagger-ui/**", "/scalar/**", "/v3/api-docs/**").permitAll()
 
                         .requestMatchers("/auth/register/curador", "/auth/register/admin").hasAnyRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.GET, "/user/find-by-email").hasAnyRole("ADMIN", "CURADOR")
+                        .requestMatchers(HttpMethod.GET, "/user", "/user/find-by-email")
+                        .hasAnyRole("ADMIN", "CURADOR")
 
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session

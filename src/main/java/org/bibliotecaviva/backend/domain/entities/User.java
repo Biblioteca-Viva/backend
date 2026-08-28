@@ -30,6 +30,9 @@ public class User implements UserDetails {
     private String email;
     @Column(nullable = false)
     private String password;
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "bigint default 0")
+    private long sessionVersion = 0L;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;

@@ -1,22 +1,31 @@
 info:
   name: create art
   type: http
-  seq: 3
+  seq: 1
 
 http:
   method: POST
   url: "{{api_url}}work/arts"
   body:
-    type: json
-    data: |-
-      {
-        "title": "CORDELTESTE",
-       "authorEmail": "aluno2@teste.com", 
-        "publicationDate": "2026-03-30T11:45:00",
-        "description": "Uma composição digital explorando as linhas arquitetônicas do Cais do Sertão sob uma perspectiva de geometria fractal e cores neon.",
-        "url": "https://s5.static.brasilescola.uol.com.br/be/2023/06/xilogravura-elemento-comum-na-literatura-de-cordel-uma-das-expressoes-da-cultura-popular-do-nordeste.jpg",
-        "studentClass": "Terceiro B"
-      }
+    type: multipart-form
+    data:
+      - name: data
+        type: text
+        value: |2-
+            {
+                "title": "Arte Digital Contemporânea",
+                "authorEmail": null,
+                "authorName": "Nome do Autor Externo",
+                "publicationDate": "2026-03-30T11:45:00",
+                "description": "Uma composição digital detalhada explorando linhas arquitetônicas e cores vibrantes.",
+                "description": "Uma composição digital detalhada explorando linhas arquitetônicas e cores vibrantes.",
+                "studentClass": "Terceiro B"
+              }
+        contentType: application/json
+      - name: image
+        type: file
+        value:
+          - /home/dimas/Downloads/teste.jpeg
   auth: inherit
 
 settings:
@@ -24,3 +33,25 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+
+docs: |-
+  # Create Art (Ilustração)
+
+  Cria uma obra visual do tipo Arte/Ilustração.
+  Requer usuário autenticado com perfil `ADMIN` ou `CURADOR`.
+
+  ## Formato da Requisição
+  - Content-Type: `multipart/form-data`
+  - Part `data` (`application/json`): JSON com os dados da obra (`title`, `authorEmail`, `publicationDate`, `description`, `studentClass`). Não inclui campo `url`.
+  - Part `image` (`file`): Arquivo de imagem a ser enviado ao Cloudinary. Formatos permitidos: `.jpg`, `.jpeg`, `.png`.
+
+  ## Regras Importantes
+  - `authorEmail` deve apontar para um usuário cadastrado.
+  - O mesmo autor não pode ter duas obras com o mesmo `title`.
+  - O upload é realizado diretamente para o Cloudinary, que retorna a URL pública persistida no banco.
+
+  ## Respostas Esperadas
+  - `201`: Arte criada com sucesso (retorna JSON com a `url` gerada pelo Cloudinary).
+  - `400`: Imagem ausente, formato inválido (apenas JPG/PNG), arquivo vazio ou campos inválidos.
+  - `404`: Autor não encontrado.
+  - `409`: Já existe obra com o mesmo título para este autor.

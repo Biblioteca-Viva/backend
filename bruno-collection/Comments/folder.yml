@@ -5,3 +5,29 @@ info:
 
 request:
   auth: inherit
+
+docs: |-
+  # Comments
+
+  Endpoints de comentarios e de suas respostas vinculados a uma obra.
+
+  ## Endpoints
+  - `POST /work/{workId}/comments`: cria um comentario.
+  - `GET /work/{workId}/comments`: lista comentarios paginados com a resposta vinculada.
+  - `PUT /work/{workId}/comments/{commentId}`: edita um comentario.
+  - `DELETE /work/{workId}/comments/{commentId}`: exclui um comentario.
+  - `PUT /work/{workId}/comments/{commentId}/like`: curte um comentario.
+  - `DELETE /work/{workId}/comments/{commentId}/like`: remove a curtida.
+  - `POST /work/{workId}/comments/{commentId}/reply`: cria a resposta do comentario.
+  - `GET /work/{workId}/comments/{commentId}/reply`: consulta a resposta.
+  - `PUT /work/{workId}/comments/{commentId}/reply`: edita a resposta.
+  - `DELETE /work/{workId}/comments/{commentId}/reply/{replyId}`: exclui a resposta.
+
+  ## Permissoes e estrutura
+  - As consultas sao publicas; as demais operacoes exigem autenticacao.
+  - `ALUNO`, `CURADOR` e `ADMIN` podem criar comentarios.
+  - Somente `ADMIN` ou o usuario vinculado como autor da obra pode criar uma resposta; isso permite ao aluno autor responder.
+  - Qualquer usuario autenticado pode curtir comentarios.
+  - Somente o autor do comentario ou um `ADMIN` pode editar ou excluir.
+  - Somente o autor da resposta ou um `ADMIN` pode editar ou excluir a resposta.
+  - Cada comentario aceita no maximo uma resposta, retornada no campo `reply`.

@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -134,6 +135,27 @@ class BookClubServiceTest {
     }
 
     @Test
+    void getByIdShouldMapExistingBookClubWithMetrics() {
+        UUID id = UUID.randomUUID();
+        BookClub club = buildBookClub(id, buildUser(UUID.randomUUID(), Role.CURADOR), LocalDateTime.now().plusDays(5));
+        BookClubResponseDTO expected = buildResponse(club, 3L, BigDecimal.valueOf(4.2));
+        when(bookClubRepository.findById(id)).thenReturn(Optional.of(club));
+        when(bookClubRepository.countParticipants(id)).thenReturn(3L);
+        when(bookClubRepository.getAverageRating(id)).thenReturn(BigDecimal.valueOf(4.2));
+        when(bookClubMapper.toDto(club, 3L, BigDecimal.valueOf(4.2))).thenReturn(expected);
+
+        assertSame(expected, bookClubService.getById(id));
+    }
+
+    @Test
+    void getByIdShouldFailWhenBookClubDoesNotExist() {
+        UUID id = UUID.randomUUID();
+        when(bookClubRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> bookClubService.getById(id));
+    }
+
+    @Test
     void updateShouldAllowOwnerAndRejectAnotherBookClubInSameMonth() {
         UUID id = UUID.randomUUID();
         User organizer = buildUser(UUID.randomUUID(), Role.CURADOR);
@@ -162,6 +184,24 @@ class BookClubServiceTest {
         when(bookClubRepository.findById(id)).thenReturn(Optional.of(existing));
 
         assertThrows(ForbiddenException.class, () -> bookClubService.update(id, buildRequest(LocalDateTime.now().plusMonths(2)), other));
+    }
+
+    @Test
+    void updateShouldApplyChangesWhenOwnerAndMonthIsAvailable() {
+        UUID id = UUID.randomUUID();
+        User organizer = buildUser(UUID.randomUUID(), Role.CURADOR);
+        LocalDateTime newDate = LocalDateTime.of(2027, 2, 12, 18, 0);
+        BookClub club = buildBookClub(id, organizer, LocalDateTime.of(2027, 1, 12, 18, 0));
+        BookClubRequestDTO request = buildRequest(newDate);
+        BookClubResponseDTO expected = buildResponse(club, 2L, BigDecimal.valueOf(4.0));
+        when(bookClubRepository.findById(id)).thenReturn(Optional.of(club));
+        when(bookClubRepository.existsBookClubByDateBetweenAndIdNot(any(), any(), eq(id))).thenReturn(false);
+        when(bookClubRepository.countParticipants(id)).thenReturn(2L);
+        when(bookClubRepository.getAverageRating(id)).thenReturn(BigDecimal.valueOf(4.0));
+        when(bookClubMapper.toDto(club, 2L, BigDecimal.valueOf(4.0))).thenReturn(expected);
+
+        assertSame(expected, bookClubService.update(id, request, organizer));
+        verify(bookClubMapper).partialUpdate(request, club);
     }
 
     @Test
@@ -221,6 +261,44 @@ class BookClubServiceTest {
 
         assertEquals("Presen\u00e7a cancelada com sucesso", response.message());
         assertTrue(bookClub.getParticipants().isEmpty());
+    }
+
+    @Test
+    void unsubscribeShouldFailWhenUserIsNotSubscribed() {
+        UUID id = UUID.randomUUID();
+        User user = buildUser(UUID.randomUUID(), Role.ALUNO);
+        BookClub club = buildBookClub(id, buildUser(UUID.randomUUID(), Role.CURADOR), LocalDateTime.now().plusDays(5));
+        when(bookClubRepository.findById(id)).thenReturn(Optional.of(club));
+
+        assertThrows(ConflictException.class, () -> bookClubService.unsubscribe(id, user));
+    }
+
+    @Test
+    void getParticipantsShouldReturnOrganizerAndStudentNames() {
+        UUID id = UUID.randomUUID();
+        User organizer = buildUser(UUID.randomUUID(), Role.CURADOR);
+        User first = buildUser(UUID.randomUUID(), Role.ALUNO);
+        User second = buildUser(UUID.randomUUID(), Role.ALUNO);
+        first.setName("Ana");
+        second.setName("Bruno");
+        BookClub club = buildBookClub(id, organizer, LocalDateTime.now().plusDays(5));
+        club.getParticipants().add(first);
+        club.getParticipants().add(second);
+        when(bookClubRepository.findById(id)).thenReturn(Optional.of(club));
+
+        var response = bookClubService.getParticipants(id);
+
+        assertEquals(organizer.getName(), response.organizer());
+        assertEquals(2, response.students().size());
+        assertTrue(response.students().containsAll(List.of("Ana", "Bruno")));
+    }
+
+    @Test
+    void getParticipantsShouldFailWhenBookClubDoesNotExist() {
+        UUID id = UUID.randomUUID();
+        when(bookClubRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> bookClubService.getParticipants(id));
     }
 
     @Test

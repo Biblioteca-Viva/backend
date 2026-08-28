@@ -1,12 +1,17 @@
 package org.bibliotecaviva.backend.integration;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.bibliotecaviva.backend.application.services.CloudinaryService;
 import org.bibliotecaviva.backend.domain.entities.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.LinkedHashMap;
@@ -17,14 +22,25 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class WorkControllerIntegrationTest extends IntegrationTestSupport {
+
+    @MockitoBean
+    private CloudinaryService cloudinaryService;
+
+    @BeforeEach
+    void setupCloudinary() {
+        when(cloudinaryService.uploadImage(any())).thenReturn("https://res.cloudinary.com/test/image.png");
+    }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("workCases")
@@ -34,10 +50,22 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
         String title = uniqueTitle(spec.type());
         Map<String, Object> createPayload = spec.createPayload(baseWorkPayload(title, curator.getEmail()));
 
-        ResultActions createResult = mockMvc.perform(post("/work/" + spec.path())
-                        .header("Authorization", authorization)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(createPayload)))
+        ResultActions createResult;
+        if (spec.path().equals("arts") || spec.path().equals("infographics")) {
+            MockMultipartFile dataPart = new MockMultipartFile("data", "", MediaType.APPLICATION_JSON_VALUE, json(createPayload).getBytes());
+            MockMultipartFile imagePart = new MockMultipartFile("image", "test.png", "image/png", "test-image".getBytes());
+            createResult = mockMvc.perform(multipart("/work/" + spec.path())
+                            .file(dataPart)
+                            .file(imagePart)
+                            .header("Authorization", authorization));
+        } else {
+            createResult = mockMvc.perform(post("/work/" + spec.path())
+                            .header("Authorization", authorization)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(createPayload)));
+        }
+
+        createResult
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.title").value(title))
@@ -70,10 +98,23 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
 
         String updatedTitle = uniqueTitle(spec.type() + " atualizado");
         Map<String, Object> updatePayload = spec.updatePayload(baseWorkPayload(updatedTitle, curator.getEmail()));
-        ResultActions updateResult = mockMvc.perform(put("/work/" + spec.path() + "/" + id)
-                        .header("Authorization", authorization)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(updatePayload)))
+
+        ResultActions updateResult;
+        if (spec.path().equals("arts") || spec.path().equals("infographics")) {
+            MockMultipartFile dataPart = new MockMultipartFile("data", "", MediaType.APPLICATION_JSON_VALUE, json(updatePayload).getBytes());
+            MockMultipartFile imagePart = new MockMultipartFile("image", "test-updated.png", "image/png", "test-image".getBytes());
+            updateResult = mockMvc.perform(multipart(HttpMethod.PUT, "/work/" + spec.path() + "/" + id)
+                            .file(dataPart)
+                            .file(imagePart)
+                            .header("Authorization", authorization));
+        } else {
+            updateResult = mockMvc.perform(put("/work/" + spec.path() + "/" + id)
+                            .header("Authorization", authorization)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(updatePayload)));
+        }
+
+        updateResult
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id.toString()))
                 .andExpect(jsonPath("$.title").value(updatedTitle))
@@ -160,6 +201,51 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
+    void cordelShouldReturnLinkedIllustrationAndRejectUnknownArt() throws Exception {
+        User curator = createActiveCurator();
+        String authorization = bearer(curator);
+        String firstArtTitle = uniqueTitle("First illustration");
+        UUID firstArtId = createWorkThroughApi("arts", artPayload(firstArtTitle, curator.getEmail()), authorization);
+        String cordelTitle = uniqueTitle("Illustrated cordel");
+        Map<String, Object> cordel = baseWorkPayload(cordelTitle, curator.getEmail());
+        cordel.put("content", "Cordel content");
+        cordel.put("rhymeScheme", "ABAB");
+        cordel.put("artName", firstArtTitle);
+
+        JsonNode created = jsonFrom(mockMvc.perform(post("/work/cordels")
+                        .header("Authorization", authorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(cordel)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.illustration.id").value(firstArtId.toString()))
+                .andExpect(jsonPath("$.illustration.title").value(firstArtTitle))
+                .andExpect(jsonPath("$.illustration.url").value("https://res.cloudinary.com/test/image.png"))
+                .andReturn());
+        UUID cordelId = UUID.fromString(created.get("id").asText());
+
+        String secondArtTitle = uniqueTitle("Second illustration");
+        UUID secondArtId = createWorkThroughApi("arts", artPayload(secondArtTitle, curator.getEmail()), authorization);
+        cordel.put("title", uniqueTitle("Updated cordel"));
+        cordel.put("artName", secondArtTitle);
+        mockMvc.perform(put("/work/cordels/{id}", cordelId)
+                        .header("Authorization", authorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(cordel)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.illustration.id").value(secondArtId.toString()))
+                .andExpect(jsonPath("$.illustration.title").value(secondArtTitle));
+
+        Map<String, Object> invalid = new LinkedHashMap<>(cordel);
+        invalid.put("title", uniqueTitle("Invalid illustrated cordel"));
+        invalid.put("artName", uniqueTitle("Missing art"));
+        mockMvc.perform(post("/work/cordels")
+                        .header("Authorization", authorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(invalid)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void homeShouldAggregateCountsAndHighlights() throws Exception {
         User curator = createActiveCurator();
         String authorization = bearer(curator);
@@ -180,12 +266,24 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
     }
 
     private UUID createWorkThroughApi(String path, Map<String, Object> payload, String authorization) throws Exception {
-        JsonNode response = jsonFrom(mockMvc.perform(post("/work/" + path)
-                        .header("Authorization", authorization)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(payload)))
-                .andExpect(status().isCreated())
-                .andReturn());
+        JsonNode response;
+        if (path.equals("arts") || path.equals("infographics")) {
+            MockMultipartFile dataPart = new MockMultipartFile("data", "", MediaType.APPLICATION_JSON_VALUE, json(payload).getBytes());
+            MockMultipartFile imagePart = new MockMultipartFile("image", "art.png", "image/png", "test-image".getBytes());
+            response = jsonFrom(mockMvc.perform(multipart("/work/" + path)
+                            .file(dataPart)
+                            .file(imagePart)
+                            .header("Authorization", authorization))
+                    .andExpect(status().isCreated())
+                    .andReturn());
+        } else {
+            response = jsonFrom(mockMvc.perform(post("/work/" + path)
+                            .header("Authorization", authorization)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(payload)))
+                    .andExpect(status().isCreated())
+                    .andReturn());
+        }
         return UUID.fromString(response.get("id").asText());
     }
 
@@ -202,13 +300,28 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
     }
 
     private Map<String, Object> artPayload(String title, String authorEmail) {
-        Map<String, Object> payload = baseWorkPayload(title, authorEmail);
-        payload.put("url", "https://example.com/arte.png");
-        return payload;
+        return baseWorkPayload(title, authorEmail);
     }
 
     private static Stream<Arguments> workCases() {
         return Stream.of(
+                Arguments.of(new WorkEndpointCase(
+                        "poems",
+                        "POEM",
+                        "Poem",
+                        p -> {
+                            p.put("content", "Poem content");
+                            p.put("rhymeScheme", "AABB");
+                            p.put("poemType", "Sonnet");
+                        },
+                        p -> {
+                            p.put("content", "Updated poem content");
+                            p.put("rhymeScheme", "ABAB");
+                            p.put("poemType", "Free verse");
+                        },
+                        Map.of("content", "Poem content"),
+                        Map.of("content", "Updated poem content")
+                )),
                 Arguments.of(new WorkEndpointCase(
                         "articles",
                         "ARTICLE",
@@ -284,19 +397,19 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
                         "arts",
                         "ART",
                         "Art",
-                        p -> p.put("url", "https://example.com/art.png"),
-                        p -> p.put("url", "https://example.com/art-updated.png"),
-                        Map.of("url", "https://example.com/art.png"),
-                        Map.of("url", "https://example.com/art-updated.png")
+                        p -> {},
+                        p -> {},
+                        Map.of("url", "https://res.cloudinary.com/test/image.png"),
+                        Map.of("url", "https://res.cloudinary.com/test/image.png")
                 )),
                 Arguments.of(new WorkEndpointCase(
                         "infographics",
                         "INFOGRAPHIC",
                         "Infographic",
-                        p -> p.put("url", "https://example.com/info.png"),
-                        p -> p.put("url", "https://example.com/info-updated.png"),
-                        Map.of("url", "https://example.com/info.png"),
-                        Map.of("url", "https://example.com/info-updated.png")
+                        p -> {},
+                        p -> {},
+                        Map.of("url", "https://res.cloudinary.com/test/image.png"),
+                        Map.of("url", "https://res.cloudinary.com/test/image.png")
                 )),
                 Arguments.of(new WorkEndpointCase(
                         "multimedias",

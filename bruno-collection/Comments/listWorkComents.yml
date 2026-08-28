@@ -5,10 +5,48 @@ info:
 
 http:
   method: GET
-  url: "{{api_url}}work/{{work_id}}/comments"
+  url: "{{api_url}}work/{{work_id}}/comments?page=0&size=10"
+  params:
+    - name: page
+      value: "0"
+      type: query
+    - name: size
+      value: "10"
+      type: query
 
 settings:
   encodeUrl: true
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+
+docs: |-
+  # List Work Comments
+
+  Lista os comentarios da obra com paginacao. A rota e publica.
+
+  ## Ordenacao e paginacao
+  - Os comentarios sao retornados do mais recente para o mais antigo.
+  - Cada item informa `id`, `content`, `authorName`, `createdAt`, `likes` e `reply`.
+  - `reply` e `null` quando ainda nao existe resposta.
+
+  ## Exemplo de item em `content`
+  ```json
+  {
+    "id": "uuid-do-comentario",
+    "content": "Otima obra!",
+    "authorName": "Aluno",
+    "createdAt": "2026-07-13T10:00:00",
+    "likes": 2,
+    "reply": {
+      "id": "uuid-da-resposta",
+      "content": "Obrigado pelo comentario!",
+      "authorName": "Autor",
+      "createdAt": "2026-07-13T10:05:00"
+    }
+  }
+  ```
+
+  ## Respostas esperadas
+  - `200`: pagina de comentarios retornada.
+  - `404`: obra nao encontrada.

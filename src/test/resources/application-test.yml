@@ -20,3 +20,13 @@ security:
   jwt:
     secret: Y29kZXgtdGVzdC1qd3Qtc2VjcmV0LWZvci1sb2NhbC10ZXN0aW5nLWFwcA==
     expiration: 86400000
+
+resend:
+  api-key: re_test_key
+  from-email: Biblioteca Viva <onboarding@resend.dev>
+
+password-reset:
+  pepper: codex-test-password-reset-pepper
+
+cloudinary:
+  url:

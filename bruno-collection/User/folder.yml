@@ -12,6 +12,8 @@ docs: |-
   Endpoints de consulta de usuarios fora do painel administrativo.
 
   ## Endpoints
+  - `GET /user`: lista usuarios com paginacao e filtro opcional por `status`.
   - `GET /user/find-by-email?email={email}`: busca um usuario por email.
 
-  A busca por email exige token Bearer de usuario `ADMIN` ou `CURADOR`.
+  As consultas exigem token Bearer de usuario `ADMIN` ou `CURADOR` e nao permitem
+  aprovar, rejeitar, bloquear ou excluir contas.
