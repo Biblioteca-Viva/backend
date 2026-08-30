@@ -26,7 +26,7 @@ public interface WorkRepository extends JpaRepository<Work, UUID> {
                    COALESCE(u.name, w.author_name) as author,
                    COALESCE(lk.like_count, 0)    as like_count,
                    COALESCE(cm.comment_count, 0) as comment_count,
-                   COALESCE(a.url, i.url, lt.url, mt.url,cordel_illustration.url) as url,
+                   COALESCE(a.url, i.url, lt.url, mt.url,cordel_illustration.url, ow.image_url) as url,
                    COALESCE(mt.duration,lt.duration) as duration
             FROM obras w
             LEFT JOIN users u ON u.id = w.users_id
@@ -36,6 +36,7 @@ public interface WorkRepository extends JpaRepository<Work, UUID> {
             LEFT JOIN multimedia mt on w.id = mt.id
             LEFT JOIN public.cordel c on w.id = c.id
             LEFT JOIN public.art cordel_illustration on cordel_illustration.id = c.illustration_id
+            LEFT JOIN public.other_work ow on w.id = ow.id
             LEFT JOIN (
                 SELECT work_id, COUNT(user_id) as like_count
                 FROM likes
@@ -86,7 +87,7 @@ public interface WorkRepository extends JpaRepository<Work, UUID> {
                   COALESCE(u.name, w.author_name) as author,
                    COALESCE(lk.like_count, 0)    as like_count,
                    COALESCE(cm.comment_count, 0) as comment_count,
-                    COALESCE(a.url, i.url, lt.url, mt.url) as url,
+                    COALESCE(a.url, i.url, lt.url, mt.url, ow.image_url) as url,
                     COALESCE(mt.duration,lt.duration) as duration
             FROM obras w
             left JOIN users u ON u.id = w.users_id
@@ -94,6 +95,7 @@ public interface WorkRepository extends JpaRepository<Work, UUID> {
             LEFT JOIN public.infographic i on w.id = i.id
             LEFT JOIN public.libra_literature lt on w.id =lt.id
             LEFT JOIN multimedia mt on w.id = mt.id
+            LEFT JOIN public.other_work ow on w.id = ow.id
             LEFT JOIN (
                 SELECT work_id, COUNT(user_id) as like_count
                 FROM likes

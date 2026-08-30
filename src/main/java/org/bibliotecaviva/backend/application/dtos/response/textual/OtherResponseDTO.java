@@ -1,0 +1,24 @@
+package org.bibliotecaviva.backend.application.dtos.response.textual;
+
+import org.bibliotecaviva.backend.application.dtos.response.WorkResponse;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public record OtherResponseDTO(
+        UUID id,
+        String title,
+        String author,
+        LocalDateTime publicationDate,
+        String description,
+        String type,
+        String content,
+        String url,
+        String imageUrl,
+        Long viewCount,
+        Long likeCount,
+        Long commentCount,
+        String studentClass
+
+) implements WorkResponse {
+}

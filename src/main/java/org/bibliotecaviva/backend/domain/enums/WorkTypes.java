@@ -16,7 +16,8 @@ public enum WorkTypes {
     MULTIMEDIA("Multimedia"),
     CORDEL("Cordel"),
     POEM("Poem"),
-    ESSAY("Essay");
+    ESSAY("Essay"),
+    OTHER("Other");
 
 
     @JsonValue
