@@ -16,3 +16,5 @@ docs: |-
   - O mesmo autor nao pode cadastrar duas obras com o mesmo `title`.
   - Obra duplicada retorna `409`.
   - Likes de obras sao idempotentes: repetir o like nao duplica registro.
+  - Cada categoria tem seu proprio endpoint de criacao (`/work/articles`,
+    `/work/cordels`, ...). A categoria geral usa `/work/others`.

@@ -124,6 +124,25 @@ public class WorkController {
     }
 
 
+    @PostMapping("/others")
+    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = OtherResponseDTO.class)), description = "Created")
+    @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
+    @ApiResponse(responseCode = "404", content = @Content, description = "Author Not Found")
+    @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
+    public ResponseEntity<WorkResponse> createOther(@RequestBody @Valid OtherRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
+    }
+
+    @PutMapping("/others/{id}")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = OtherResponseDTO.class)), description = "Updated")
+    @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")
+    @ApiResponse(responseCode = "404", content = @Content, description = "Work or Author Not Found")
+    @ApiResponse(responseCode = "400", content = @Content, description = "Invalid ID")
+    public ResponseEntity<WorkResponse> updateOther(@PathVariable UUID id, @RequestBody @Valid OtherRequestDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
+    }
+
+
     @PostMapping("/articles")
     @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = ArticleResponseDTO.class)), description = "Created")
     @ApiResponse(responseCode = "409", content = @Content, description = "Work Already Exists")

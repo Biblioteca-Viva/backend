@@ -205,6 +205,57 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
+    void otherShouldBeCreatedWithoutLinkAndImage() throws Exception {
+        User curator = createActiveCurator();
+        Map<String, Object> payload = baseWorkPayload(uniqueTitle("Obra geral"), curator.getEmail());
+        payload.put("content", "Conteudo geral");
+
+        mockMvc.perform(post("/work/others")
+                        .header("Authorization", bearer(curator))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(payload)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.type").value("Other"))
+                .andExpect(jsonPath("$.content").value("Conteudo geral"))
+                .andExpect(jsonPath("$.url").isEmpty())
+                .andExpect(jsonPath("$.imageUrl").isEmpty());
+    }
+
+    @Test
+    void otherShouldAcceptEmptyLinkAndImage() throws Exception {
+        User curator = createActiveCurator();
+        Map<String, Object> payload = baseWorkPayload(uniqueTitle("Obra geral"), curator.getEmail());
+        payload.put("content", "Conteudo geral");
+        payload.put("url", "");
+        payload.put("imageUrl", "");
+
+        mockMvc.perform(post("/work/others")
+                        .header("Authorization", bearer(curator))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(payload)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.url").isEmpty())
+                .andExpect(jsonPath("$.imageUrl").isEmpty());
+    }
+
+    @Test
+    void otherShouldRejectInvalidLinkAndImage() throws Exception {
+        User curator = createActiveCurator();
+        Map<String, Object> payload = baseWorkPayload(uniqueTitle("Obra geral"), curator.getEmail());
+        payload.put("content", "Conteudo geral");
+        payload.put("url", "nao-e-uma-url");
+        payload.put("imageUrl", "tambem-nao-e");
+
+        mockMvc.perform(post("/work/others")
+                        .header("Authorization", bearer(curator))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(payload)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.invalidFields").isArray());
+    }
+
+    @Test
     void homeShouldAggregateCountsAndHighlights() throws Exception {
         User curator = createActiveCurator();
         String authorization = bearer(curator);
@@ -279,6 +330,25 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
                         p -> p.put("content", "Conteudo do artigo atualizado"),
                         Map.of("content", "Conteudo do artigo"),
                         Map.of("content", "Conteudo do artigo atualizado")
+                )),
+                Arguments.of(new WorkEndpointCase(
+                        "others",
+                        "OTHER",
+                        "Other",
+                        p -> {
+                            p.put("content", "Conteudo geral");
+                            p.put("url", "https://example.com/material.pdf");
+                            p.put("imageUrl", "https://example.com/capa.png");
+                        },
+                        p -> {
+                            p.put("content", "Conteudo geral atualizado");
+                            p.put("url", "https://example.com/material-novo.pdf");
+                            p.put("imageUrl", "https://example.com/capa-nova.png");
+                        },
+                        orderedMap("content", "Conteudo geral", "url", "https://example.com/material.pdf",
+                                "imageUrl", "https://example.com/capa.png"),
+                        orderedMap("content", "Conteudo geral atualizado", "url", "https://example.com/material-novo.pdf",
+                                "imageUrl", "https://example.com/capa-nova.png")
                 )),
                 Arguments.of(new WorkEndpointCase(
                         "cordels",

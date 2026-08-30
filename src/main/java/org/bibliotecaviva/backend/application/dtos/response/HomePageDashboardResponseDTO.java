@@ -13,6 +13,7 @@ public record HomePageDashboardResponseDTO(
         Integer artCount,
         Integer infographicCount,
         Integer poemCount,
+        Integer otherCount,
         List<WorkSummaryResponseDTO> works,
         List<WorkSummaryResponseDTO> mostLikedWorks
 ) {

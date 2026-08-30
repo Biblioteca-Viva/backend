@@ -13,3 +13,12 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+
+docs: |-
+  # Dashboard da home
+
+  Dados da tela inicial. Publico, nao requer autenticacao.
+
+  Retorna um contador por categoria (`articleCount`, `cordelCount`,
+  `otherCount`, ...), as 5 obras mais recentes de cada categoria em `works`,
+  e as 5 mais curtidas em `mostLikedWorks`.

@@ -9,6 +9,7 @@ Nao precisa fazer agora:
 - [ ] Mandar duração no worksummary (se n der pra pegar direto no front)
 - [ ] admin,professor e autor da obra podem responder comentários
 - [ ] Colocar novo tipo de obra(poemas)
+- [x] Colocar nova categoria geral (Outros), pras obras que nao se encaixam nas demais
 __________________________
 - [ ] Testes
     - Testes unitários
@@ -27,5 +28,6 @@ __________________________
 | Galeria de Artes           | Espaço digital para divulgação de desenhos, ilustrações feitas para contos dos colegas, capas criadas para histórias, quadrinhos curtos, arte digital e outras expressões artísticas dos alunos. |
 | Curtas e Vídeos Autorais   | Curtas e Vídeos Autorais	Espaço para exibir produções audiovisuais feitas por alunos (curtas-metragens, vídeos-poemas, entrevistas)                                                              |
 | Literatura em Libras       | Espaço para incluir traduções de contos, poemas ou textos selecionados em Libras, feitas pelos próprios alunos com o apoio do AEE (alunos interpretando o texto com expressão corporal e facial) |
+| Outros                     | Categoria geral, para produções que não se encaixam em nenhuma das seções acima. Aceita texto, com link e imagem opcionais.                                                                      |
 |                            |                                                                                                                                                                                                  |
 |                            |                                                                                                                                                                                                  |

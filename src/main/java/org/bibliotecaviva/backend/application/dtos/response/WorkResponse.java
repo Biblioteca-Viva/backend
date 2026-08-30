@@ -16,7 +16,7 @@ import java.util.UUID;
 @Schema(name = "WorkResponse", description = "Interface for all work response DTOs", oneOf =
         { LibraLiteratureResponseDTO.class, MultimediaResponseDTO.class, ArticleResponseDTO.class,
                 CordelResponseDTO.class, EssayResponseDTO.class, ShortStoryResponseDTO.class, TaleResponseDTO.class,
-                ArtResponseDTO.class, InfographicResponseDTO.class}
+                ArtResponseDTO.class, InfographicResponseDTO.class, OtherResponseDTO.class}
 )
 public interface WorkResponse {
     UUID id();

@@ -17,3 +17,22 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+
+docs: |-
+  # Listar obras
+
+  Lista paginada de todas as obras. Publico, nao requer autenticacao.
+
+  ## Filtro por tipo
+  O parametro `type` e opcional. Vazio traz todas as categorias.
+  Quando informado, use o nome do enum em maiusculo:
+
+  `ARTICLE`, `LIBRA_LITERATURE`, `SHORT_STORY`, `TALE`, `ART`,
+  `INFOGRAPHIC`, `MULTIMEDIA`, `CORDEL`, `POEM`, `ESSAY`, `OTHER`
+
+  `OTHER` e a categoria geral, para obras que nao se encaixam nas demais.
+  Um valor fora dessa lista retorna `400`.
+
+  ## Paginacao
+  Aceita `page`, `size` e `sort`. Por padrao traz 10 itens ordenados por
+  `publication_date` decrescente.

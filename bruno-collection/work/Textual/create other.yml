@@ -1,0 +1,51 @@
+info:
+  name: create other
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: "{{api_url}}work/others"
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Mural Coletivo da Semana da Leitura",
+        "authorEmail": "aluno1@teste.com",
+        "publicationDate": "2026-08-20T09:30:00",
+        "description": "Registro do mural coletivo montado pelas turmas durante a Semana da Leitura de 2026.",
+        "content": "Durante tres dias, as turmas do turno da manha montaram um mural coletivo no corredor da biblioteca. Cada aluno escolheu uma frase de um livro que marcou o ano e escreveu em uma tira de papel colorido. O resultado reuniu mais de duzentas citacoes, de Ariano Suassuna a Conceicao Evaristo. A atividade nao se encaixa em nenhuma das categorias existentes do acervo: nao e um conto, nem um artigo, nem uma obra visual isolada. Fica registrada aqui como memoria da escola.",
+        "url": "https://exemplo.com/semana-da-leitura-2026.pdf",
+        "imageUrl": "https://exemplo.com/mural-coletivo.png",
+        "studentClass": "Terceiro B"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  # Create Other
+
+  Cria uma obra da categoria geral, para o que nao se encaixa nas demais
+  categorias. Requer usuario autenticado com perfil `ADMIN` ou `CURADOR`.
+
+  ## Campos opcionais
+  Diferente dos outros tipos, `url` e `imageUrl` sao opcionais. Ambos aceitam
+  a chave omitida ou string vazia; um endereco invalido retorna `400`.
+  Quando informado, o `imageUrl` e usado como miniatura na listagem e na home.
+
+  ## Regras importantes
+  - `authorEmail` deve apontar para um usuario cadastrado.
+  - O mesmo autor nao pode ter duas obras com o mesmo `title`.
+  - O banco precisa ter a migration `2026-08-25-add-other-work-type.sql`
+    aplicada, senao o insert falha na constraint `obras_type_check`.
+
+  ## Respostas esperadas
+  - `201`: obra criada, com `"type": "Other"`.
+  - `400`: `url` ou `imageUrl` com endereco invalido.
+  - `404`: autor nao encontrado.
+  - `409`: ja existe obra com o mesmo autor e titulo.

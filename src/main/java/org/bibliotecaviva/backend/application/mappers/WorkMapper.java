@@ -41,6 +41,7 @@ public interface WorkMapper {
             case Art w -> toArtResponseDTO(w, likeCount, commentCount);
             case Infographic w -> toInfographicReponseDTO(w, likeCount, commentCount);
             case Poem w -> toPoemResponseDTO(w,likeCount,commentCount);
+            case Other w -> toOtherResponseDTO(w, likeCount, commentCount);
             default -> throw new IllegalStateException("Unexpected value: " + work);
         };
     }
@@ -67,6 +68,9 @@ public interface WorkMapper {
 
     @Mapping(target = "author", expression = "java(cordel.resolveAuthorName())")
     CordelResponseDTO toCordelResponseDTO(Cordel cordel, Long likeCount, Long commentCount);
+
+    @Mapping(target = "author", expression = "java(other.resolveAuthorName())")
+    OtherResponseDTO toOtherResponseDTO(Other other, Long likeCount, Long commentCount);
 
     IllustrationResponseDTO toIllustrationResponseDTO(Art art);
 
@@ -154,4 +158,11 @@ public interface WorkMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "author", ignore = true)
     void partialUpdate(InfographicRequestDTO infographicRequestDTO, @MappingTarget Infographic infographic);
+
+    @Mapping(target = "author", ignore = true)
+    Other toEntity(OtherRequestDTO otherRequestDTO);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "author", ignore = true)
+    void partialUpdate(OtherRequestDTO otherRequestDTO, @MappingTarget Other other);
 }
