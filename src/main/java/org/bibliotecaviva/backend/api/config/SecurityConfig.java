@@ -32,6 +32,7 @@ import java.util.Set;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final RateLimitingFilter rateLimitingFilter;
     private final UserDetailsService userDetailsService;
     @Value("${security.cors.allowed-origins}")
     private List<String> allowedOrigins;
@@ -77,7 +78,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/work/**").hasAnyRole("ADMIN", "CURADOR")
                         .requestMatchers(HttpMethod.GET, "/work/**").permitAll()
 
-                        .requestMatchers("/auth/login", "/auth/register/aluno", "/auth/logout",
+                        .requestMatchers("/auth/login", "/auth/register/aluno", "/auth/refresh", "/auth/logout",
                                 "/auth/password-reset/request", "/auth/password-reset/verify",
                                 "/auth/password-reset/confirm",
                                 "/swagger-ui/**", "/scalar/**", "/v3/api-docs/**").permitAll()
@@ -92,7 +93,8 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(Customizer.withDefaults())
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(rateLimitingFilter, JwtAuthFilter.class);
 
         return http.build();
     }

@@ -26,7 +26,20 @@ springdoc:
 security:
   jwt:
     secret: ${JWT_SECRET}
-    expiration: ${JWT_EXPIRATION}
+    expiration: ${JWT_EXPIRATION:900000}
+    refresh-token-expiration: ${REFRESH_TOKEN_EXPIRATION:604800000}
+  cookie:
+    secure: ${COOKIE_SECURE:false}
+    same-site: ${COOKIE_SAME_SITE:Lax}
+  rate-limit:
+    enabled: ${RATE_LIMIT_ENABLED:true}
+    login-account-limit: ${RATE_LIMIT_LOGIN_ACCOUNT:5}
+    login-ip-limit: ${RATE_LIMIT_LOGIN_IP:150}
+    refresh-token-limit: ${RATE_LIMIT_REFRESH_TOKEN:15}
+    refresh-ip-limit: ${RATE_LIMIT_REFRESH_IP:300}
+    register-ip-limit: ${RATE_LIMIT_REGISTER_IP:60}
+    password-reset-ip-limit: ${RATE_LIMIT_PASSWORD_RESET_IP:30}
+    window-millis: ${RATE_LIMIT_WINDOW_MILLIS:60000}
   cors:
     allowed-origins: ${ALLOWED_ORIGINS}
 resend:

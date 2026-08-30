@@ -43,12 +43,13 @@ class PasswordResetServiceTest {
     @Mock private PasswordResetChallengeRepository challengeRepository;
     @Mock private ResendEmailService emailService;
     @Mock private PasswordEncoder passwordEncoder;
+    @Mock private RefreshTokenService refreshTokenService;
 
     private PasswordResetService service;
 
     @BeforeEach
     void setUp() {
-        service = new PasswordResetService(userRepository, challengeRepository, emailService, passwordEncoder);
+        service = new PasswordResetService(userRepository, challengeRepository, emailService, passwordEncoder, refreshTokenService);
         ReflectionTestUtils.setField(service, "pepper", PEPPER);
     }
 
@@ -221,6 +222,7 @@ class PasswordResetServiceTest {
         assertEquals("new-hash", user.getPassword());
         assertEquals(4, user.getSessionVersion());
         verify(userRepository).save(user);
+        verify(refreshTokenService).revokeAllUserTokens(user.getId());
         verify(challengeRepository).delete(challenge);
     }
 

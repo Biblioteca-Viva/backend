@@ -15,38 +15,58 @@ import org.bibliotecaviva.backend.application.dtos.response.LoginResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.MessageResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.PasswordResetVerifyResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.RegisterResponseDTO;
+import org.bibliotecaviva.backend.application.dtos.response.UserProfileResponseDTO;
 import org.bibliotecaviva.backend.application.services.AuthService;
-import org.bibliotecaviva.backend.application.services.JwtService;
+import org.bibliotecaviva.backend.application.services.CookieService;
 import org.bibliotecaviva.backend.application.services.PasswordResetService;
+import org.bibliotecaviva.backend.domain.entities.User;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "Controller responsible for handling authentication-related operations such as login, registration, and logout.")
+@Tag(name = "Authentication", description = "Controller responsible for handling authentication-related operations such as login, token refresh, registration, and logout.")
 public class AuthController {
 
-    //todo: refresh-token, mudar para cookies e validar refresh no banco.
-
     private final AuthService authService;
-    private final JwtService jwtService;
     private final PasswordResetService passwordResetService;
 
     private static final String PASSWORD_RESET_REQUEST_MESSAGE =
             "Se o email pertencer a uma conta ativa, enviaremos um codigo de redefinicao.";
 
     @PostMapping("/login")
+    @Operation(description = "Autentica o usuário, emite accessToken no corpo e refreshToken em cookie HttpOnly")
     @ApiResponse(responseCode = "200", description = "OK")
     @ApiResponse(responseCode = "401", description = "Credenciais Inválidas", content = @Content)
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
-        return ResponseEntity.ok(authService.login(request));
+    @ApiResponse(responseCode = "403", description = "Conta pendente ou bloqueada", content = @Content)
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
+        AuthService.AuthResult result = authService.login(request);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, result.refreshCookie().toString())
+                .body(result.responseDTO());
+    }
+
+    @PostMapping("/refresh")
+    @Operation(description = "Renova o accessToken utilizando o refreshToken enviado via cookie HttpOnly")
+    @ApiResponse(responseCode = "200", description = "Token renovado com sucesso")
+    @ApiResponse(responseCode = "401", description = "Refresh token ausente, inválido ou expirado", content = @Content)
+    public ResponseEntity<LoginResponseDTO> refresh(
+            @CookieValue(name = CookieService.REFRESH_TOKEN_COOKIE_NAME, required = false) String refreshToken
+    ) {
+        AuthService.AuthResult result = authService.refresh(refreshToken);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, result.refreshCookie().toString())
+                .body(result.responseDTO());
     }
 
     @PostMapping("/register/aluno")
@@ -70,15 +90,29 @@ public class AuthController {
         return new ResponseEntity<>(authService.registerAdmin(request), HttpStatus.CREATED);
     }
 
-    @ApiResponse(responseCode = "401", description = "No token to remove or invalid token.", content = @Content)
-    @ApiResponse(responseCode = "204", description = "No valid token to remove.", content = @Content)
-    @Operation(description = "Add token to blacklist, remove after expire")
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) {
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        return ResponseEntity.noContent().build();
+    @Operation(description = "Revoga o refreshToken no banco de dados e limpa o cookie HttpOnly")
+    @ApiResponse(responseCode = "204", description = "Logout realizado com sucesso", content = @Content)
+    public ResponseEntity<Void> logout(
+            @CookieValue(name = CookieService.REFRESH_TOKEN_COOKIE_NAME, required = false) String refreshToken
+    ) {
+        ResponseCookie cleanCookie = authService.logout(refreshToken);
+        return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE, cleanCookie.toString())
+                .build();
+    }
+
+    @GetMapping("/me")
+    @Operation(description = "Retorna os dados do usuário autenticado no momento")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content)
+    public ResponseEntity<UserProfileResponseDTO> getCurrentUser(@AuthenticationPrincipal User user) {
+        UserProfileResponseDTO response = new UserProfileResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmail()
+        );
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/password-reset/request")
@@ -113,5 +147,4 @@ public class AuthController {
         passwordResetService.confirmReset(request);
         return ResponseEntity.noContent().build();
     }
-
 }

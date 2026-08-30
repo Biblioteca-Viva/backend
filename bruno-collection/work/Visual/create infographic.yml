@@ -11,18 +11,20 @@ http:
     data:
       - name: data
         type: text
-        value: |-
-          {
-            "title": "Mapa da Diversidade Literária: Brasil 2026",
-            "authorEmail": "aluno1@teste.com",
-            "publicationDate": "2026-03-30T11:41:00",
-            "description": "Um infográfico interativo que visualiza a distribuição de gêneros literários mais lidos em cada região do país, com destaque para o crescimento da literatura periférica.",
-            "studentClass": "Terceiro B"
-          }
+        value: |2-
+           {
+                "title": "PINGUIM MT LEGAL",
+                "authorEmail": null,
+                "authorName": "Nome do Autor Externo",
+                "publicationDate": "2026-03-30T11:45:00",
+                "description": "Uma composição digital detalhada explorando linhas arquitetônicas e cores vibrantes.",
+                "studentClass": "Terceiro B"
+           }
         contentType: application/json
       - name: image
         type: file
-        value: ""
+        value:
+          - /home/dimas/Downloads/teste.jpeg
   auth: inherit
 
 settings:
