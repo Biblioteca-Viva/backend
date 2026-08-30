@@ -31,6 +31,7 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class PasswordResetService {
 
+
     private static final Duration CODE_EXPIRATION = Duration.ofMinutes(10);
     private static final Duration RESET_TOKEN_EXPIRATION = Duration.ofMinutes(5);
     private static final Duration RESEND_COOLDOWN = Duration.ofSeconds(60);
@@ -42,6 +43,7 @@ public class PasswordResetService {
     private final PasswordResetChallengeRepository challengeRepository;
     private final ResendEmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenService refreshTokenService;
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Value("${password-reset.pepper}")
@@ -132,6 +134,7 @@ public class PasswordResetService {
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         user.setSessionVersion(user.getSessionVersion() + 1);
         userRepository.save(user);
+        refreshTokenService.revokeAllUserTokens(user.getId());
         challengeRepository.delete(challenge);
     }
 

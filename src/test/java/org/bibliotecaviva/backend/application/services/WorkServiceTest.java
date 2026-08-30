@@ -2,6 +2,7 @@ package org.bibliotecaviva.backend.application.services;
 
 import org.bibliotecaviva.backend.application.dtos.request.textual.ArticleRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.request.textual.CordelRequestDTO;
+import org.bibliotecaviva.backend.application.dtos.request.textual.OtherRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.request.visual.ArtRequestDTO;
 import org.bibliotecaviva.backend.application.dtos.response.HomePageDashboardResponseDTO;
 import org.bibliotecaviva.backend.application.dtos.response.WorkResponse;
@@ -12,6 +13,7 @@ import org.bibliotecaviva.backend.domain.entities.User;
 import org.bibliotecaviva.backend.domain.entities.projections.WorkSummary;
 import org.bibliotecaviva.backend.domain.entities.textual.Article;
 import org.bibliotecaviva.backend.domain.entities.textual.Cordel;
+import org.bibliotecaviva.backend.domain.entities.textual.Other;
 import org.bibliotecaviva.backend.domain.entities.visual.Art;
 import org.bibliotecaviva.backend.domain.enums.Role;
 import org.bibliotecaviva.backend.domain.enums.Status;
@@ -414,6 +416,62 @@ class WorkServiceTest {
     }
 
     @Test
+    void createOtherShouldBeDispatchedWithoutOptionalLinks() {
+        User author = buildUser(UUID.randomUUID(), "autor@teste.com");
+        OtherRequestDTO request = buildOtherRequest("Obra geral", author.getEmail(), null, null);
+        Other mapped = buildOther(null, request.title());
+        Other saved = buildOther(UUID.randomUUID(), request.title());
+        WorkResponse expected = mock(WorkResponse.class);
+
+        when(userRepository.findByEmail(request.authorEmail())).thenReturn(Optional.of(author));
+        when(workMapper.toEntity(request)).thenReturn(mapped);
+        when(workRepository.save(mapped)).thenReturn(saved);
+        when(workMapper.toDTO(saved, 0L, 0L)).thenReturn(expected);
+
+        WorkResponse response = workService.create(request);
+
+        assertSame(expected, response);
+        assertSame(author, mapped.getAuthor());
+        assertNull(mapped.getUrl());
+        assertNull(mapped.getImageUrl());
+        assertEquals(0L, mapped.getViewCount());
+        verify(workRepository).save(mapped);
+    }
+
+    @Test
+    void updateOtherShouldBeDispatchedToPartialUpdate() {
+        UUID id = UUID.randomUUID();
+        User author = buildUser(UUID.randomUUID(), "autor@teste.com");
+        Other work = buildOther(id, "Obra geral");
+        OtherRequestDTO request = buildOtherRequest("Obra geral atualizada", author.getEmail(),
+                "https://example.com/material.pdf", "https://example.com/capa.png");
+        WorkResponse expected = mock(WorkResponse.class);
+
+        when(workRepository.findById(id)).thenReturn(Optional.of(work));
+        when(userRepository.findByEmail(author.getEmail())).thenReturn(Optional.of(author));
+        when(workRepository.save(work)).thenReturn(work);
+        when(workRepository.getLikeCount(id)).thenReturn(0L);
+        when(commentRepository.countByWork_Id(id)).thenReturn(0L);
+        when(workMapper.toDTO(work, 0L, 0L)).thenReturn(expected);
+
+        assertSame(expected, workService.update(id, request));
+        verify(workMapper).partialUpdate(request, work);
+    }
+
+    @Test
+    void getFrontPageDataShouldExposeOtherCount() {
+        when(workRepository.countPerType()).thenReturn(List.<Object[]>of(new Object[]{"Other", 3L}));
+        when(workRepository.findTop5ByType(anyString())).thenReturn(List.of());
+        when(workRepository.getMostLikedWorks()).thenReturn(List.of());
+
+        HomePageDashboardResponseDTO response = workService.getFrontPageData();
+
+        assertEquals(3, response.otherCount());
+        assertEquals(0, response.articleCount());
+        verify(workRepository).findTop5ByType(WorkTypes.OTHER.getValue());
+    }
+
+    @Test
     void countWorksShouldDelegateToRepository() {
         when(workRepository.count()).thenReturn(8L);
 
@@ -437,6 +495,32 @@ class WorkServiceTest {
                 "Cordel Test", null, "External Author", LocalDateTime.now().minusDays(1),
                 "Description valid for unit test", "Cordel content", "ABAB", artName, "Class A"
         );
+    }
+
+    private static OtherRequestDTO buildOtherRequest(String title, String authorEmail, String url, String imageUrl) {
+        return new OtherRequestDTO(
+                title,
+                authorEmail,
+                null,
+                LocalDateTime.now().minusDays(1),
+                "Descricao valida para teste",
+                "Conteudo geral",
+                url,
+                imageUrl,
+                "Turma A"
+        );
+    }
+
+    private static Other buildOther(UUID id, String title) {
+        return Other.builder()
+                .id(id)
+                .title(title)
+                .publicationDate(LocalDateTime.now().minusDays(1))
+                .description("Descricao")
+                .content("Conteudo geral")
+                .studentClass("Turma A")
+                .viewCount(0L)
+                .build();
     }
 
     private static User buildUser(UUID id, String email) {

@@ -4,11 +4,9 @@ import org.bibliotecaviva.backend.domain.enums.Role;
 
 import java.util.UUID;
 
-public record LoginResponseDTO(
-        String accessToken,
+public record UserProfileResponseDTO(
         UUID id,
         String name,
-        String email,
-        Role role
+        String email
 ) {
 }

@@ -88,7 +88,7 @@ class CloudinaryServiceTest {
                 IllegalArgumentException.class,
                 () -> cloudinaryService.uploadImage(file));
 
-        assertEquals("Formato de imagem inválido. Apenas JPG e PNG são permitidos", exception.getMessage());
+        assertEquals("Formato de imagem inválido. Apenas JPG/JPEG e PNG são permitidos", exception.getMessage());
     }
 
     @Test

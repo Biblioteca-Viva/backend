@@ -1,19 +1,11 @@
 Todo-list
 -------------------------------------
 Nao precisa fazer agora:
-- [ ] Notificações (Se precisar)
-- [ ] Fluxo com refreshToken e acessToken (Fazer em conjunto com front, e trocar por cookies)
-- [ ] Esqueceu a senha
+
+- [x] Fluxo com refreshToken e acessToken (Refatoração concluída com cookies HttpOnly, rotação e segurança no backend)
 -------------------------------------
 - [ ] Slug pra navegação pra perfil do usuário(precisa se ofr ter navegacao) e pra obras (mais legivel, porem desncessário)
-- [ ] Mandar duração no worksummary (se n der pra pegar direto no front)
-- [ ] admin,professor e autor da obra podem responder comentários
-- [ ] Colocar novo tipo de obra(poemas)
-__________________________
-- [ ] Testes
-    - Testes unitários
-    - Testes de integração
-    - Testes de interface (end-to-end)
+
 ------------------
 # Sessões do Site
 
@@ -27,5 +19,6 @@ __________________________
 | Galeria de Artes           | Espaço digital para divulgação de desenhos, ilustrações feitas para contos dos colegas, capas criadas para histórias, quadrinhos curtos, arte digital e outras expressões artísticas dos alunos. |
 | Curtas e Vídeos Autorais   | Curtas e Vídeos Autorais	Espaço para exibir produções audiovisuais feitas por alunos (curtas-metragens, vídeos-poemas, entrevistas)                                                              |
 | Literatura em Libras       | Espaço para incluir traduções de contos, poemas ou textos selecionados em Libras, feitas pelos próprios alunos com o apoio do AEE (alunos interpretando o texto com expressão corporal e facial) |
+| Outros                     | Categoria geral, para produções que não se encaixam em nenhuma das seções acima. Aceita texto, com link e imagem opcionais.                                                                      |
 |                            |                                                                                                                                                                                                  |
 |                            |                                                                                                                                                                                                  |

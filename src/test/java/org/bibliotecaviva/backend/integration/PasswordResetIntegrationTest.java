@@ -78,7 +78,7 @@ class PasswordResetIntegrationTest extends IntegrationTestSupport {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of("email", user.getEmail(), "password", newPassword))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").isNotEmpty());
+                .andExpect(jsonPath("$.accessToken").isNotEmpty());
         mockMvc.perform(get("/work/liked").header("Authorization", oldBearer))
                 .andExpect(status().isForbidden());
 
