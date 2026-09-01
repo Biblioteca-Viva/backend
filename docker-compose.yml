@@ -15,7 +15,7 @@ services:
       retries: 5
 
   api:
-    image: ghcr.io/Biblioteca-Viva/backend:latest
+    image: ghcr.io/biblioteca-Viva/backend:latest
     container_name: biblioteca-viva-api
     restart: unless-stopped
     ports:
