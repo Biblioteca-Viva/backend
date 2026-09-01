@@ -5,8 +5,6 @@ services:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-    ports:
-      - "5432:5432"
     volumes:
       - ./docker-initial-sql.sql:/docker-entrypoint-initdb.d/docker-initial-sql.sql
       - db_data:/var/lib/postgresql
@@ -16,8 +14,10 @@ services:
       timeout: 5s
       retries: 5
 
-  backend:
-    build: .
+  api:
+    image: ghcr.io/biblioteca-Viva/backend:latest
+    container_name: biblioteca-viva-api
+    restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
@@ -27,6 +27,8 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+    networks:
+      - backend
     depends_on:
       db:
         condition: service_healthy
@@ -39,3 +41,6 @@ services:
 
 volumes:
   db_data:
+
+networks:
+  backend:
