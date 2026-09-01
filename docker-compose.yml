@@ -8,6 +8,8 @@ services:
     volumes:
       - ./docker-initial-sql.sql:/docker-entrypoint-initdb.d/docker-initial-sql.sql
       - db_data:/var/lib/postgresql
+    networks:
+        - backend
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}" ]
       interval: 5s
@@ -15,7 +17,7 @@ services:
       retries: 5
 
   api:
-    image: ghcr.io/biblioteca-Viva/backend:latest
+    image: ghcr.io/biblioteca-viva/backend:latest
     container_name: biblioteca-viva-api
     restart: unless-stopped
     ports:
@@ -27,17 +29,15 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      CLOUDINARY_URL: ${CLOUDINARY_URL}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
+      PASSWORD_RESET_PEPPER: ${PASSWORD_RESET_PEPPER}
     networks:
       - backend
     depends_on:
       db:
         condition: service_healthy
-    develop:
-      watch:
-        - action: rebuild
-          path: ./src
-        - action: rebuild
-          path: ./pom.xml
 
 volumes:
   db_data:
