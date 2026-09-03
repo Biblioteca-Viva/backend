@@ -14,6 +14,7 @@ import org.bibliotecaviva.backend.domain.enums.Status;
 import org.bibliotecaviva.backend.persistence.repository.BookClubRepository;
 import org.bibliotecaviva.backend.persistence.repository.BookClubReviewRepository;
 import org.bibliotecaviva.backend.persistence.repository.CommentRepository;
+import org.bibliotecaviva.backend.persistence.repository.NewsRepository;
 import org.bibliotecaviva.backend.persistence.repository.UserRepository;
 import org.bibliotecaviva.backend.persistence.repository.WorkRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,9 @@ abstract class IntegrationTestSupport {
 
     @Autowired
     protected BookClubReviewRepository bookClubReviewRepository;
+
+    @Autowired
+    protected NewsRepository newsRepository;
 
     @Autowired
     protected PasswordEncoder passwordEncoder;
