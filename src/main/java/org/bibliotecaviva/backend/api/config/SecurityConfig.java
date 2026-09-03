@@ -77,6 +77,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/work/**").hasAnyRole("ADMIN", "CURADOR")
                         .requestMatchers(HttpMethod.DELETE, "/work/**").hasAnyRole("ADMIN", "CURADOR")
                         .requestMatchers(HttpMethod.GET, "/work/**").permitAll()
+                        //------------------------------------------------------------------------------------
+
+                        //News
+                        .requestMatchers(HttpMethod.GET, "/news/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/news").hasAnyRole("ADMIN", "CURADOR")
+                        .requestMatchers(HttpMethod.PUT, "/news/*").hasAnyRole("ADMIN", "CURADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/news/*").hasAnyRole("ADMIN", "CURADOR")
+                        //------------------------------------------------------------------------------------
 
                         .requestMatchers("/auth/login", "/auth/register/aluno", "/auth/refresh", "/auth/logout",
                                 "/auth/password-reset/request", "/auth/password-reset/verify",
