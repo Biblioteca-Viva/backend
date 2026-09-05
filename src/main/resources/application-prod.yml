@@ -11,6 +11,14 @@ spring:
   flyway:
     locations: classpath:db/migration
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
 logging:
   level:
     root: warn

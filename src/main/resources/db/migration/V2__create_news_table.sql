@@ -1,3 +1,4 @@
+
 -- Cria a tabela de notícias.
 -- Rodar em bancos já existentes. Bancos novos já saem prontos pelo docker-initial-sql.sql.
 -- O Hibernate (ddl-auto: update) cria a tabela automaticamente,

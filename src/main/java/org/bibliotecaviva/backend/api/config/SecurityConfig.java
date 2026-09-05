@@ -90,6 +90,7 @@ public class SecurityConfig {
                                 "/auth/password-reset/request", "/auth/password-reset/verify",
                                 "/auth/password-reset/confirm",
                                 "/swagger-ui/**", "/scalar/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
 
                         .requestMatchers("/auth/register/curador", "/auth/register/admin").hasAnyRole("ADMIN")
 

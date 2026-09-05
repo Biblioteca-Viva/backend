@@ -224,3 +224,29 @@ CREATE TABLE public.multimedia
     CONSTRAINT multimedia_pkey PRIMARY KEY (id),
     CONSTRAINT fkd84k95871jtaji3mfjtb0td8a FOREIGN KEY (id) REFERENCES public.obras (id)
 );
+
+CREATE TABLE public.comment_replies
+(
+    id         uuid         NOT NULL,
+    content    varchar(200) NOT NULL,
+    comment_id uuid         NOT NULL,
+    user_id    uuid         NOT NULL,
+    created_at timestamp(6) NOT NULL,
+    CONSTRAINT comment_replies_pkey PRIMARY KEY (id),
+    CONSTRAINT uk_comment_replies_comment UNIQUE (comment_id),
+    CONSTRAINT fk_comment_replies_comment FOREIGN KEY (comment_id)
+        REFERENCES public.comments (id) ON DELETE CASCADE,
+    CONSTRAINT fk_comment_replies_user FOREIGN KEY (user_id)
+        REFERENCES public.users (id)
+);
+
+CREATE TABLE public.comment_likes
+(
+    comment_id uuid NOT NULL,
+    user_id    uuid NOT NULL,
+    CONSTRAINT comment_likes_pkey PRIMARY KEY (comment_id, user_id),
+    CONSTRAINT fk_comment_likes_comment FOREIGN KEY (comment_id)
+        REFERENCES public.comments (id) ON DELETE CASCADE,
+    CONSTRAINT fk_comment_likes_user FOREIGN KEY (user_id)
+        REFERENCES public.users (id) ON DELETE CASCADE
+);

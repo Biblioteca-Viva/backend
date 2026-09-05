@@ -6,23 +6,23 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     volumes:
-      - db_data:/var/lib/postgresql/data
-    networks:
-        - backend
+      - db_data:/var/lib/postgresql
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}" ]
       interval: 5s
       timeout: 5s
       retries: 5
+    ports:
+        - "5432:5432"
 
   api:
-    image: ghcr.io/biblioteca-viva/backend:latest
+    build: .  #build local do dockerfile
     container_name: biblioteca-viva-api
     restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: "dev"
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
@@ -35,14 +35,10 @@ services:
       PASSWORD_RESET_PEPPER: ${PASSWORD_RESET_PEPPER}
       COOKIE_SECURE: "false"
       COOKIE_SAME_SITE: "Lax"
-    networks:
-      - backend
+
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   db_data:
-
-networks:
-  backend:
