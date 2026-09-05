@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bibliotecaviva}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+  flyway:
+    enabled: true
+    # inclui a pasta de seed além do schema — só existe no profile dev
+    locations: classpath:db/migration,classpath:db/migration/dev
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.flywaydb: info
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env,beans
+security:
+  cookie:
+    secure: false
+    same-site: Lax

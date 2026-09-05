@@ -77,11 +77,20 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/work/**").hasAnyRole("ADMIN", "CURADOR")
                         .requestMatchers(HttpMethod.DELETE, "/work/**").hasAnyRole("ADMIN", "CURADOR")
                         .requestMatchers(HttpMethod.GET, "/work/**").permitAll()
+                        //------------------------------------------------------------------------------------
+
+                        //News
+                        .requestMatchers(HttpMethod.GET, "/news/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/news").hasAnyRole("ADMIN", "CURADOR")
+                        .requestMatchers(HttpMethod.PUT, "/news/*").hasAnyRole("ADMIN", "CURADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/news/*").hasAnyRole("ADMIN", "CURADOR")
+                        //------------------------------------------------------------------------------------
 
                         .requestMatchers("/auth/login", "/auth/register/aluno", "/auth/refresh", "/auth/logout",
                                 "/auth/password-reset/request", "/auth/password-reset/verify",
                                 "/auth/password-reset/confirm",
                                 "/swagger-ui/**", "/scalar/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
 
                         .requestMatchers("/auth/register/curador", "/auth/register/admin").hasAnyRole("ADMIN")
 
