@@ -148,7 +148,7 @@ public class UsersImportService {
             errors.add("Email invalido");
         } else if (emailsInFile.contains(email)) {
             errors.add("Email duplicado na planilha");
-        } else if (userRepository.existsByEmail(email)) {
+        } else if (userRepository.existsByEmail(email)) { //todo: n+1
             errors.add("Email ja cadastrado");
         }
 

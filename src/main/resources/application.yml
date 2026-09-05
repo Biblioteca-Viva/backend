@@ -58,3 +58,7 @@ password-reset:
   pepper: ${PASSWORD_RESET_PEPPER}
 cloudinary:
   url: ${CLOUDINARY_URL:}
+
+logging:
+  level:
+    org.bibliotecaviva: info

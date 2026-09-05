@@ -10,6 +10,7 @@ spring:
     show-sql: false
   flyway:
     locations: classpath:db/migration
+    enabled: true
 
 management:
   endpoints:
@@ -22,6 +23,7 @@ management:
 logging:
   level:
     root: warn
+    org.bibliotecaviva: info
     org.flywaydb: info
 
 security:

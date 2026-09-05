@@ -1,0 +1,58 @@
+info:
+  name: updateNews
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{api_url}}news/{{id}}"
+  body:
+    type: multipart-form
+    data:
+      - name: data
+        type: text
+        value: |2-
+          {
+            "title": "Inauguração do Espaço Cultural - Programação Atualizada",
+            "content": "Confira a programação completa e os novos horários das oficinas no espaço cultural."
+          }
+        contentType: application/json
+      - name: image
+        type: file
+        value: []
+  auth: inherit
+
+runtime:
+  variables:
+    - name: id
+      value: "{{news_id}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  # Atualizar Notícia
+
+  Atualiza os dados de uma notícia existente.
+  Requer usuário autenticado com perfil `ADMIN` ou `CURADOR`.
+
+  ## Regras de Permissão
+  - `ADMIN`: Pode atualizar qualquer notícia.
+  - `CURADOR`: Só pode atualizar notícias das quais é o autor. Caso contrário, retorna `403 Forbidden`.
+
+  ## Formato da Requisição
+  - Content-Type: `multipart/form-data`
+  - Part `data` (`application/json`):
+    - `title` (string, obrigatório, 3 a 255 caracteres)
+    - `content` (string, obrigatório, mínimo 10 caracteres)
+  - Part `image` (`file`, opcional): Se fornecida nova imagem, substitui no Cloudinary. Se omitida, preserva a anterior.
+
+  ## Respostas Esperadas
+  - `200`: Notícia atualizada com sucesso (`NewsResponseDTO`).
+  - `400`: Dados inválidos.
+  - `401`: Não autenticado.
+  - `403`: Sem permissão para editar esta notícia.
+  - `404`: Notícia não encontrada.
