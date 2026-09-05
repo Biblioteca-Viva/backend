@@ -27,7 +27,7 @@ public class BookClub {
     @Column(columnDefinition = "TEXT")
     private String bookCoverUrl;
     private String location; // Deixar por enquanto mas ta hardcordado na biblioteca
-    @ManyToOne
+    @ManyToOne //todo: por lazy em todso, authorize nos controlers
     @JoinColumn(name = "organizer_id")
     private User organizer;
     @ManyToMany

@@ -1,0 +1,57 @@
+info:
+  name: createNews
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{api_url}}news"
+  body:
+    type: multipart-form
+    data:
+      - name: data
+        type: text
+        value: |2-
+          {
+            "title": "Inauguração do Espaço Cultural",
+            "content": "A biblioteca convida toda a comunidade para a inauguração do novo espaço cultural com apresentações e oficinas literárias."
+          }
+        contentType: application/json
+      - name: image
+        type: file
+        value: []
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const data = res.getBody();
+        if (data && data.id) {
+          bru.setGlobalEnvVar("news_id", data.id);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  # Criar Notícia
+
+  Cria uma nova notícia da biblioteca.
+  Requer usuário autenticado com perfil `ADMIN` ou `CURADOR`.
+
+  ## Formato da Requisição
+  - Content-Type: `multipart/form-data`
+  - Part `data` (`application/json`):
+    - `title` (string, obrigatório, 3 a 255 caracteres): Título da notícia.
+    - `content` (string, obrigatório, mínimo 10 caracteres): Conteúdo da notícia.
+  - Part `image` (`file`, opcional): Arquivo de imagem a ser enviado ao Cloudinary.
+
+  ## Respostas Esperadas
+  - `201`: Notícia criada com sucesso (retorna JSON com `NewsResponseDTO`).
+  - `400`: Dados inválidos (título ou conteúdo fora dos limites de validação).
+  - `401`: Não autenticado (token ausente ou inválido).
+  - `403`: Acesso negado (usuário não possui papel `ADMIN` ou `CURADOR`).

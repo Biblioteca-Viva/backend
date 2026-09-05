@@ -1,0 +1,39 @@
+info:
+  name: deleteNews
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: "{{api_url}}news/{{id}}"
+  auth: inherit
+
+runtime:
+  variables:
+    - name: id
+      value: "{{news_id}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  # Excluir Notícia
+
+  Exclui permanentemente uma notícia.
+  Requer usuário autenticado com perfil `ADMIN` ou `CURADOR`.
+
+  ## Regras de Permissão
+  - `ADMIN`: Pode excluir qualquer notícia.
+  - `CURADOR`: Só pode excluir notícias criadas por si mesmo. Caso contrário, retorna `403 Forbidden`.
+
+  ## Parâmetros
+  - `id` (path variable): UUID da notícia.
+
+  ## Respostas Esperadas
+  - `204`: Notícia removida com sucesso (No Content).
+  - `401`: Não autenticado.
+  - `403`: Sem permissão para remover esta notícia.
+  - `404`: Notícia não encontrada.

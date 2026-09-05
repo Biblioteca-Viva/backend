@@ -1,0 +1,27 @@
+info:
+  name: news
+  type: folder
+  seq: 7
+
+request:
+  auth: inherit
+
+docs: |-
+  # News
+
+  Gerenciamento de notícias da biblioteca.
+
+  ## Endpoints
+  - `POST /news`: cria uma notícia com upload opcional de imagem.
+  - `GET /news`: lista notícias paginadas.
+  - `GET /news/{id}`: busca notícia por ID.
+  - `PUT /news/{id}`: atualiza título, conteúdo e/ou imagem da notícia.
+  - `DELETE /news/{id}`: remove uma notícia.
+
+  ## Permissões e Regras
+  - Leitura (`GET`): pública, não requer autenticação.
+  - Criação (`POST`): requer perfil `ADMIN` ou `CURADOR`.
+  - Edição (`PUT`) e Exclusão (`DELETE`): requer perfil `ADMIN` ou `CURADOR`.
+    - `ADMIN` pode editar ou excluir qualquer notícia.
+    - `CURADOR` só pode editar ou excluir notícias das quais é o autor (caso contrário, retorna `403 Forbidden`).
+  - Upload de imagens: enviado via `multipart/form-data` para o Cloudinary (campo `image` opcional).

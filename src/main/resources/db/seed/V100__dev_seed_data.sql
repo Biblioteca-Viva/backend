@@ -878,3 +878,64 @@ VALUES
      '2024-12-05 09:40:00',
      'eca64533-6dbd-465b-863c-bb540fecdc61',
      '99999999-9999-9999-9999-999999999003');
+
+-- ============================================================
+-- NOVOS BOOK CLUBS
+-- ============================================================
+INSERT INTO book_club (id, book_author, book_name, book_synopses, date, location, organizer_id, book_cover_url)
+VALUES
+    ('dddddddd-dddd-dddd-dddd-dddddddd0004', 'Graciliano Ramos', 'Vidas Secas',
+     'A saga de Fabiano, sua mulher Sinhá Vitória, os dois filhos e a cachorra Baleia, retirantes tentando sobreviver à seca do sertão nordestino. Um dos maiores clássicos do regionalismo brasileiro, retratando a miséria e a resistência do povo do sertão.',
+     '2026-08-20', 'Biblioteca Municipal', '455150bd-8e40-498c-8005-cca9cefa9099',
+     'https://covers.openlibrary.org/b/isbn/9788501067340-L.jpg'),
+
+    ('eeeeeeee-eeee-eeee-eeee-eeeeeeee0005', 'Aluísio Azevedo', 'O Cortiço',
+     'Retrato naturalista de um cortiço carioca no fim do século XIX, acompanhando a ascensão do português João Romão e o destino de personagens marcados pelo meio social em que vivem. Marco do naturalismo na literatura brasileira.',
+     '2026-09-12', 'Centro Cultural', '455150bd-8e40-498c-8005-cca9cefa9099',
+     'https://covers.openlibrary.org/b/isbn/9788508040742-L.jpg'),
+
+    ('ffffffff-ffff-ffff-ffff-ffffffff0006', 'Machado de Assis', 'Memórias Póstumas de Brás Cubas',
+     'Narrado por um defunto-autor, o romance rompe com o romantismo ao expor com ironia e humor negro a vida vazia de Brás Cubas. Considerado a obra que marca a transição do romantismo para o realismo na literatura brasileira.',
+     '2026-10-03', 'Escola Estadual', '455150bd-8e40-498c-8005-cca9cefa9099',
+     'https://covers.openlibrary.org/b/isbn/9788582850015-L.jpg');
+
+-- ============================================================
+-- PARTICIPANTES (tabela existia no schema, mas nunca foi populada)
+-- ============================================================
+INSERT INTO book_club_participants (book_club_id, users_id)
+VALUES
+    -- clubes já existentes
+    ('11111111-1111-1111-1111-111111111001', 'e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf'),
+    ('11111111-1111-1111-1111-111111111001', 'eca64533-6dbd-465b-863c-bb540fecdc61'),
+    ('11111111-1111-1111-1111-111111111001', '4c9f354b-0780-4cdb-b76f-d43e54ea3644'),
+    ('22222222-2222-2222-2222-222222222002', 'e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf'),
+    ('22222222-2222-2222-2222-222222222002', 'eca64533-6dbd-465b-863c-bb540fecdc61'),
+    ('22222222-2222-2222-2222-222222222002', '4c9f354b-0780-4cdb-b76f-d43e54ea3644'),
+    ('33333333-3333-3333-3333-333333333003', 'e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf'),
+    ('33333333-3333-3333-3333-333333333003', 'eca64533-6dbd-465b-863c-bb540fecdc61'),
+    ('33333333-3333-3333-3333-333333333003', '4c9f354b-0780-4cdb-b76f-d43e54ea3644'),
+    -- clubes novos
+    ('dddddddd-dddd-dddd-dddd-dddddddd0004', 'e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf'),
+    ('dddddddd-dddd-dddd-dddd-dddddddd0004', '4c9f354b-0780-4cdb-b76f-d43e54ea3644'),
+    ('eeeeeeee-eeee-eeee-eeee-eeeeeeee0005', 'eca64533-6dbd-465b-863c-bb540fecdc61'),
+    ('eeeeeeee-eeee-eeee-eeee-eeeeeeee0005', '4c9f354b-0780-4cdb-b76f-d43e54ea3644'),
+    ('ffffffff-ffff-ffff-ffff-ffffffff0006', 'e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf'),
+    ('ffffffff-ffff-ffff-ffff-ffffffff0006', 'eca64533-6dbd-465b-863c-bb540fecdc61'),
+    ('ffffffff-ffff-ffff-ffff-ffffffff0006', '4c9f354b-0780-4cdb-b76f-d43e54ea3644');
+
+-- ============================================================
+-- REVIEWS DOS NOVOS BOOK CLUBS
+-- ============================================================
+INSERT INTO book_club_reviews (id, content, created_at, rating, book_club_id, user_id)
+VALUES
+    -- Vidas Secas
+    (gen_random_uuid(), 'A cachorra Baleia me quebrou por completo. Graciliano escreve a seca de um jeito que dói de ler.', '2026-08-20 14:10:00', 5.0, 'dddddddd-dddd-dddd-dddd-dddddddd0004', 'e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf'),
+    (gen_random_uuid(), 'Livro seco igual o sertão, no bom sentido. Fabiano quase não fala e mesmo assim a gente entende tudo que ele sente.', '2026-08-20 14:35:00', 4.5, 'dddddddd-dddd-dddd-dddd-dddddddd0004', '4c9f354b-0780-4cdb-b76f-d43e54ea3644'),
+
+    -- O Cortiço
+    (gen_random_uuid(), 'Impressionante como o livro é atual mesmo sendo de 1890. As questões sociais continuam as mesmas.', '2026-09-12 15:20:00', 4.5, 'eeeeeeee-eeee-eeee-eeee-eeeeeeee0005', 'eca64533-6dbd-465b-863c-bb540fecdc61'),
+    (gen_random_uuid(), 'O João Romão é um dos vilões mais bem construídos que já li. Naturalismo puro, gostei bastante.', '2026-09-12 15:45:00', 4.0, 'eeeeeeee-eeee-eeee-eeee-eeeeeeee0005', '4c9f354b-0780-4cdb-b76f-d43e54ea3644'),
+
+    -- Memórias Póstumas de Brás Cubas
+    (gen_random_uuid(), 'Um defunto-autor narrando a própria vida com ironia total. Machado estava muito à frente do tempo dele.', '2026-10-03 16:00:00', 5.0, 'ffffffff-ffff-ffff-ffff-ffffffff0006', 'e9f2ed4a-2f1b-462b-82c9-0caa80ea7ebf'),
+    (gen_random_uuid(), 'O humor negro pegou eu de surpresa. Não esperava rir tanto lendo um "clássico obrigatório".', '2026-10-03 16:25:00', 4.5, 'ffffffff-ffff-ffff-ffff-ffffffff0006', 'eca64533-6dbd-465b-863c-bb540fecdc61');
