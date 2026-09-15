@@ -107,6 +107,11 @@ public class WorkService {
             visualWork.setUrl(cloudinaryService.uploadImage(image));
         }
 
+        // Upload de imagem para a categoria "outros" (opcional)
+        if (work instanceof Other other && image != null && !image.isEmpty()) {
+            other.setImageUrl(cloudinaryService.uploadImage(image));
+        }
+
         if (work instanceof Cordel && hasText(((CordelRequestDTO) dto).artName())) {
             ((Cordel) work).setIllustration(findArtByTitle(((CordelRequestDTO) dto).artName()));
         }
@@ -156,6 +161,11 @@ public class WorkService {
         // Upload de nova imagem em update para obras visuais
         if (work instanceof VisualWork visualWork && image != null && !image.isEmpty()) {
             visualWork.setUrl(cloudinaryService.uploadImage(image));
+        }
+
+        // Upload de imagem para a categoria "outros" (opcional)
+        if (work instanceof Other other && image != null && !image.isEmpty()) {
+            other.setImageUrl(cloudinaryService.uploadImage(image));
         }
 
         if (dto.authorEmail() != null && dto.authorName() == null) {

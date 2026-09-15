@@ -1,0 +1,63 @@
+info:
+  name: update other
+  type: http
+  seq: 8
+
+http:
+  method: PUT
+  url: "{{api_url}}work/others/{{id}}"
+  body:
+    type: multipart-form
+    data:
+      - name: data
+        type: text
+        value: |2-
+            {
+              "title": "Mural Coletivo da Semana da Leitura",
+              "authorEmail": "aluno1@teste.com",
+              "publicationDate": "2026-08-20T09:30:00",
+              "description": "Registro atualizado do mural coletivo montado pelas turmas durante a Semana da Leitura de 2026.",
+              "content": "Durante tres dias, as turmas do turno da manha montaram um mural coletivo no corredor da biblioteca. Cada aluno escolheu uma frase de um livro que marcou o ano e escreveu em uma tira de papel colorido. O resultado reuniu mais de duzentas citacoes, de Ariano Suassuna a Conceicao Evaristo. Esta versao acrescenta as fotos tiradas no ultimo dia da montagem.",
+              "url": "https://exemplo.com/semana-da-leitura-2026-revisado.pdf",
+              "studentClass": "Terceiro B"
+            }
+        contentType: application/json
+      - name: image
+        type: file
+        value:
+          - /home/dimas/Downloads/teste.jpeg
+  auth: inherit
+
+runtime:
+  variables:
+    - name: id
+      value: 18856a5b-47e4-40fa-be5a-1aba33cf0941
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  # Update Other
+
+  Atualiza uma obra da categoria geral. Requer usuario autenticado com perfil
+  `ADMIN` ou `CURADOR`.
+
+  ## Formato da requisicao
+  - Content-Type: `multipart/form-data`
+  - Part `data` (`application/json`): campos a atualizar. Nao inclui `imageUrl`.
+  - Part `image` (`file`, opcional): se enviada, sobe a nova imagem para o
+    Cloudinary e substitui a anterior. Se omitida, a imagem atual e preservada.
+    Formatos: `.jpg`, `.jpeg`, `.png`.
+
+  ## Regras importantes
+  - `authorEmail` deve apontar para um usuario cadastrado.
+  - `url` continua opcional; endereco invalido retorna `400`.
+
+  ## Respostas esperadas
+  - `200`: obra atualizada, com `"type": "Other"`.
+  - `400`: `url` invalida, imagem em formato nao permitido ou arquivo vazio.
+  - `404`: obra ou autor nao encontrado.
+  - `409`: ja existe obra com o mesmo autor e titulo.

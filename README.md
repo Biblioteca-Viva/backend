@@ -49,17 +49,29 @@ Each type has its own creation endpoint; all of them share `GET /work`,
 | Essay             | `/work/essays`             | `ESSAY`            | `content`, `rate`, `theme`, `feedback`     |
 | ShortStory        | `/work/short-stories`      | `SHORT_STORY`      | `content`                                  |
 | Tale              | `/work/tales`              | `TALE`             | `content`, `genre`                         |
-| Art               | `/work/arts`               | `ART`              | `url`                                      |
-| Infographic       | `/work/infographics`       | `INFOGRAPHIC`      | `url`                                      |
+| Art               | `/work/arts`               | `ART`              | `url` *(upload)*                           |
+| Infographic       | `/work/infographics`       | `INFOGRAPHIC`      | `url` *(upload)*                           |
 | Multimedia        | `/work/multimedias`        | `MULTIMEDIA`       | `url`, `duration`                          |
 | LibraLiterature   | `/work/libra-literatures`  | `LIBRA_LITERATURE` | `url`, `duration`                          |
-| Other             | `/work/others`             | `OTHER`            | `content`, `url` *(opt)*, `imageUrl` *(opt)* |
+| Other             | `/work/others`             | `OTHER`            | `content`, `url` *(opt)*, `imageUrl` *(upload, opt)* |
 
 `Other` is the general category, for works that do not fit any of the others.
-It is the only type with optional fields: `url` and `imageUrl` accept an omitted
-key or an empty string, and only a genuinely malformed address returns `400`.
-When present, `imageUrl` is used as the thumbnail in listings and on the home
-dashboard.
+Its `url` field is optional: it accepts an omitted key or an empty string, and
+only a genuinely malformed address returns `400`. Its image is optional too and
+is sent as a file, never as a URL. When present, `imageUrl` is used as the
+thumbnail in listings and on the home dashboard.
+
+### Image uploads
+
+`arts`, `infographics` and `others` take `multipart/form-data` instead of a JSON
+body, on both create and update:
+
+- part `data` (`application/json`): the request DTO, which carries no image field;
+- part `image` (file): JPG/JPEG or PNG, uploaded to Cloudinary, whose public URL
+  is persisted (`url` for visual works, `imageUrl` for `others`).
+
+The `image` part is required for `arts` and `infographics` on create, and
+optional everywhere else. On update, omitting it keeps the current image.
 
 Adding a type means: a new entity, request and response DTO, one value in
 `WorkTypes`, one case in `WorkMapper` and `WorkService`, the endpoints in

@@ -20,11 +20,9 @@ public record OtherRequestDTO(
         String description,
         @NotBlank(message = "Content can not be blank")
         String content,
-        // link e imagem sao opcionais nessa categoria
+        // link opcional nessa categoria; a imagem vem por upload no part "image"
         @URL(message = "URL must be a valid address")
         String url,
-        @URL(message = "Image URL must be a valid address")
-        String imageUrl,
         @NotBlank @Size(min = 3, max = 50, message = "Student class must be between 3 and 50 characters")
         String studentClass
 ) implements WorkRequest {

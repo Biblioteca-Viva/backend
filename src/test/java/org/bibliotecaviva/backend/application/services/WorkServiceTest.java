@@ -418,7 +418,7 @@ class WorkServiceTest {
     @Test
     void createOtherShouldBeDispatchedWithoutOptionalLinks() {
         User author = buildUser(UUID.randomUUID(), "autor@teste.com");
-        OtherRequestDTO request = buildOtherRequest("Obra geral", author.getEmail(), null, null);
+        OtherRequestDTO request = buildOtherRequest("Obra geral", author.getEmail(), null);
         Other mapped = buildOther(null, request.title());
         Other saved = buildOther(UUID.randomUUID(), request.title());
         WorkResponse expected = mock(WorkResponse.class);
@@ -439,12 +439,55 @@ class WorkServiceTest {
     }
 
     @Test
+    void createOtherShouldUploadImageWhenFileIsSent() {
+        User author = buildUser(UUID.randomUUID(), "autor@teste.com");
+        OtherRequestDTO request = buildOtherRequest("Obra geral", author.getEmail(), null);
+        Other mapped = buildOther(null, request.title());
+        Other saved = buildOther(UUID.randomUUID(), request.title());
+        MockMultipartFile image = new MockMultipartFile("image", "capa.png", "image/png", "bytes".getBytes());
+        WorkResponse expected = mock(WorkResponse.class);
+
+        when(userRepository.findByEmail(request.authorEmail())).thenReturn(Optional.of(author));
+        when(workMapper.toEntity(request)).thenReturn(mapped);
+        when(cloudinaryService.uploadImage(image)).thenReturn("https://res.cloudinary.com/test/capa.png");
+        when(workRepository.save(mapped)).thenReturn(saved);
+        when(workMapper.toDTO(saved, 0L, 0L)).thenReturn(expected);
+
+        assertSame(expected, workService.create(request, image));
+
+        assertEquals("https://res.cloudinary.com/test/capa.png", mapped.getImageUrl());
+        verify(cloudinaryService).uploadImage(image);
+    }
+
+    @Test
+    void updateOtherShouldKeepImageWhenNoFileIsSent() {
+        UUID id = UUID.randomUUID();
+        User author = buildUser(UUID.randomUUID(), "autor@teste.com");
+        Other work = buildOther(id, "Obra geral");
+        work.setImageUrl("https://res.cloudinary.com/test/antiga.png");
+        OtherRequestDTO request = buildOtherRequest("Obra geral atualizada", author.getEmail(), null);
+        WorkResponse expected = mock(WorkResponse.class);
+
+        when(workRepository.findById(id)).thenReturn(Optional.of(work));
+        when(userRepository.findByEmail(author.getEmail())).thenReturn(Optional.of(author));
+        when(workRepository.save(work)).thenReturn(work);
+        when(workRepository.getLikeCount(id)).thenReturn(0L);
+        when(commentRepository.countByWork_Id(id)).thenReturn(0L);
+        when(workMapper.toDTO(work, 0L, 0L)).thenReturn(expected);
+
+        assertSame(expected, workService.update(id, request, null));
+
+        assertEquals("https://res.cloudinary.com/test/antiga.png", work.getImageUrl());
+        verify(cloudinaryService, never()).uploadImage(any());
+    }
+
+    @Test
     void updateOtherShouldBeDispatchedToPartialUpdate() {
         UUID id = UUID.randomUUID();
         User author = buildUser(UUID.randomUUID(), "autor@teste.com");
         Other work = buildOther(id, "Obra geral");
         OtherRequestDTO request = buildOtherRequest("Obra geral atualizada", author.getEmail(),
-                "https://example.com/material.pdf", "https://example.com/capa.png");
+                "https://example.com/material.pdf");
         WorkResponse expected = mock(WorkResponse.class);
 
         when(workRepository.findById(id)).thenReturn(Optional.of(work));
@@ -497,7 +540,7 @@ class WorkServiceTest {
         );
     }
 
-    private static OtherRequestDTO buildOtherRequest(String title, String authorEmail, String url, String imageUrl) {
+    private static OtherRequestDTO buildOtherRequest(String title, String authorEmail, String url) {
         return new OtherRequestDTO(
                 title,
                 authorEmail,
@@ -506,7 +549,6 @@ class WorkServiceTest {
                 "Descricao valida para teste",
                 "Conteudo geral",
                 url,
-                imageUrl,
                 "Turma A"
         );
     }
