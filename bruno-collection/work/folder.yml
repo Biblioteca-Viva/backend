@@ -18,3 +18,6 @@ docs: |-
   - Likes de obras sao idempotentes: repetir o like nao duplica registro.
   - Cada categoria tem seu proprio endpoint de criacao (`/work/articles`,
     `/work/cordels`, ...). A categoria geral usa `/work/others`.
+  - `/work/arts`, `/work/infographics` e `/work/others` usam
+    `multipart/form-data`: part `data` (JSON) + part `image` (arquivo). A imagem
+    vai para o Cloudinary; nao se envia URL de imagem.

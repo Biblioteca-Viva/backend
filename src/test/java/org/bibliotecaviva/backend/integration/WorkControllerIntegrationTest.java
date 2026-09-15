@@ -51,7 +51,7 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
         Map<String, Object> createPayload = spec.createPayload(baseWorkPayload(title, curator.getEmail()));
 
         ResultActions createResult;
-        if (spec.path().equals("arts") || spec.path().equals("infographics")) {
+        if (isMultipartEndpoint(spec.path())) {
             MockMultipartFile dataPart = new MockMultipartFile("data", "", MediaType.APPLICATION_JSON_VALUE, json(createPayload).getBytes());
             MockMultipartFile imagePart = new MockMultipartFile("image", "test.png", "image/png", "test-image".getBytes());
             createResult = mockMvc.perform(multipart("/work/" + spec.path())
@@ -100,7 +100,7 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
         Map<String, Object> updatePayload = spec.updatePayload(baseWorkPayload(updatedTitle, curator.getEmail()));
 
         ResultActions updateResult;
-        if (spec.path().equals("arts") || spec.path().equals("infographics")) {
+        if (isMultipartEndpoint(spec.path())) {
             MockMultipartFile dataPart = new MockMultipartFile("data", "", MediaType.APPLICATION_JSON_VALUE, json(updatePayload).getBytes());
             MockMultipartFile imagePart = new MockMultipartFile("image", "test-updated.png", "image/png", "test-image".getBytes());
             updateResult = mockMvc.perform(multipart(HttpMethod.PUT, "/work/" + spec.path() + "/" + id)
@@ -251,10 +251,9 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
         Map<String, Object> payload = baseWorkPayload(uniqueTitle("Obra geral"), curator.getEmail());
         payload.put("content", "Conteudo geral");
 
-        mockMvc.perform(post("/work/others")
-                        .header("Authorization", bearer(curator))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(payload)))
+        mockMvc.perform(multipart("/work/others")
+                        .file(dataPart(payload))
+                        .header("Authorization", bearer(curator)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.type").value("Other"))
                 .andExpect(jsonPath("$.content").value("Conteudo geral"))
@@ -263,34 +262,44 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void otherShouldAcceptEmptyLinkAndImage() throws Exception {
+    void otherShouldUploadImageWhenFileIsSent() throws Exception {
+        User curator = createActiveCurator();
+        Map<String, Object> payload = baseWorkPayload(uniqueTitle("Obra geral"), curator.getEmail());
+        payload.put("content", "Conteudo geral");
+
+        mockMvc.perform(multipart("/work/others")
+                        .file(dataPart(payload))
+                        .file(new MockMultipartFile("image", "capa.png", "image/png", "test-image".getBytes()))
+                        .header("Authorization", bearer(curator)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.imageUrl").value("https://res.cloudinary.com/test/image.png"));
+    }
+
+    @Test
+    void otherShouldAcceptEmptyLink() throws Exception {
         User curator = createActiveCurator();
         Map<String, Object> payload = baseWorkPayload(uniqueTitle("Obra geral"), curator.getEmail());
         payload.put("content", "Conteudo geral");
         payload.put("url", "");
-        payload.put("imageUrl", "");
 
-        mockMvc.perform(post("/work/others")
-                        .header("Authorization", bearer(curator))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(payload)))
+        mockMvc.perform(multipart("/work/others")
+                        .file(dataPart(payload))
+                        .header("Authorization", bearer(curator)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.url").isEmpty())
                 .andExpect(jsonPath("$.imageUrl").isEmpty());
     }
 
     @Test
-    void otherShouldRejectInvalidLinkAndImage() throws Exception {
+    void otherShouldRejectInvalidLink() throws Exception {
         User curator = createActiveCurator();
         Map<String, Object> payload = baseWorkPayload(uniqueTitle("Obra geral"), curator.getEmail());
         payload.put("content", "Conteudo geral");
         payload.put("url", "nao-e-uma-url");
-        payload.put("imageUrl", "tambem-nao-e");
 
-        mockMvc.perform(post("/work/others")
-                        .header("Authorization", bearer(curator))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(payload)))
+        mockMvc.perform(multipart("/work/others")
+                        .file(dataPart(payload))
+                        .header("Authorization", bearer(curator)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.invalidFields").isArray());
@@ -318,7 +327,7 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
 
     private UUID createWorkThroughApi(String path, Map<String, Object> payload, String authorization) throws Exception {
         JsonNode response;
-        if (path.equals("arts") || path.equals("infographics")) {
+        if (isMultipartEndpoint(path)) {
             MockMultipartFile dataPart = new MockMultipartFile("data", "", MediaType.APPLICATION_JSON_VALUE, json(payload).getBytes());
             MockMultipartFile imagePart = new MockMultipartFile("image", "art.png", "image/png", "test-image".getBytes());
             response = jsonFrom(mockMvc.perform(multipart("/work/" + path)
@@ -389,17 +398,15 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
                         p -> {
                             p.put("content", "Conteudo geral");
                             p.put("url", "https://example.com/material.pdf");
-                            p.put("imageUrl", "https://example.com/capa.png");
                         },
                         p -> {
                             p.put("content", "Conteudo geral atualizado");
                             p.put("url", "https://example.com/material-novo.pdf");
-                            p.put("imageUrl", "https://example.com/capa-nova.png");
                         },
                         orderedMap("content", "Conteudo geral", "url", "https://example.com/material.pdf",
-                                "imageUrl", "https://example.com/capa.png"),
+                                "imageUrl", "https://res.cloudinary.com/test/image.png"),
                         orderedMap("content", "Conteudo geral atualizado", "url", "https://example.com/material-novo.pdf",
-                                "imageUrl", "https://example.com/capa-nova.png")
+                                "imageUrl", "https://res.cloudinary.com/test/image.png")
                 )),
                 Arguments.of(new WorkEndpointCase(
                         "cordels",
@@ -512,6 +519,14 @@ class WorkControllerIntegrationTest extends IntegrationTestSupport {
                         orderedMap("url", "https://example.com/libras-updated.mp4", "duration", "PT4M")
                 ))
         );
+    }
+
+    private MockMultipartFile dataPart(Map<String, Object> payload) throws Exception {
+        return new MockMultipartFile("data", "", MediaType.APPLICATION_JSON_VALUE, json(payload).getBytes());
+    }
+
+    private static boolean isMultipartEndpoint(String path) {
+        return path.equals("arts") || path.equals("infographics") || path.equals("others");
     }
 
     private static Map<String, Object> orderedMap(Object... keyValues) {

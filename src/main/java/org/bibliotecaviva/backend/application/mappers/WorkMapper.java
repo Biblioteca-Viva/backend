@@ -163,10 +163,12 @@ public interface WorkMapper {
     @Mapping(target = "author", ignore = true)
     void partialUpdate(InfographicRequestDTO infographicRequestDTO, @MappingTarget Infographic infographic);
 
+    @Mapping(target = "imageUrl", ignore = true)
     @Mapping(target = "author", ignore = true)
     Other toEntity(OtherRequestDTO otherRequestDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "imageUrl", ignore = true)
     @Mapping(target = "author", ignore = true)
     void partialUpdate(OtherRequestDTO otherRequestDTO, @MappingTarget Other other);
 }
