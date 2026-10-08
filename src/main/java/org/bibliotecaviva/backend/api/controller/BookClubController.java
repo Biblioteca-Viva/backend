@@ -15,10 +15,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -33,11 +35,13 @@ import java.util.UUID;
 public class BookClubController {
     private final BookClubService bookClubService;
 
-    @PostMapping //todo: falta permitir prof e verificar se é o dono para permitir edição e remoção
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE) //todo: falta permitir prof e verificar se é o dono para permitir edição e remoção
     @PreAuthorize("hasAnyRole('ADMIN', 'CURADOR')")
-    public ResponseEntity<BookClubResponseDTO> create(@RequestBody @Valid BookClubRequestDTO requestDTO,
-                                                      @AuthenticationPrincipal User user) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(bookClubService.create(requestDTO, user));
+    public ResponseEntity<BookClubResponseDTO> create(
+            @RequestPart("data") @Valid BookClubRequestDTO requestDTO,
+            @RequestPart("image") MultipartFile image,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(bookClubService.create(requestDTO, image, user));
     }
 
     @GetMapping("/next")
@@ -58,12 +62,14 @@ public class BookClubController {
         return ResponseEntity.ok(bookClubService.getById(id));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('ADMIN', 'CURADOR')")
-    public ResponseEntity<BookClubResponseDTO> update(@PathVariable UUID id,
-                                                      @RequestBody @Valid BookClubRequestDTO requestDTO,
-                                                      @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(bookClubService.update(id, requestDTO, user));
+    public ResponseEntity<BookClubResponseDTO> update(
+            @PathVariable UUID id,
+            @RequestPart("data") @Valid BookClubRequestDTO requestDTO,
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(bookClubService.update(id, requestDTO, image, user));
     }
 
     @DeleteMapping("/{id}")//so admin/prof

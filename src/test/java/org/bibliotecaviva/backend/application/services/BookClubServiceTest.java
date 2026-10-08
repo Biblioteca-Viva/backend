@@ -22,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mock.web.MockMultipartFile;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -50,6 +51,9 @@ class BookClubServiceTest {
     @Mock
     private BookClubMapper bookClubMapper;
 
+    @Mock
+    private CloudinaryService cloudinaryService;
+
     @InjectMocks
     private BookClubService bookClubService;
 
@@ -67,10 +71,13 @@ class BookClubServiceTest {
                 LocalDateTime.of(2026, 8, 31, 23, 59, 59))).thenReturn(false);
         when(bookClubRepository.save(mapped)).thenReturn(mapped);
         when(bookClubMapper.toDto(mapped, 0L, BigDecimal.ZERO)).thenReturn(expected);
+        MockMultipartFile image = coverImage();
+        when(cloudinaryService.uploadImage(image)).thenReturn("https://res.cloudinary.com/test/capa.jpg");
 
-        BookClubResponseDTO response = bookClubService.create(request, organizer);
+        BookClubResponseDTO response = bookClubService.create(request, image, organizer);
 
         assertSame(expected, response);
+        assertEquals("https://res.cloudinary.com/test/capa.jpg", mapped.getBookCoverUrl());
         verify(bookClubRepository).save(mapped);
     }
 
@@ -86,9 +93,10 @@ class BookClubServiceTest {
                 LocalDateTime.of(2026, 9, 1, 0, 0),
                 LocalDateTime.of(2026, 9, 30, 23, 59, 59))).thenReturn(true);
 
-        assertThrows(ConflictException.class, () -> bookClubService.create(request, organizer));
+        assertThrows(ConflictException.class, () -> bookClubService.create(request, coverImage(), organizer));
 
         verify(bookClubRepository, never()).save(any());
+        verify(cloudinaryService, never()).uploadImage(any());
     }
 
     @Test
@@ -169,7 +177,7 @@ class BookClubServiceTest {
                 LocalDateTime.of(2026, 10, 31, 23, 59, 59),
                 id)).thenReturn(true);
 
-        assertThrows(ConflictException.class, () -> bookClubService.update(id, request, organizer));
+        assertThrows(ConflictException.class, () -> bookClubService.update(id, request, null, organizer));
 
         verify(bookClubMapper, never()).partialUpdate(any(), any());
     }
@@ -183,7 +191,7 @@ class BookClubServiceTest {
 
         when(bookClubRepository.findById(id)).thenReturn(Optional.of(existing));
 
-        assertThrows(ForbiddenException.class, () -> bookClubService.update(id, buildRequest(LocalDateTime.now().plusMonths(2)), other));
+        assertThrows(ForbiddenException.class, () -> bookClubService.update(id, buildRequest(LocalDateTime.now().plusMonths(2)), null, other));
     }
 
     @Test
@@ -200,8 +208,31 @@ class BookClubServiceTest {
         when(bookClubRepository.getAverageRating(id)).thenReturn(BigDecimal.valueOf(4.0));
         when(bookClubMapper.toDto(club, 2L, BigDecimal.valueOf(4.0))).thenReturn(expected);
 
-        assertSame(expected, bookClubService.update(id, request, organizer));
+        assertSame(expected, bookClubService.update(id, request, null, organizer));
         verify(bookClubMapper).partialUpdate(request, club);
+        verify(cloudinaryService, never()).uploadImage(any());
+        assertEquals("https://example.com/capa.jpg", club.getBookCoverUrl());
+    }
+
+    @Test
+    void updateShouldReplaceCoverWhenNewImageIsSent() {
+        UUID id = UUID.randomUUID();
+        User organizer = buildUser(UUID.randomUUID(), Role.CURADOR);
+        LocalDateTime newDate = LocalDateTime.of(2027, 3, 12, 18, 0);
+        BookClub club = buildBookClub(id, organizer, LocalDateTime.of(2027, 1, 12, 18, 0));
+        BookClubRequestDTO request = buildRequest(newDate);
+        MockMultipartFile image = coverImage();
+        BookClubResponseDTO expected = buildResponse(club, 1L, BigDecimal.ONE);
+
+        when(bookClubRepository.findById(id)).thenReturn(Optional.of(club));
+        when(bookClubRepository.existsBookClubByDateBetweenAndIdNot(any(), any(), eq(id))).thenReturn(false);
+        when(cloudinaryService.uploadImage(image)).thenReturn("https://res.cloudinary.com/test/nova-capa.jpg");
+        when(bookClubRepository.countParticipants(id)).thenReturn(1L);
+        when(bookClubRepository.getAverageRating(id)).thenReturn(BigDecimal.ONE);
+        when(bookClubMapper.toDto(club, 1L, BigDecimal.ONE)).thenReturn(expected);
+
+        assertSame(expected, bookClubService.update(id, request, image, organizer));
+        assertEquals("https://res.cloudinary.com/test/nova-capa.jpg", club.getBookCoverUrl());
     }
 
     @Test
@@ -323,9 +354,12 @@ class BookClubServiceTest {
                 "Sinopse valida para teste",
                 "Machado de Assis",
                 date,
-                "Biblioteca Municipal",
-                "https://example.com/capa.jpg"
+                "Biblioteca Municipal"
         );
+    }
+
+    private static MockMultipartFile coverImage() {
+        return new MockMultipartFile("image", "capa.jpg", "image/jpeg", "capa".getBytes());
     }
 
     private static BookClub buildBookClub(UUID id, User organizer, LocalDateTime date) {

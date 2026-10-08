@@ -1,24 +1,40 @@
 package org.bibliotecaviva.backend.integration;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.bibliotecaviva.backend.application.services.CloudinaryService;
 import org.bibliotecaviva.backend.domain.entities.BookClub;
 import org.bibliotecaviva.backend.domain.entities.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class BookClubControllerIntegrationTest extends IntegrationTestSupport {
+
+    @MockitoBean
+    private CloudinaryService cloudinaryService;
+
+    @BeforeEach
+    void setupCloudinary() {
+        when(cloudinaryService.uploadImage(any()))
+                .thenReturn("https://res.cloudinary.com/test/capa.jpg");
+    }
 
     @Test
     void participantsShouldBePublicAndExposeOrganizerAndStudents() throws Exception {
@@ -41,16 +57,16 @@ class BookClubControllerIntegrationTest extends IntegrationTestSupport {
         LocalDateTime date = futureDate(2);
         Map<String, Object> payload = bookClubPayload("Dom Casmurro", date);
 
-        JsonNode createResponse = jsonFrom(mockMvc.perform(post("/bookclub")
-                        .header("Authorization", bearer(curator))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(payload)))
+        JsonNode createResponse = jsonFrom(mockMvc.perform(multipart("/bookclub")
+                        .file(dataPart(payload))
+                        .file(imagePart())
+                        .header("Authorization", bearer(curator)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.bookName").value("Dom Casmurro"))
                 .andExpect(jsonPath("$.organizerName").value(curator.getName()))
                 .andExpect(jsonPath("$.location").value("Biblioteca Municipal"))
                 .andExpect(jsonPath("$.participantsCount").value(0))
-                .andExpect(jsonPath("$.bookCoverUrl").value("https://example.com/capa.jpg"))
+                .andExpect(jsonPath("$.bookCoverUrl").value("https://res.cloudinary.com/test/capa.jpg"))
                 .andReturn());
         UUID id = UUID.fromString(createResponse.get("id").asText());
 
@@ -71,13 +87,13 @@ class BookClubControllerIntegrationTest extends IntegrationTestSupport {
                 .andExpect(jsonPath("$.content[0].bookName").value("Dom Casmurro"));
 
         Map<String, Object> updatePayload = bookClubPayload("A Hora da Estrela", futureDate(3));
-        mockMvc.perform(put("/bookclub/{id}", id)
-                        .header("Authorization", bearer(curator))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(updatePayload)))
+        mockMvc.perform(multipart(HttpMethod.PUT, "/bookclub/{id}", id)
+                        .file(dataPart(updatePayload))
+                        .header("Authorization", bearer(curator)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id.toString()))
-                .andExpect(jsonPath("$.bookName").value("A Hora da Estrela"));
+                .andExpect(jsonPath("$.bookName").value("A Hora da Estrela"))
+                .andExpect(jsonPath("$.bookCoverUrl").value("https://res.cloudinary.com/test/capa.jpg"));
 
         mockMvc.perform(post("/bookclub/{id}/subscribe", id)
                         .header("Authorization", bearer(student)))
@@ -116,10 +132,10 @@ class BookClubControllerIntegrationTest extends IntegrationTestSupport {
         LocalDateTime date = futureDate(4);
         createBookClubInDatabase(curator, date.withDayOfMonth(5));
 
-        mockMvc.perform(post("/bookclub")
-                        .header("Authorization", bearer(curator))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(bookClubPayload("Outro livro", date.withDayOfMonth(20)))))
+        mockMvc.perform(multipart("/bookclub")
+                        .file(dataPart(bookClubPayload("Outro livro", date.withDayOfMonth(20))))
+                        .file(imagePart())
+                        .header("Authorization", bearer(curator)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.status").value(409));
     }
@@ -128,12 +144,11 @@ class BookClubControllerIntegrationTest extends IntegrationTestSupport {
     void createShouldReturnBadRequestForInvalidPayload() throws Exception {
         User curator = createActiveCurator();
         Map<String, Object> payload = bookClubPayload("Do", futureDate(5));
-        payload.put("bookCoverUrl", "url-invalida");
 
-        mockMvc.perform(post("/bookclub")
-                        .header("Authorization", bearer(curator))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(payload)))
+        mockMvc.perform(multipart("/bookclub")
+                        .file(dataPart(payload))
+                        .file(imagePart())
+                        .header("Authorization", bearer(curator)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.invalidFields").isArray());
@@ -157,9 +172,9 @@ class BookClubControllerIntegrationTest extends IntegrationTestSupport {
 
     @Test
     void anonymousUserShouldNotCreateBookClub() throws Exception {
-        mockMvc.perform(post("/bookclub")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(bookClubPayload("Dom Casmurro", futureDate(7)))))
+        mockMvc.perform(multipart("/bookclub")
+                        .file(dataPart(bookClubPayload("Dom Casmurro", futureDate(7))))
+                        .file(imagePart()))
                 .andExpect(status().isForbidden());
     }
 
@@ -170,8 +185,15 @@ class BookClubControllerIntegrationTest extends IntegrationTestSupport {
         payload.put("bookAuthor", "Machado de Assis");
         payload.put("date", date.toString());
         payload.put("location", "Biblioteca Municipal");
-        payload.put("bookCoverUrl", "https://example.com/capa.jpg");
         return payload;
+    }
+
+    private MockMultipartFile dataPart(Map<String, Object> payload) throws Exception {
+        return new MockMultipartFile("data", "", MediaType.APPLICATION_JSON_VALUE, json(payload).getBytes());
+    }
+
+    private MockMultipartFile imagePart() {
+        return new MockMultipartFile("image", "capa.jpg", "image/jpeg", "capa".getBytes());
     }
 
     private LocalDateTime futureDate(int monthsFromNow) {

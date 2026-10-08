@@ -17,8 +17,8 @@ import org.bibliotecaviva.backend.domain.exceptions.NotFoundException;
 import org.bibliotecaviva.backend.persistence.repository.BookClubRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -36,9 +36,10 @@ public class BookClubService {
 
     private final BookClubRepository bookClubRepository;
     private final BookClubMapper bookClubMapper;
+    private final CloudinaryService cloudinaryService;
 
     @Transactional
-    public BookClubResponseDTO create(BookClubRequestDTO requestDTO, User user) {
+    public BookClubResponseDTO create(BookClubRequestDTO requestDTO, MultipartFile image, User user) {
         var bookClub = bookClubMapper.toEntity(requestDTO, user);
         var subMonth =  requestDTO.date().toLocalDate();
         LocalDateTime mothStart = subMonth.withDayOfMonth(1).atStartOfDay();
@@ -46,6 +47,7 @@ public class BookClubService {
         if (bookClubRepository.existsBookClubByDateBetween(mothStart, monthEnd)) {
             throw new ConflictException("Já existe um clube do livro agendado para este mês");
         }
+        bookClub.setBookCoverUrl(cloudinaryService.uploadImage(image));
         return bookClubMapper.toDto(bookClubRepository.save(bookClub), 0L,BigDecimal.ZERO);
     }
 
@@ -76,7 +78,7 @@ public class BookClubService {
     }
 
     @Transactional
-    public BookClubResponseDTO update(UUID id, @Valid BookClubRequestDTO requestDTO, User user) {
+    public BookClubResponseDTO update(UUID id, @Valid BookClubRequestDTO requestDTO, MultipartFile image, User user) {
         var bookClub = bookClubRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Clube do livro com id " + id + " não encontrado"));
         verifyOwnership(user, bookClub);
@@ -88,6 +90,9 @@ public class BookClubService {
             throw new ConflictException("Já existe um clube do livro agendado para este mês");
         }
         bookClubMapper.partialUpdate(requestDTO, bookClub);
+        if (image != null && !image.isEmpty()) {
+            bookClub.setBookCoverUrl(cloudinaryService.uploadImage(image));
+        }
         return bookClubMapper.toDto(bookClub, bookClubRepository.countParticipants(id),bookClubRepository.getAverageRating(id));
     }
 

@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +15,5 @@ public record BookClubRequestDTO(
         @NotBlank(message = "Book synopses cannot be blank") @Size(min = 10, max = 1000, message = "Synopses must be between 10 and 1000 characters") String bookSynopses,
         @NotBlank(message = "Book author cannot be blank") @Size(min = 3, max = 255, message = "Author name must be between 3 and 255 characters") String bookAuthor,
         @Future(message = "Date must be in the future") @NotNull(message = "Date cannot be null") LocalDateTime date,
-        @NotBlank(message = "Location cannot be blank") @Size(min = 3, max = 255, message = "Location must be between 3 and 255 characters") String location,
-        @NotBlank @URL(message = "Book cover URL must be a valid URL") String bookCoverUrl) {
+        @NotBlank(message = "Location cannot be blank") @Size(min = 3, max = 255, message = "Location must be between 3 and 255 characters") String location) {
 }
