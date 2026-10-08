@@ -7,17 +7,22 @@ http:
   method: PUT
   url: "{{api_url}}bookclub/{{id}}"
   body:
-    type: json
-    data: |-
-      {
-
-        "bookName": "dom quixote",
-        "bookSynopses": "blablabla descricao muito boa",
-        "bookAuthor": "nao lembro",
-        "date": "2026-05-13T19:30:00",
-        "location": "Bibliotecao",
-        "bookCoverUrl":"https://www.lpm.com.br/livros/Imagens/dom_quixote_hq_9788525433633_g.jpg"
-      }
+    type: multipart-form
+    data:
+      - name: data
+        type: text
+        value: |2-
+          {
+            "bookName": "dom quixote",
+            "bookSynopses": "blablabla descricao muito boa",
+            "bookAuthor": "nao lembro",
+            "date": "2026-05-13T19:30:00",
+            "location": "Bibliotecao"
+          }
+        contentType: application/json
+      - name: image
+        type: file
+        value: []
   auth: inherit
 
 runtime:

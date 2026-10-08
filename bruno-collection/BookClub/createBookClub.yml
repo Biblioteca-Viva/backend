@@ -7,16 +7,22 @@ http:
   method: POST
   url: "{{api_url}}bookclub"
   body:
-    type: json
-    data: |-
-      {
-        "bookName": "O hobit",
-        "bookSynopses": "Uma aventura épica de um hobbit relutante que viaja para a Montanha Solitária para recuperar um tesouro guardado por um dragão.",
-        "bookAuthor": "J.R.R. Tolkien",
-        "date": "2026-04-30T19:30:00",
-        "location": "Biblioteca Municipal",
-        "bookCoverUrl": "https://tolkienlibrary.com/press/images/movie-tie-in-the-hobbit.jpg"
-      }
+    type: multipart-form
+    data:
+      - name: data
+        type: text
+        value: |2-
+          {
+            "bookName": "O hobit",
+            "bookSynopses": "Uma aventura épica de um hobbit relutante que viaja para a Montanha Solitária para recuperar um tesouro guardado por um dragão.",
+            "bookAuthor": "J.R.R. Tolkien",
+            "date": "2026-04-30T19:30:00",
+            "location": "Biblioteca Municipal"
+          }
+        contentType: application/json
+      - name: image
+        type: file
+        value: []
   auth: inherit
 
 settings:

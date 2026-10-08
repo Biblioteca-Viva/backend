@@ -11,7 +11,8 @@ import java.math.BigDecimal;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface BookClubMapper {
     @Mapping(target = "organizer", source = "organizer")
-    @Mapping(target = "id",ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "bookCoverUrl", ignore = true)
     BookClub toEntity(BookClubRequestDTO bookClubRequestDTO, User organizer);
 
 
@@ -25,5 +26,6 @@ public interface BookClubMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "bookCoverUrl", ignore = true)
     BookClub partialUpdate(BookClubRequestDTO bookClubRequestDTO, @MappingTarget BookClub bookClub);
 }
